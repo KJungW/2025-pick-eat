@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   backend-blue:
-    image: pickeat/pickeat:release
+    image: kjungw/pickeat:release
     container_name: backend-blue
     restart: always
     ports:
@@ -14,7 +14,7 @@ services:
       - app-tier
 
   backend-green:
-    image: pickeat/pickeat:release
+    image: kjungw/pickeat:release
     container_name: backend-green
     restart: always
     ports:
