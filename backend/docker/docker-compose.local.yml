@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+
+  backend:
+    container_name: backend
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile_with_build
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_ACTIVE_PROFILE: local
+    networks:
+      - app-tier
+    restart: always
+    depends_on:
+      - mysqldb
+
+  mysqldb:
+    image: mysql:latest
+    container_name: database
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pickeat_db
+      MYSQL_USER: pickeat
+      MYSQL_PASSWORD: pickeatcheeze33
+    ports:
+      - '3306:3306'
+    restart: always
+    volumes:
+      - 'mysqldb-data:/var/lib/mysql'
+    networks:
+      - app-tier
+
+  dbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: cloudbeaver
+    platform: linux/amd64
+    restart: always
+    ports:
+      - '8978:8978'
+    volumes:
+      - cloudbeaver-data:/opt/cloudbeaver/workspace
+    networks:
+      - app-tier
+    depends_on:
+      - mysqldb
+
+volumes:
+  mysqldb-data:
+    driver: local
+  cloudbeaver-data:
+    driver: local
+
+networks:
+  app-tier:
+    driver: bridge

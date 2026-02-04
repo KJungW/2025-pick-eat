@@ -1,0 +1,70 @@
+version: '3.8'
+services:
+  backend-blue:
+    image: kjungw/pickeat:latest
+    container_name: backend-blue
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/springboot/logs/blue:/var/logs
+    environment:
+      SPRING_ACTIVE_PROFILE: dev
+    networks:
+      - app-tier
+
+  backend-green:
+    image: kjungw/pickeat:latest
+    container_name: backend-green
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./data/springboot/logs/green:/var/logs
+    environment:
+      SPRING_ACTIVE_PROFILE: dev
+    networks:
+      - app-tier
+
+  mysqldb:
+    image: mysql:latest
+    container_name: database
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pickeat_db
+      MYSQL_USER: pickeat
+      MYSQL_PASSWORD: pickeatcheeze33
+      SPRING_ACTIVE_PROFILE: dev
+    ports:
+      - '3306:3306'
+    restart: always
+    volumes:
+      - 'mysqldb-data:/var/lib/mysql'
+    networks:
+      - app-tier
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    restart: unless-stopped
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./data/springboot/logs/blue:/var/log/spring/blue
+      - ./data/springboot/logs/green:/var/log/spring/green
+      - ../proxy/nginx/logs:/var/log/nginx
+      - ./data/alloy/config.alloy:/etc/alloy/config.alloy
+      - ./data/alloy/state:/var/lib/alloy
+    environment:
+      - ALLOY_ENV=dev
+    networks:
+      - app-tier
+
+volumes:
+  mysqldb-data:
+    driver: local
+
+networks:
+  app-tier:
+    driver: bridge
+    name: docker_app-tier
