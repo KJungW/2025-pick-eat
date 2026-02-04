@@ -1,3 +1,6 @@
 [submodule "backend/src/main/resources/config"]
 	path = backend/src/main/resources/config
 	url = https://github.com/KJungW/2025-pick-eat-config.git
+[submodule "env"]
+	path = env
+	url = https://github.com/KJungW/2025-pick-eat-env.git
