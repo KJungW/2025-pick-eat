@@ -7,11 +7,15 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
 public class User extends BaseEntity {
 
     @Column(nullable = false, unique = true)
