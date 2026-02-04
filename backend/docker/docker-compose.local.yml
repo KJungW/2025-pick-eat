@@ -4,8 +4,8 @@ services:
   backend:
     container_name: backend
     build:
-      context: .
-      dockerfile: Dockerfile_with_build
+      context: ..
+      dockerfile: docker/Dockerfile_with_build
     ports:
       - "8080:8080"
     environment:
@@ -18,6 +18,7 @@ services:
 
   mysqldb:
     image: mysql:latest
+    container_name: database
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: pickeat_db
@@ -34,6 +35,7 @@ services:
   dbeaver:
     image: dbeaver/cloudbeaver:latest
     container_name: cloudbeaver
+    platform: linux/amd64
     restart: always
     ports:
       - '8978:8978'
