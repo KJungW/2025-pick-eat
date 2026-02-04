@@ -1,78 +1,78 @@
-name: Back-Prod Build and Deploy
-
-on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'backend/**'
-
-jobs:
-  ci:
-    runs-on: ubuntu-24.04
-    environment: dev
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.SUBMODULE_KEY }}
-          submodules: recursive
-
-      - name: Update Submodule
-        run: git submodule update --remote
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 21
-          cache: gradle
-
-      - name: Build JAR
-        working-directory: ./backend
-        run: ./gradlew clean build -x test --no-daemon --build-cache
-
-      - name: Login Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          platforms: linux/arm64
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:release
-          build-args: |
-            SPRING_ACTIVE_PROFILE=prod
-
-  cd:
-    needs: ci
-    runs-on: [ self-hosted, prod ]
-    environment: dev
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.SUBMODULE_KEY }}
-          submodules: true
-
-      - name: Copy Docker Compose
-        run: |
-          sudo cp ./backend/docker/docker-compose.prod.yml /home/ubuntu/application/docker-compose.yml
-
-      - name: Run Blue-Green Deploy
-        run: |
-          if [ -f "/home/ubuntu/deploy.sh" ]; then
-            echo "🚀 Running deploy script..."
-            sudo chmod +x /home/ubuntu/deploy.sh
-            sudo /home/ubuntu/deploy.sh
-          else
-            echo "❌ deploy.sh not found!"
-            exit 1
-          fi
+#name: Back-Prod Build and Deploy
+#
+#on:
+#  push:
+#    branches: [ "main" ]
+#    paths:
+#      - 'backend/**'
+#
+#jobs:
+#  ci:
+#    runs-on: ubuntu-24.04
+#    environment: dev
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#        with:
+#          token: ${{ secrets.SUBMODULE_KEY }}
+#          submodules: recursive
+#
+#      - name: Update Submodule
+#        run: git submodule update --remote
+#
+#      - name: Set up JDK
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: 'temurin'
+#          java-version: 21
+#          cache: gradle
+#
+#      - name: Build JAR
+#        working-directory: ./backend
+#        run: ./gradlew clean build -x test --no-daemon --build-cache
+#
+#      - name: Login Docker Hub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+#
+#      - name: Setup Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Build and Push Docker Image
+#        uses: docker/build-push-action@v5
+#        with:
+#          context: ./backend
+#          platforms: linux/arm64
+#          push: true
+#          tags: |
+#            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:release
+#          build-args: |
+#            SPRING_ACTIVE_PROFILE=prod
+#
+#  cd:
+#    needs: ci
+#    runs-on: [ self-hosted, prod ]
+#    environment: dev
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#        with:
+#          token: ${{ secrets.SUBMODULE_KEY }}
+#          submodules: true
+#
+#      - name: Copy Docker Compose
+#        run: |
+#          sudo cp ./backend/docker/docker-compose.prod.yml /home/ubuntu/application/docker-compose.yml
+#
+#      - name: Run Blue-Green Deploy
+#        run: |
+#          if [ -f "/home/ubuntu/deploy.sh" ]; then
+#            echo "🚀 Running deploy script..."
+#            sudo chmod +x /home/ubuntu/deploy.sh
+#            sudo /home/ubuntu/deploy.sh
+#          else
+#            echo "❌ deploy.sh not found!"
+#            exit 1
+#          fi
