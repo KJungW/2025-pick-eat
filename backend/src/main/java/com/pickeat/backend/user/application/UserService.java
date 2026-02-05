@@ -11,6 +11,7 @@ import com.pickeat.backend.user.domain.repository.UserRepository;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,7 @@ public class UserService {
     public UserResponse createUser(SignupRequest request, ProviderPrincipal providerPrincipal) {
         validateDuplicateNickname(request.nickname());
         User user = new User(request.nickname(), providerPrincipal.providerId(), providerPrincipal.provider());
-        userRepository.save(user);
+        saveUser(user);
         return UserResponse.from(user);
     }
 
@@ -48,12 +49,6 @@ public class UserService {
         return UserResponse.from(user);
     }
 
-    private void validateDuplicateNickname(String nickname) {
-        if (userRepository.existsByNickname(nickname)) {
-            throw new BusinessException(ErrorCode.ALREADY_NICKNAME_EXISTS);
-        }
-    }
-
     public List<UserResponse> searchByNickname(String nickname) {
         List<User> users = userRepository.findByNicknameStartsWith(nickname);
 
@@ -68,5 +63,19 @@ public class UserService {
         List<User> users = userRepository.findAllByIdIn(userIds);
 
         return UserResponse.from(users);
+    }
+
+    private void validateDuplicateNickname(String nickname) {
+        if (userRepository.existsByNickname(nickname)) {
+            throw new BusinessException(ErrorCode.ALREADY_NICKNAME_EXISTS);
+        }
+    }
+
+    private void saveUser(User user) {
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException exception) {
+            throw new BusinessException(ErrorCode.ALREADY_NICKNAME_EXISTS);
+        }
     }
 }
