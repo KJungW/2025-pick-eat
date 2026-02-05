@@ -6,6 +6,7 @@ import com.pickeat.backend.restaurant.domain.RestaurantInfo;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class RestaurantBulkRepository {
                 INSERT INTO restaurant
                   (name, food_category, distance, road_address_name, place_url,
                    tags, picture_key, picture_url, is_excluded, like_count,
-                   pickeat_id, created_at, updated_at, deleted)
+                   pickeat_id, created_at, updated_at, deleted_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
@@ -67,7 +68,7 @@ public class RestaurantBulkRepository {
 
                 ps.setTimestamp(12, now);
                 ps.setTimestamp(13, now);
-                ps.setBoolean(14, false);
+                ps.setNull(14, Types.TIMESTAMP);
             }
 
             @Override

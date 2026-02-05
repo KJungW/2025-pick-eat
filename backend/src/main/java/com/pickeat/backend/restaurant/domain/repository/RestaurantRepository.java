@@ -18,10 +18,10 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
                 and (:isExcluded IS NULL OR r.isExcluded = :isExcluded)
             """)
     List<Restaurant> findByPickeatIdAndIsExcludedIfProvided(@Param("pickeatId") Long pickeatId,
-                                                            @Param("isExcluded") Boolean isExcluded);
+            @Param("isExcluded") Boolean isExcluded);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "UPDATE restaurant SET deleted = true WHERE pickeat_id IN (:pickeatIds)", nativeQuery = true)
+    @Query(value = "UPDATE restaurant SET deleted_at = NOW() WHERE pickeat_id IN (:pickeatIds)", nativeQuery = true)
     int deleteByPickeatIds(@Param("pickeatIds") List<Long> pickeatIds);
 
     List<Restaurant> findByPickeatIdIn(Collection<Long> pickeatIds);
