@@ -232,4 +232,28 @@ class UserServiceTest {
             assertThat(results).hasSize(2);
         }
     }
+
+    @Nested
+    @DisplayName("유저 삭제 케이스")
+    class 유저_삭제_케이스 {
+
+        @Test
+        @DisplayName("유저 삭제 성공")
+        void findUsersByRoomIdSuccess() {
+            // given
+            User user = new User("유저1", 1L, "kakao");
+            entityManager.persist(user);
+
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            userService.deleteUser(user.getId());
+
+            // then
+            assertThat(entityManager.find(User.class, user.getId())).isNull();
+        }
+
+        //TODO: 테스트컨테이너 도입후 유저 삭제 후 동일 닉네임으로 재가입하는 테스트 추가 (현재는 직접 실행해서 확인한 상태)  (2026-02-5, 목, 17:54)
+    }
 }

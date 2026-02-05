@@ -35,6 +35,12 @@ public class UserService {
         return UserResponse.from(user);
     }
 
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = getUser(userId);
+        userRepository.delete(user);
+    }
+
     public UserResponse findByNickName(String nickname) {
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -43,9 +49,7 @@ public class UserService {
     }
 
     public UserResponse getById(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
+        User user = getUser(userId);
         return UserResponse.from(user);
     }
 
@@ -77,5 +81,10 @@ public class UserService {
         } catch (DataIntegrityViolationException exception) {
             throw new BusinessException(ErrorCode.ALREADY_NICKNAME_EXISTS);
         }
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 }
