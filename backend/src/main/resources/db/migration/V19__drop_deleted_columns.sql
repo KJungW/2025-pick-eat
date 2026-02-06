@@ -1,0 +1,11 @@
+ALTER TABLE participant       DROP COLUMN deleted;
+ALTER TABLE pickeat           DROP COLUMN deleted;
+ALTER TABLE pickeat_result    DROP COLUMN deleted;
+ALTER TABLE restaurant        DROP COLUMN deleted;
+ALTER TABLE restaurant_like   DROP COLUMN deleted;
+ALTER TABLE room              DROP COLUMN deleted;
+ALTER TABLE room_user         DROP COLUMN deleted;
+ALTER TABLE template          DROP COLUMN deleted;
+ALTER TABLE template_wish     DROP COLUMN deleted;
+ALTER TABLE users             DROP COLUMN deleted;
+ALTER TABLE wish              DROP COLUMN deleted;

@@ -11,6 +11,7 @@ import com.pickeat.backend.user.domain.repository.UserRepository;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +31,14 @@ public class UserService {
     public UserResponse createUser(SignupRequest request, ProviderPrincipal providerPrincipal) {
         validateDuplicateNickname(request.nickname());
         User user = new User(request.nickname(), providerPrincipal.providerId(), providerPrincipal.provider());
-        userRepository.save(user);
+        saveUser(user);
         return UserResponse.from(user);
+    }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = getUser(userId);
+        userRepository.delete(user);
     }
 
     public UserResponse findByNickName(String nickname) {
@@ -42,16 +49,8 @@ public class UserService {
     }
 
     public UserResponse getById(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
+        User user = getUser(userId);
         return UserResponse.from(user);
-    }
-
-    private void validateDuplicateNickname(String nickname) {
-        if (userRepository.existsByNickname(nickname)) {
-            throw new BusinessException(ErrorCode.ALREADY_NICKNAME_EXISTS);
-        }
     }
 
     public List<UserResponse> searchByNickname(String nickname) {
@@ -68,5 +67,24 @@ public class UserService {
         List<User> users = userRepository.findAllByIdIn(userIds);
 
         return UserResponse.from(users);
+    }
+
+    private void validateDuplicateNickname(String nickname) {
+        if (userRepository.existsByNickname(nickname)) {
+            throw new BusinessException(ErrorCode.ALREADY_NICKNAME_EXISTS);
+        }
+    }
+
+    private void saveUser(User user) {
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException exception) {
+            throw new BusinessException(ErrorCode.ALREADY_NICKNAME_EXISTS);
+        }
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 }
