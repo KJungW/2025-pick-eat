@@ -4,12 +4,12 @@ name: Back-Prod Build and Deploy
 #  push:
 #    branches: [ "main" ]
 
-on: [workflow_dispatch]
+on: [ workflow_dispatch ]
 
 jobs:
   ci:
     runs-on: ubuntu-24.04
-    environment: dev
+    environment: prod
     steps:
       - name: Checkout
         uses: actions/checkout@v4
