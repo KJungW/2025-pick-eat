@@ -2,7 +2,7 @@ package com.pickeat.backend.template.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.pickeat.backend.fixture.TemplateFixture;
+import com.pickeat.backend.support.fixture.TemplateFixture;
 import com.pickeat.backend.template.application.dto.response.TemplateResponse;
 import com.pickeat.backend.template.domain.Template;
 import com.pickeat.backend.template.domain.repository.TemplateRepository;

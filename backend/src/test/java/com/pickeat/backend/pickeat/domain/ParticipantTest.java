@@ -2,7 +2,7 @@ package com.pickeat.backend.pickeat.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.pickeat.backend.fixture.PickeatFixture;
+import com.pickeat.backend.support.fixture.PickeatFixture;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

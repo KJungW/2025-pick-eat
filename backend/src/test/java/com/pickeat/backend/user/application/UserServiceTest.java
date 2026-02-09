@@ -6,13 +6,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.fixture.RoomFixture;
-import com.pickeat.backend.fixture.UserFixture;
 import com.pickeat.backend.global.auth.principal.ProviderPrincipal;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
+import com.pickeat.backend.support.fixture.RoomFixture;
+import com.pickeat.backend.support.fixture.UserFixture;
 import com.pickeat.backend.user.application.dto.UserResponse;
 import com.pickeat.backend.user.domain.User;
 import java.util.List;

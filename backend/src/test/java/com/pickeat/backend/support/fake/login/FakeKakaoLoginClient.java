@@ -1,4 +1,4 @@
-package com.pickeat.backend.fake.login;
+package com.pickeat.backend.support.fake.login;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;

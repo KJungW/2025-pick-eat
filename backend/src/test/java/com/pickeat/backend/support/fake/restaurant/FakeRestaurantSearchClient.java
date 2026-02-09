@@ -1,4 +1,4 @@
-package com.pickeat.backend.fake.restaurant;
+package com.pickeat.backend.support.fake.restaurant;
 
 import com.pickeat.backend.restaurant.application.RestaurantSearchClient;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;

@@ -1,4 +1,4 @@
-package com.pickeat.backend.fake.wish;
+package com.pickeat.backend.support.fake.wish;
 
 import com.pickeat.backend.wish.application.ImageUploadClient;
 import com.pickeat.backend.wish.application.dto.request.ImageRequest;
