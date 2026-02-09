@@ -29,36 +29,16 @@ import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeR
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResultResponse;
+import com.pickeat.backend.support.AcceptanceTest;
 import com.pickeat.backend.template.application.dto.response.TemplateResponse;
-import io.restassured.RestAssured;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 
-@Sql("/init/template_data_v2.sql")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class PickeatByTemplateScenarioTest {
-
-    @LocalServerPort
-    int port;
-
-    @BeforeEach
-    void setUp() {
-        RestAssured.port = port;
-    }
-
-    @AfterEach
-    void clear() {
-        RestAssured.reset();
-    }
+public class PickeatByTemplateScenarioTest extends AcceptanceTest {
 
     @Test
+    @Sql(scripts = "/init/template_data_v2.sql")
     void 템플릿_기반_픽잇_플로우() {
         // 템플릿 조회
         List<TemplateResponse> templates = 템플릿_목록_조회();

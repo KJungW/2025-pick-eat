@@ -7,9 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.pickeat.backend.fixture.RoomFixture;
-import com.pickeat.backend.fixture.UserFixture;
-import com.pickeat.backend.fixture.WishFixture;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.restaurant.domain.Picture;
@@ -17,6 +14,10 @@ import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
 import com.pickeat.backend.room.domain.repository.RoomRepository;
 import com.pickeat.backend.room.domain.repository.RoomUserRepository;
+import com.pickeat.backend.support.DatabaseSliceTest;
+import com.pickeat.backend.support.fixture.RoomFixture;
+import com.pickeat.backend.support.fixture.UserFixture;
+import com.pickeat.backend.support.fixture.WishFixture;
 import com.pickeat.backend.user.domain.User;
 import com.pickeat.backend.user.domain.repository.UserRepository;
 import com.pickeat.backend.wish.application.dto.response.WishPictureResponse;
@@ -27,12 +28,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.web.multipart.MultipartFile;
 
-@DataJpaTest
-class WishPictureServiceTest {
+class WishPictureServiceTest extends DatabaseSliceTest {
 
     private static final String DEFAULT_IMAGE_URL = "test_defaultUrl";
     private static final String DEFAULT_IMAGE_KEY_PREFIX = "keyPrefix";

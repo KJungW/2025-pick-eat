@@ -2,8 +2,8 @@ package com.pickeat.backend.room.domain;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import com.pickeat.backend.fixture.RoomFixture;
-import com.pickeat.backend.fixture.UserFixture;
+import com.pickeat.backend.support.fixture.RoomFixture;
+import com.pickeat.backend.support.fixture.UserFixture;
 import com.pickeat.backend.user.domain.User;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

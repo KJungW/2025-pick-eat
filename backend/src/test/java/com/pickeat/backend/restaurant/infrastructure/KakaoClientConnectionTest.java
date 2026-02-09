@@ -4,17 +4,15 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantSearchRequest;
+import com.pickeat.backend.support.AcceptanceTest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 @Disabled("외부 네트워크 요청이 일어나므로 비활성화")
-@SpringBootTest(webEnvironment = WebEnvironment.NONE)
-class KakaoClientConnectionTest {
+class KakaoClientConnectionTest extends AcceptanceTest {
 
     @Value("${external.kakao.map.restApiKey}")
     private String kakaoApiKey;

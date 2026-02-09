@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.fixture.RoomFixture;
-import com.pickeat.backend.fixture.UserFixture;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
@@ -14,18 +12,19 @@ import com.pickeat.backend.room.application.dto.response.RoomResponse;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
 import com.pickeat.backend.room.domain.repository.RoomUserRepository;
+import com.pickeat.backend.support.DatabaseSliceTest;
+import com.pickeat.backend.support.fixture.RoomFixture;
+import com.pickeat.backend.support.fixture.UserFixture;
 import com.pickeat.backend.user.domain.User;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-@DataJpaTest
 @Import(RoomService.class)
-class RoomServiceTest {
+class RoomServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private TestEntityManager testEntityManager;

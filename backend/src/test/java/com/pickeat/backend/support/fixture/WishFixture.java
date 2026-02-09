@@ -1,4 +1,4 @@
-package com.pickeat.backend.fixture;
+package com.pickeat.backend.support.fixture;
 
 import com.pickeat.backend.restaurant.domain.Picture;
 import com.pickeat.backend.restaurant.domain.RestaurantInfo;

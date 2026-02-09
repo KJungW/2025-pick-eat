@@ -3,11 +3,11 @@ package com.pickeat.backend.restaurant.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.pickeat.backend.fixture.PickeatFixture;
-import com.pickeat.backend.fixture.RestaurantFixture;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.pickeat.domain.Pickeat;
+import com.pickeat.backend.support.fixture.PickeatFixture;
+import com.pickeat.backend.support.fixture.RestaurantFixture;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

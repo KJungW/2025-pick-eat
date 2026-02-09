@@ -1,4 +1,4 @@
-package com.pickeat.backend.fake.login;
+package com.pickeat.backend.support.fake.login;
 
 import com.pickeat.backend.login.application.OidcPublicKeyProvider;
 import java.security.interfaces.RSAPublicKey;

@@ -1,4 +1,4 @@
-package com.pickeat.backend.fake.login;
+package com.pickeat.backend.support.fake.login;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
