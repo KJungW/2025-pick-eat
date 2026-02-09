@@ -10,6 +10,7 @@ import com.pickeat.backend.restaurant.domain.FoodCategory;
 import com.pickeat.backend.restaurant.domain.RestaurantInfo;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
+import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.RoomFixture;
 import com.pickeat.backend.support.fixture.UserFixture;
 import com.pickeat.backend.support.fixture.WishFixture;
@@ -24,13 +25,11 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-@DataJpaTest
 @Import(value = {WishService.class})
-class WishServiceTest {
+class WishServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private TestEntityManager entityManager;

@@ -17,6 +17,7 @@ import com.pickeat.backend.pickeat.domain.Participant;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
+import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.ParticipantFixture;
 import com.pickeat.backend.support.fixture.PickeatFixture;
 import com.pickeat.backend.support.fixture.RoomFixture;
@@ -28,13 +29,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-@DataJpaTest
 @Import({PickeatService.class})
-public class PickeatServiceTest {
+public class PickeatServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private TestEntityManager testEntityManager;

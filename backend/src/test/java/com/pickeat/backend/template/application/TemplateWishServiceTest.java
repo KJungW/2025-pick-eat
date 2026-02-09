@@ -2,6 +2,7 @@ package com.pickeat.backend.template.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.TemplateFixture;
 import com.pickeat.backend.support.fixture.TemplateWishFixture;
 import com.pickeat.backend.template.application.dto.response.TemplateWishResponse;
@@ -13,13 +14,11 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-@DataJpaTest
 @Import(value = {TemplateWishService.class})
-class TemplateWishServiceTest {
+class TemplateWishServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private TestEntityManager entityManager;

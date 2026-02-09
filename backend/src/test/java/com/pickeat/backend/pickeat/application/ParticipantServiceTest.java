@@ -10,18 +10,17 @@ import com.pickeat.backend.pickeat.application.dto.request.ParticipantRequest;
 import com.pickeat.backend.pickeat.domain.Participant;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.repository.ParticipantRepository;
+import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.ParticipantFixture;
 import com.pickeat.backend.support.fixture.PickeatFixture;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-@DataJpaTest
 @Import({ParticipantService.class, ParticipantTokenProvider.class, JwtProvider.class})
-class ParticipantServiceTest {
+class ParticipantServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private ParticipantService participantService;

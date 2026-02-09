@@ -11,6 +11,7 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
+import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.RoomFixture;
 import com.pickeat.backend.support.fixture.UserFixture;
 import com.pickeat.backend.user.application.dto.UserResponse;
@@ -20,13 +21,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-@DataJpaTest
 @Import(value = {UserService.class})
-class UserServiceTest {
+class UserServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private TestEntityManager entityManager;

@@ -42,34 +42,14 @@ import com.pickeat.backend.restaurant.domain.FoodCategory;
 import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
 import com.pickeat.backend.room.application.dto.request.RoomRequest;
 import com.pickeat.backend.room.application.dto.response.RoomResponse;
+import com.pickeat.backend.support.IntegrationTest;
 import com.pickeat.backend.user.application.dto.UserResponse;
 import com.pickeat.backend.wish.application.dto.request.WishRequest;
 import com.pickeat.backend.wish.application.dto.response.WishResponse;
-import io.restassured.RestAssured;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.annotation.DirtiesContext;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class PickeatByWishScenarioTest {
-
-    @LocalServerPort
-    int port;
-
-    @BeforeEach
-    void setUp() {
-        RestAssured.port = port;
-    }
-
-    @AfterEach
-    void clear() {
-        RestAssured.reset();
-    }
+public class PickeatByWishScenarioTest extends IntegrationTest {
 
     @Test
     void 위시_기반_픽잇_플로우() {
