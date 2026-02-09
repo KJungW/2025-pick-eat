@@ -12,9 +12,12 @@ import com.pickeat.backend.pickeat.application.dto.response.ParticipantResponse;
 import com.pickeat.backend.pickeat.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatRejoinAvailableResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
 import com.pickeat.backend.pickeat.domain.Participant;
 import com.pickeat.backend.pickeat.domain.Pickeat;
+import com.pickeat.backend.pickeat.domain.PickeatV2;
+import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
 import com.pickeat.backend.support.DatabaseSliceTest;
@@ -25,6 +28,7 @@ import com.pickeat.backend.support.fixture.UserFixture;
 import com.pickeat.backend.user.domain.User;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,11 +36,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-@Import({PickeatService.class})
+@Import({PickeatService.class, PickeatStorage.class})
 public class PickeatServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private TestEntityManager testEntityManager;
+
+    @Autowired
+    private PickeatStorage pickeatStorage;
 
     @Autowired
     private PickeatService pickeatService;
@@ -108,6 +115,47 @@ public class PickeatServiceTest extends DatabaseSliceTest {
             assertThat(savedPickeat.getRoomId()).isEqualTo(room.getId());
         }
 
+    }
+
+    @Nested
+    class 픽잇_생성_V2 {
+
+        @Test
+        void 외부용_픽잇_생성_성공() {
+            // given
+            PickeatRequest pickeatRequest = new PickeatRequest("픽잇");
+
+            // when
+            PickeatResponseV2 response = pickeatService.createPickeatWithoutRoomV2(pickeatRequest);
+
+            // then
+            Optional<PickeatV2> pickeat = pickeatStorage.get(response.code());
+            assertAll(
+                    () -> assertThat(pickeat.isPresent()).isTrue(),
+                    () -> assertThat(pickeat.get().getCode()).isEqualTo(response.code())
+            );
+        }
+
+        @Test
+        void 방_내부용_픽잇_생성_성공() {
+            // given
+            Room room = testEntityManager.persist(RoomFixture.create());
+            User user = testEntityManager.persist(UserFixture.create());
+            testEntityManager.persist(new RoomUser(room.getId(), user.getId()));
+
+            PickeatRequest pickeatRequest = new PickeatRequest("픽잇");
+
+            // when
+            PickeatResponseV2 response = pickeatService.createPickeatWithRoomV2(
+                    room.getId(), user.getId(), pickeatRequest);
+
+            // then
+            Optional<PickeatV2> pickeat = pickeatStorage.get(response.code());
+            assertAll(
+                    () -> assertThat(pickeat.isPresent()).isTrue(),
+                    () -> assertThat(pickeat.get().getCode()).isEqualTo(response.code())
+            );
+        }
     }
 
     @Nested

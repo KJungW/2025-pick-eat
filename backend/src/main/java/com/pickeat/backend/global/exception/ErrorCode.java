@@ -56,6 +56,11 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.FORBIDDEN, "잘못된 인증 정보입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
 
+    // Storage 관련 에러
+    INVALID_STORAGE_KEY_ARGUMENT_COUNT(HttpStatus.INTERNAL_SERVER_ERROR, "Storage 키를 생성하기 위한 인자의 개수가 적절하지 않습니다."),
+    INVALID_STORAGE_KEY_FORMAT(HttpStatus.INTERNAL_SERVER_ERROR, "Storage 키를 생성하기 위한 인자 형식 적절하지 않습니다."),
+    STORAGE_KEY_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Storage 키를 생성하는데 실패했습니다."),
+
     // 시스템 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생했습니다."),
     ;
