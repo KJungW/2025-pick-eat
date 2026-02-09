@@ -28,11 +28,11 @@ import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurant
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResultResponse;
-import com.pickeat.backend.support.IntegrationTest;
+import com.pickeat.backend.support.AcceptanceTest;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class PickeatByPositionScenarioTest extends IntegrationTest {
+public class PickeatByPositionScenarioTest extends AcceptanceTest {
 
     @Test
     void 위치_기반_픽잇_플로우() {

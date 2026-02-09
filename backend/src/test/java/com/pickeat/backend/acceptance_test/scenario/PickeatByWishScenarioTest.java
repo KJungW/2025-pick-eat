@@ -42,14 +42,14 @@ import com.pickeat.backend.restaurant.domain.FoodCategory;
 import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
 import com.pickeat.backend.room.application.dto.request.RoomRequest;
 import com.pickeat.backend.room.application.dto.response.RoomResponse;
-import com.pickeat.backend.support.IntegrationTest;
+import com.pickeat.backend.support.AcceptanceTest;
 import com.pickeat.backend.user.application.dto.UserResponse;
 import com.pickeat.backend.wish.application.dto.request.WishRequest;
 import com.pickeat.backend.wish.application.dto.response.WishResponse;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class PickeatByWishScenarioTest extends IntegrationTest {
+public class PickeatByWishScenarioTest extends AcceptanceTest {
 
     @Test
     void 위시_기반_픽잇_플로우() {

@@ -29,13 +29,13 @@ import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeR
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResultResponse;
-import com.pickeat.backend.support.IntegrationTest;
+import com.pickeat.backend.support.AcceptanceTest;
 import com.pickeat.backend.template.application.dto.response.TemplateResponse;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.jdbc.Sql;
 
-public class PickeatByTemplateScenarioTest extends IntegrationTest {
+public class PickeatByTemplateScenarioTest extends AcceptanceTest {
 
     @Test
     @Sql(scripts = "/init/template_data_v2.sql")
