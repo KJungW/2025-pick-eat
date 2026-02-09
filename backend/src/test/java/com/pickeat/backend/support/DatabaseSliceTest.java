@@ -13,6 +13,8 @@ import org.testcontainers.containers.MySQLContainer;
 @Import({DatabaseCleaner.class})
 public class DatabaseSliceTest {
 
+    private static final MySQLContainer<?> MYSQL_CONTAINER;
+
     @Autowired
     private DatabaseCleaner databaseCleaner;
 
@@ -20,8 +22,6 @@ public class DatabaseSliceTest {
     void clear() {
         databaseCleaner.execute();
     }
-
-    private static final MySQLContainer<?> MYSQL_CONTAINER;
 
     static {
         MYSQL_CONTAINER = new MySQLContainer<>("mysql:8.0")

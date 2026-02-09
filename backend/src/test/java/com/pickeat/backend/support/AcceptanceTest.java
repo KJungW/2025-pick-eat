@@ -14,6 +14,8 @@ import org.testcontainers.containers.MySQLContainer;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AcceptanceTest {
 
+    private static final MySQLContainer<?> MYSQL_CONTAINER;
+
     @Autowired
     private DatabaseCleaner databaseCleaner;
 
@@ -30,8 +32,6 @@ public class AcceptanceTest {
         RestAssured.reset();
         databaseCleaner.execute();
     }
-
-    private static final MySQLContainer<?> MYSQL_CONTAINER;
 
     static {
         MYSQL_CONTAINER = new MySQLContainer<>("mysql:8.0")
