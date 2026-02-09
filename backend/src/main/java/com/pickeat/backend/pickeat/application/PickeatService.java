@@ -32,7 +32,6 @@ public class PickeatService {
     @Transactional
     public PickeatResponse createPickeatWithoutRoom(PickeatRequest request) {
         Pickeat pickeat = Pickeat.createWithoutRoom(request.name());
-
         pickeatRepository.save(pickeat);
         return PickeatResponse.from(pickeat);
     }
@@ -40,9 +39,7 @@ public class PickeatService {
     @Transactional
     public PickeatResponse createPickeatWithRoom(Long roomId, Long userId, PickeatRequest request) {
         validateUserAccessToRoom(roomId, userId);
-
         Pickeat pickeat = Pickeat.createWithRoom(request.name(), roomId);
-
         pickeatRepository.save(pickeat);
         return PickeatResponse.from(pickeat);
     }
@@ -83,7 +80,7 @@ public class PickeatService {
     }
 
     public PickeatRejoinAvailableResponse getRejoinAvailableToPickeat(String pickeatCode,
-                                                                      ParticipantPrincipal participantPrincipal) {
+            ParticipantPrincipal participantPrincipal) {
         if (participantPrincipal == null) {
             return new PickeatRejoinAvailableResponse(false);
         }

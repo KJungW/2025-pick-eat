@@ -38,7 +38,6 @@ public class PickeatController implements PickeatApiSpec {
     @PostMapping("/pickeats")
     public ResponseEntity<PickeatResponse> createPickeatWithoutRoom(@Valid @RequestBody PickeatRequest request) {
         PickeatResponse response = pickeatService.createPickeatWithoutRoom(request);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -49,16 +48,17 @@ public class PickeatController implements PickeatApiSpec {
     public ResponseEntity<PickeatResponse> createPickeatWithRoom(
             @PathVariable("roomId") Long roomId,
             @LoginUserId Long userId,
-            @Valid @RequestBody PickeatRequest request) {
+            @Valid @RequestBody PickeatRequest request
+    ) {
         PickeatResponse response = pickeatService.createPickeatWithRoom(roomId, userId, request);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
     @GetMapping("/pickeats/{pickeatCode}/participants/state")
     public ResponseEntity<ParticipantStateResponse> getParticipantStateSummary(
-            @PathVariable("pickeatCode") String pickeatCode) {
+            @PathVariable("pickeatCode") String pickeatCode
+    ) {
         ParticipantStateResponse response = pickeatService.getParticipantStateSummary(pickeatCode);
         return ResponseEntity.ok().body(response);
     }
