@@ -1,13 +1,19 @@
 package com.pickeat.backend.restaurant.ui;
 
+import com.pickeat.backend.global.auth.annotation.ParticipantInPickeatV2;
+import com.pickeat.backend.global.auth.principal.ParticipantPrincipalV2;
 import com.pickeat.backend.restaurant.application.RestaurantSearchFacadeV2;
+import com.pickeat.backend.restaurant.application.RestaurantServiceV2;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
+import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RestaurantControllerV2 {
 
+    private final RestaurantServiceV2 restaurantService;
     private final RestaurantSearchFacadeV2 restaurantSearchFacade;
 
     @PostMapping("/pickeats/{pickeatCode}/restaurants/location/new")
@@ -49,5 +56,13 @@ public class RestaurantControllerV2 {
         restaurantSearchFacade.searchByTemplate(request, pickeatCode);
         URI location = URI.create("/pickeats/" + pickeatCode + "/restaurants");
         return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping("/pickeats/restaurants/new")
+    public ResponseEntity<List<RestaurantResponseV2>> getPickeatRestaurants(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        List<RestaurantResponseV2> response = restaurantService.getByPickeat(principal.pickeatCode());
+        return ResponseEntity.ok().body(response);
     }
 }

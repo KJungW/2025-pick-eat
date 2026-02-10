@@ -5,6 +5,7 @@ import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
+import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
 import com.pickeat.backend.restaurant.domain.RestaurantV2;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
@@ -22,14 +23,25 @@ public class RestaurantServiceV2 {
     private final RestaurantsStorage restaurantsStorage;
 
     public void create(List<RestaurantRequest> restaurantRequests, String pickeatCode) {
-        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+        PickeatV2 pickeat = getPickeatByPickeat(pickeatCode);
         RestaurantsV2 restaurants = convertToRestaurants(restaurantRequests);
         saveRestaurants(restaurants, pickeat.getCode());
     }
 
-    private PickeatV2 getPickeatByCode(String code) {
-        return pickeatStorage.get(code)
+    public List<RestaurantResponseV2> getByPickeat(String pickeatCode) {
+        PickeatV2 pickeat = getPickeatByPickeat(pickeatCode);
+        RestaurantsV2 restaurants = getRestaurantByPickeat(pickeatCode);
+        return RestaurantResponseV2.of(restaurants);
+    }
+
+    private PickeatV2 getPickeatByPickeat(String pickeatCode) {
+        return pickeatStorage.get(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
+    }
+
+    private RestaurantsV2 getRestaurantByPickeat(String pickeatCode) {
+        return restaurantsStorage.get(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private void saveRestaurants(RestaurantsV2 restaurants, String pickeatCode) {
