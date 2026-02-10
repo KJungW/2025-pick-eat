@@ -12,7 +12,8 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum StorageKey {
     PICKEAT("pickeat:%s", 1, Duration.ofMinutes(30)),
-    RESTAURANT("pickeat:%s:restaurants", 1, Duration.ofMinutes(30));
+    RESTAURANT("pickeat:%s:restaurants", 1, Duration.ofMinutes(30)),
+    PARTICIPANT("pickeat:%s:participant", 1, Duration.ofMinutes(30));
 
     private final String format;
     private final int argCount;
