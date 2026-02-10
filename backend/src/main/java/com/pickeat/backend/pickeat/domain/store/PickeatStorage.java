@@ -5,7 +5,9 @@ import com.pickeat.backend.pickeat.domain.PickeatV2;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
+@Component
 @RequiredArgsConstructor
 public class PickeatStorage {
 

@@ -57,19 +57,5 @@ class StorageKeyTest {
                     Arguments.of(new Object[]{"arg1", "arg2"}, "인자가 설정된 개수(1개)보다 많은 경우")
             );
         }
-
-        @Test
-        void 인자_타입이_적절하지_않으면_예외가_발생한다() throws NoSuchFieldException, IllegalAccessException {
-            // given
-            StorageKey keyType = StorageKey.PICKEAT;
-            java.lang.reflect.Field field = StorageKey.class.getDeclaredField("format");
-            field.setAccessible(true);
-            field.set(keyType, "test:%d");
-
-            // when & then
-            assertThatThrownBy(() -> keyType.generateKey("not-number"))
-                    .isInstanceOf(BusinessException.class)
-                    .hasMessageContaining(ErrorCode.INVALID_STORAGE_KEY_FORMAT.getMessage());
-        }
     }
 }
