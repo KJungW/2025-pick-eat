@@ -2,21 +2,20 @@ package com.pickeat.backend.support.utility;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Table;
 import jakarta.persistence.metamodel.EntityType;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Profile("test")
+@RequiredArgsConstructor
 public class DatabaseCleaner {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
+    private final EntityManager entityManager;
     private List<String> tableNames;
 
     @PostConstruct

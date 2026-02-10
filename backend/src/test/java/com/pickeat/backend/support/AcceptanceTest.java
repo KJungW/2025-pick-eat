@@ -1,6 +1,7 @@
 package com.pickeat.backend.support;
 
 import com.pickeat.backend.support.utility.DatabaseCleaner;
+import com.pickeat.backend.support.utility.StorageCleaner;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,9 @@ public class AcceptanceTest {
     @Autowired
     private DatabaseCleaner databaseCleaner;
 
+    @Autowired
+    private StorageCleaner storageCleaner;
+
     @LocalServerPort
     int port;
 
@@ -34,6 +38,7 @@ public class AcceptanceTest {
     void clear() {
         RestAssured.reset();
         databaseCleaner.execute();
+        storageCleaner.execute();
     }
 
     static {

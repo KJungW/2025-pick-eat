@@ -1,7 +1,9 @@
 package com.pickeat.backend.support;
 
 import com.pickeat.backend.global.config.RedisConfig;
+import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.support.utility.DatabaseCleaner;
+import com.pickeat.backend.support.utility.StorageCleaner;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
@@ -14,7 +16,12 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @DataJpaTest
-@Import({DatabaseCleaner.class, RedisConfig.class, RedisAutoConfiguration.class})
+@Import({
+        DatabaseCleaner.class,
+        StorageCleaner.class,
+        RedisConfig.class,
+        RedisAutoConfiguration.class,
+        JsonParser.class})
 public class DatabaseSliceTest {
 
     private static final MySQLContainer<?> MYSQL_CONTAINER;
@@ -23,9 +30,13 @@ public class DatabaseSliceTest {
     @Autowired
     private DatabaseCleaner databaseCleaner;
 
+    @Autowired
+    private StorageCleaner storageCleaner;
+
     @AfterEach
     void clear() {
         databaseCleaner.execute();
+        storageCleaner.execute();
     }
 
     static {
