@@ -5,6 +5,7 @@ import com.pickeat.backend.global.auth.principal.ParticipantPrincipalV2;
 import com.pickeat.backend.restaurant.application.RestaurantSearchFacadeV2;
 import com.pickeat.backend.restaurant.application.RestaurantServiceV2;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
+import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequestV2;
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
@@ -14,6 +15,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,5 +66,14 @@ public class RestaurantControllerV2 {
     ) {
         List<RestaurantResponseV2> response = restaurantService.getByPickeat(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("/restaurants/exclude/new")
+    public ResponseEntity<Void> excludeRestaurants(
+            @RequestBody RestaurantExcludeRequestV2 request,
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        restaurantService.exclude(principal.pickeatCode(), request.restaurantCodes());
+        return ResponseEntity.noContent().build();
     }
 }

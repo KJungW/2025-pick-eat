@@ -103,4 +103,30 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             assertThat(result).isEmpty();
         }
     }
+
+    @Nested
+    class 식당_제거 {
+
+        @Test
+        void 식당을_성공적으로_제거한다() {
+            // given
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(RestaurantV2Fixture.create("마라탕")));
+            String pickeatCode = "pickeat-code";
+            restaurantsStorage.saveIfAbsent(restaurants, pickeatCode);
+
+            String expectedKey = StorageKey.RESTAURANT.generateKey(pickeatCode);
+
+            // when
+            restaurantsStorage.remove(pickeatCode);
+
+            // then
+            String jsonValue = redisTemplate.opsForValue().get(expectedKey);
+            Optional<RestaurantsV2> result = restaurantsStorage.get(pickeatCode);
+
+            assertAll(
+                    () -> assertThat(jsonValue).isNull(),
+                    () -> assertThat(result).isEmpty()
+            );
+        }
+    }
 }

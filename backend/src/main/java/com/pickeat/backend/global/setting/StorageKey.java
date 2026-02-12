@@ -13,7 +13,8 @@ import lombok.Getter;
 public enum StorageKey {
     PICKEAT("pickeat:%s", 1, Duration.ofMinutes(30)),
     RESTAURANT("pickeat:%s:restaurants", 1, Duration.ofMinutes(30)),
-    PARTICIPANT("pickeat:%s:participant", 1, Duration.ofMinutes(30));
+    PARTICIPANT("pickeat:%s:participant", 1, Duration.ofMinutes(30)),
+    RESTAURANT_EXCLUDED("pickeat:{pickeatcode}:excludeds", 1, Duration.ofMinutes(30));
 
     private final String format;
     private final int argCount;

@@ -14,4 +14,8 @@ public class RestaurantsV2 {
     public RestaurantsV2(List<RestaurantV2> restaurants) {
         this.restaurants = List.copyOf(restaurants);
     }
+
+    public List<String> extrudeRestaurantCodes() {
+        return restaurants.stream().map(RestaurantV2::getCode).toList();
+    }
 }

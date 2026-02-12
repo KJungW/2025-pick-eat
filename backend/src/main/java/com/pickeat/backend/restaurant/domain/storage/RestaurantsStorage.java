@@ -31,4 +31,9 @@ public class RestaurantsStorage {
 
         return Optional.of(jsonParser.fromJson(jsonValue, RestaurantsV2.class));
     }
+
+    public void remove(String pickeatCode) {
+        String key = StorageKey.RESTAURANT.generateKey(pickeatCode);
+        stringTemplate.delete(key);
+    }
 }

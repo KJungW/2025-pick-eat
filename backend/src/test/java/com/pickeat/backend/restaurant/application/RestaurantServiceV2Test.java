@@ -11,18 +11,20 @@ import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;
+import com.pickeat.backend.restaurant.domain.storage.RestaurantExcludedStorage;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.RestaurantRequestFixture;
 import com.pickeat.backend.support.fixture.RestaurantV2Fixture;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
-@Import({RestaurantServiceV2.class, RestaurantsStorage.class, PickeatStorage.class})
+@Import({RestaurantServiceV2.class, RestaurantsStorage.class, PickeatStorage.class, RestaurantExcludedStorage.class})
 class RestaurantServiceV2Test extends DatabaseSliceTest {
 
     @Autowired
@@ -30,6 +32,9 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
 
     @Autowired
     private RestaurantsStorage restaurantsStorage;
+
+    @Autowired
+    private RestaurantExcludedStorage excludedStorage;
 
     @Autowired
     private PickeatStorage pickeatStorage;
@@ -56,6 +61,29 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
                     () -> assertThat(saved).isPresent(),
                     () -> assertThat(saved.get().getRestaurants()).hasSize(2),
                     () -> assertThat(saved.get().getRestaurants().get(0).getName()).isEqualTo("마라탕")
+            );
+        }
+
+        @Test
+        void 식당을_저장하면_식당_소거도_함께_세팅된다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("점심");
+            pickeatStorage.save(pickeat);
+
+            List<RestaurantRequest> requests = List.of(
+                    RestaurantRequestFixture.create("마라탕"),
+                    RestaurantRequestFixture.create("돈가스"));
+
+            // when
+            restaurantService.create(requests, pickeat.getCode());
+
+            Optional<RestaurantsV2> savedRestaurants = restaurantsStorage.get(pickeat.getCode());
+            Set<String> aliveRestaurantCodes = excludedStorage.findAlive(pickeat.getCode());
+
+            assertAll(
+                    () -> assertThat(aliveRestaurantCodes).hasSize(2),
+                    () -> assertThat(aliveRestaurantCodes)
+                            .containsExactlyInAnyOrderElementsOf(savedRestaurants.get().extrudeRestaurantCodes())
             );
         }
 
@@ -135,6 +163,47 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             assertThatThrownBy(() -> restaurantService.getByPickeat(pickeat.getCode()))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(ErrorCode.RESTAURANT_NOT_FOUND.getMessage());
+        }
+    }
+
+    @Nested
+    class 픽잇_식당_소거 {
+
+        @Test
+        void 픽잇의_식당을_성공적으로_소거한다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("저녁 회식");
+            pickeatStorage.save(pickeat);
+
+            List<RestaurantRequest> restaurants = List.of(
+                    RestaurantRequestFixture.create("restaurant1"),
+                    RestaurantRequestFixture.create("restaurant2"));
+            restaurantService.create(restaurants, pickeat.getCode());
+
+            RestaurantsV2 restaurantsV2 = restaurantsStorage.get(pickeat.getCode()).get();
+            List<String> restaurantCodes = restaurantsV2.extrudeRestaurantCodes();
+
+            // when
+            restaurantService.exclude(pickeat.getCode(), restaurantCodes);
+
+            // then
+            Set<String> aliveRestaurantCodes = excludedStorage.findAlive(pickeat.getCode());
+            assertAll(
+                    () -> assertThat(aliveRestaurantCodes).doesNotContainAnyElementsOf(restaurantCodes),
+                    () -> assertThat(aliveRestaurantCodes).isEmpty()
+            );
+        }
+
+        @Test
+        void 픽잇에_식당이_존재하지_않는_경우_예외를_발생시킨다() {
+            // given
+            String invalidPickeatCode = "invalid-code";
+            List<String> restaurantCodes = List.of("RES001", "RES002");
+
+            // when & then
+            assertThatThrownBy(() -> restaurantService.exclude(invalidPickeatCode, restaurantCodes))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PICKEAT_NOT_FOUND);
         }
     }
 }
