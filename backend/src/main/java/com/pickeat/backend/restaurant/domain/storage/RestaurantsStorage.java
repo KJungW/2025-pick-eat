@@ -2,13 +2,13 @@ package com.pickeat.backend.restaurant.domain.storage;
 
 import com.pickeat.backend.global.setting.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
+import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -48,6 +48,17 @@ public class RestaurantsStorage {
                     
                     return true
                     """, Boolean.class);
+
+    private static final DefaultRedisScript<List> GET_RESTAURANT_STATE_SCRIPT = new DefaultRedisScript<>(
+            """
+                    -- KEYS[1]: 생존 식당 코드 목록 키 (Set)
+                    -- KEYS[2]: 식당별 좋아요 합계 키 (Hash)
+                    
+                    local alive_codes = redis.call('SMEMBERS', KEYS[1])
+                    local like_counts = redis.call('HGETALL', KEYS[2])
+                    
+                    return {alive_codes, like_counts}
+                    """, List.class);
 
     private static final DefaultRedisScript<Boolean> LIKE_RESTAURANT_SCRIPT = new DefaultRedisScript<>(
             """
@@ -100,28 +111,31 @@ public class RestaurantsStorage {
         String restaurantMetaKey = StorageKey.RESTAURANT_META.generateKey(pickeatCode);
         String restaurantAliveKey = StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode);
         String restaurantLikeCountKey = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
-
         Duration ttl = StorageKey.PICKEAT_TTL;
         Object[] args = makeSetupRestaurantsArgs(ttl, restaurants);
 
         Boolean result = redisTemplate.execute(
                 SETUP_RESTAURANTS_SCRIPT,
                 List.of(restaurantMetaKey, restaurantAliveKey, restaurantLikeCountKey),
-                args
-        );
-
+                args);
         return Boolean.TRUE.equals(result);
     }
 
     public Optional<RestaurantsV2> getAllRestaurantMeta(String pickeatCode) {
         String key = StorageKey.RESTAURANT_META.generateKey(pickeatCode);
-        String jsonValue = redisTemplate.opsForValue().get(key);
+        String result = redisTemplate.opsForValue().get(key);
 
-        if (jsonValue == null) {
+        if (result == null) {
             return Optional.empty();
         }
+        return Optional.of(jsonParser.fromJson(result, RestaurantsV2.class));
+    }
 
-        return Optional.of(jsonParser.fromJson(jsonValue, RestaurantsV2.class));
+    public RestaurantStateDto getAllRestaurantState(String pickeatCode) {
+        String aliveKey = StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode);
+        String likeCountKey = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
+        List<Object> result = redisTemplate.execute(GET_RESTAURANT_STATE_SCRIPT, List.of(aliveKey, likeCountKey));
+        return parseGetAllRestaurantStateResult(result);
     }
 
     public void excludeRestaurants(String pickeatCode, List<String> restaurantCodes) {
@@ -129,15 +143,9 @@ public class RestaurantsStorage {
         redisTemplate.opsForSet().remove(key, restaurantCodes.toArray(Object[]::new));
     }
 
-    public Set<String> getAliveRestaurantCode(String pickeatCode) {
-        String key = StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode);
-        return redisTemplate.opsForSet().members(key);
-    }
-
     public boolean like(String pickeatCode, String participantCode, String restaurantCode) {
         String likeRecordKey = StorageKey.RESTAURANT_LIKE_RECORD.generateKey(pickeatCode, restaurantCode);
         String likeCountKey = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
-
         Duration ttl = StorageKey.PICKEAT_TTL;
 
         Boolean isSuccess = redisTemplate.execute(
@@ -145,9 +153,7 @@ public class RestaurantsStorage {
                 List.of(likeRecordKey, likeCountKey),
                 String.valueOf(ttl.getSeconds()),
                 participantCode,
-                restaurantCode
-        );
-
+                restaurantCode);
         return Boolean.TRUE.equals(isSuccess);
     }
 
@@ -159,18 +165,8 @@ public class RestaurantsStorage {
                 CANCEL_LIKE_SCRIPT,
                 List.of(likeRecordKey, likeCountKey),
                 participantCode,
-                restaurantCode
-        );
-
+                restaurantCode);
         return Boolean.TRUE.equals(isSuccess);
-    }
-
-    public Map<String, Integer> getLikeCounts(String pickeatCode) {
-        String key = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
-        return redisTemplate.opsForHash().entries(key).entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> (String) e.getKey(),
-                        e -> Integer.parseInt((String) e.getValue())));
     }
 
     private Object[] makeSetupRestaurantsArgs(Duration ttl, RestaurantsV2 restaurants) {
@@ -183,5 +179,18 @@ public class RestaurantsStorage {
             args[i + 2] = restaurantCodes.get(i);
         }
         return args;
+    }
+
+    private RestaurantStateDto parseGetAllRestaurantStateResult(List<Object> result) {
+        if (result == null || result.isEmpty()) {
+            return new RestaurantStateDto(Set.of(), Map.of());
+        }
+        Set<String> aliveCodes = Set.copyOf((List<String>) result.get(0));
+        List<String> likeCountFlatHash = (List<String>) result.get(1);
+        Map<String, Integer> map = new java.util.HashMap<>();
+        for (int i = 0; i < likeCountFlatHash.size(); i += 2) {
+            map.put(likeCountFlatHash.get(i), Integer.parseInt(likeCountFlatHash.get(i + 1)));
+        }
+        return new RestaurantStateDto(aliveCodes, map);
     }
 }

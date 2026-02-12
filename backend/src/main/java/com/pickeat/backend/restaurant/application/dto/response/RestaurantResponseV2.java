@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Arrays;
 import java.util.List;
 
-@Schema(description = "식당 응답")
+@Schema(description = "식당 메타데이터 응답")
 public record RestaurantResponseV2(
         @Schema(description = "식당 코드", example = "RWSDKK31412YE234")
         String code,

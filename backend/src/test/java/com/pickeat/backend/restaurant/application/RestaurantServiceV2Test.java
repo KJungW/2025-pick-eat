@@ -8,8 +8,10 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
+import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
+import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
@@ -74,7 +76,8 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             restaurantService.create(pickeat.getCode(), requests);
 
             Optional<RestaurantsV2> savedRestaurants = restaurantsStorage.getAllRestaurantMeta(pickeat.getCode());
-            Set<String> aliveRestaurantCodes = restaurantsStorage.getAliveRestaurantCode(pickeat.getCode());
+            Set<String> aliveRestaurantCodes = restaurantsStorage
+                    .getAllRestaurantState(pickeat.getCode()).aliveRestaurantCode();
 
             assertAll(
                     () -> assertThat(aliveRestaurantCodes).hasSize(2),
@@ -114,10 +117,10 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
     }
 
     @Nested
-    class 픽잇_식당_조회 {
+    class 픽잇_식당_메타정보_조회 {
 
         @Test
-        void 픽잇의_식당을_성공적으로_조회한다() {
+        void 픽잇의_식당_메타정보를_성공적으로_조회한다() {
             // given
             PickeatV2 pickeat = PickeatV2.createWithoutRoom("저녁 회식");
             pickeatStorage.save(pickeat);
@@ -148,17 +151,51 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
         }
+    }
+
+    @Nested
+    class 식당_상태정보_조회 {
 
         @Test
-        void 픽잇에_식당이_존재하지_않는_경우_예외를_발생시킨다() {
+        void 식당의_상태정보를_성공적으로_조회한다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("빈 픽잇");
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("회식 장소 투표");
             pickeatStorage.save(pickeat);
 
+            List<RestaurantRequest> requests = List.of(
+                    RestaurantRequestFixture.create("치킨"),
+                    RestaurantRequestFixture.create("피자"));
+            restaurantService.create(pickeat.getCode(), requests);
+
+            RestaurantsV2 meta = restaurantsStorage.getAllRestaurantMeta(pickeat.getCode()).get();
+            String restaurantCode1 = meta.getRestaurants().get(0).getCode();
+            String restaurantCode2 = meta.getRestaurants().get(1).getCode();
+
+            restaurantService.like(pickeat.getCode(), "user-1", restaurantCode1);
+            restaurantService.exclude(pickeat.getCode(), List.of(restaurantCode2));
+
+            // when
+            RestaurantStateResponse response = restaurantService.getStateInPickeat(pickeat.getCode());
+
+            // then
+            assertAll(
+                    () -> assertThat(response.aliveRestaurantCode()).hasSize(1),
+                    () -> assertThat(response.aliveRestaurantCode()).containsExactly(restaurantCode1),
+                    () -> assertThat(response.likeCountByRestaurant()).hasSize(2),
+                    () -> assertThat(response.likeCountByRestaurant().get(restaurantCode1)).isEqualTo(1),
+                    () -> assertThat(response.likeCountByRestaurant().get(restaurantCode2)).isEqualTo(0)
+            );
+        }
+
+        @Test
+        void 픽잇이_존재하지_않는_경우_상태정보_조회_시_예외를_발생시킨다() {
+            // given
+            String invalidCode = "NON-EXISTENT-CODE";
+
             // when & then
-            assertThatThrownBy(() -> restaurantService.getMetaInPickeat(pickeat.getCode()))
+            assertThatThrownBy(() -> restaurantService.getStateInPickeat(invalidCode))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessageContaining(ErrorCode.RESTAURANT_NOT_FOUND.getMessage());
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PICKEAT_NOT_FOUND);
         }
     }
 
@@ -183,11 +220,8 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             restaurantService.exclude(pickeat.getCode(), restaurantCodes);
 
             // then
-            Set<String> aliveRestaurantCodes = restaurantsStorage.getAliveRestaurantCode(pickeat.getCode());
-            assertAll(
-                    () -> assertThat(aliveRestaurantCodes).doesNotContainAnyElementsOf(restaurantCodes),
-                    () -> assertThat(aliveRestaurantCodes).isEmpty()
-            );
+            RestaurantStateDto restaurantState = restaurantsStorage.getAllRestaurantState(pickeat.getCode());
+            assertThat(restaurantState.aliveRestaurantCode()).isEmpty();
         }
 
         @Test
@@ -223,8 +257,8 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             restaurantService.like(pickeat.getCode(), participantCode, restaurantCode);
 
             // then
-            assertThat(restaurantsStorage.getLikeCounts(pickeat.getCode()).get(restaurantCode))
-                    .isEqualTo(1);
+            RestaurantStateDto restaurantState = restaurantsStorage.getAllRestaurantState(pickeat.getCode());
+            assertThat(restaurantState.likeCountByRestaurant().get(restaurantCode)).isEqualTo(1);
         }
 
         @Test
@@ -269,8 +303,8 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             restaurantService.cancelLike(pickeat.getCode(), participantCode, restaurantCode);
 
             // then
-            assertThat(restaurantsStorage.getLikeCounts(pickeat.getCode()).get(restaurantCode))
-                    .isEqualTo(0);
+            RestaurantStateDto restaurantState = restaurantsStorage.getAllRestaurantState(pickeat.getCode());
+            assertThat(restaurantState.likeCountByRestaurant().get(restaurantCode)).isEqualTo(0);
         }
 
         @Test

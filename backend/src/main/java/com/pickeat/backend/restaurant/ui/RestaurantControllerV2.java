@@ -9,6 +9,7 @@ import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeR
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
+import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -61,10 +62,18 @@ public class RestaurantControllerV2 {
     }
 
     @GetMapping("/pickeats/restaurants/new")
-    public ResponseEntity<List<RestaurantResponseV2>> getPickeatRestaurants(
+    public ResponseEntity<List<RestaurantResponseV2>> getRestaurantMetaInPickeat(
             @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
     ) {
         List<RestaurantResponseV2> response = restaurantService.getMetaInPickeat(principal.pickeatCode());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/pickeats/restaurants/state/new")
+    public ResponseEntity<RestaurantStateResponse> getRestaurantStateInPickeat(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        RestaurantStateResponse response = restaurantService.getStateInPickeat(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
     }
 
