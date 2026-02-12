@@ -76,4 +76,24 @@ public class RestaurantControllerV2 {
         restaurantService.exclude(principal.pickeatCode(), request.restaurantCodes());
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/restaurants/{restaurantCode}/like/new")
+    public ResponseEntity<Void> likeRestaurant(
+            @PathVariable("restaurantCode") String restaurantCode,
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        restaurantService.like(principal.pickeatCode(), principal.participantCode(), restaurantCode);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/restaurants/{restaurantCode}/unlike/new")
+    public ResponseEntity<Void> cancelLikeRestaurant(
+            @PathVariable("restaurantCode") String restaurantCode,
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        restaurantService.cancelLike(principal.pickeatCode(), principal.participantCode(), restaurantCode);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

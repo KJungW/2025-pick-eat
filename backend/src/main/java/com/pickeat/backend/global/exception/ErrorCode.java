@@ -29,8 +29,8 @@ public enum ErrorCode {
     RESTAURANT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 픽잇에 대한 식당이 생성되었습니다."),
     RESTAURANT_ELIMINATION_FORBIDDEN(HttpStatus.FORBIDDEN, "식당 소거 권한이 없습니다."),
     RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "식당을 찾을 수 없습니다."),
-    PARTICIPANT_RESTAURANT_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요를 누른 식당입니다."),
-    PARTICIPANT_RESTAURANT_NOT_LIKED(HttpStatus.BAD_REQUEST, "좋아요 기록이 없습니다."),
+    PARTICIPANT_RESTAURANT_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요를 눌렀거나 올바르지 않은 식당입니다."),
+    PARTICIPANT_RESTAURANT_NOT_LIKED(HttpStatus.BAD_REQUEST, "좋아요 기록이 없거나 올바르지 않은 식당입니다."),
     RESTAURANTS_IS_EMPTY(HttpStatus.BAD_REQUEST, "픽잇의 식당이 비어있습니다."),
 
     // User 관련 에러

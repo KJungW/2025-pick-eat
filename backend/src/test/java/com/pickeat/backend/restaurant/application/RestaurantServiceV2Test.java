@@ -202,4 +202,94 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PICKEAT_NOT_FOUND);
         }
     }
+
+    @Nested
+    class 식당_좋아요 {
+
+        @Test
+        void 식당에_좋아요를_성공적으로_추가할_수_있다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("점심 메뉴 결정");
+            pickeatStorage.save(pickeat);
+
+            List<RestaurantRequest> requests = List.of(RestaurantRequestFixture.create("마라탕"));
+            restaurantService.create(pickeat.getCode(), requests);
+
+            String restaurantCode = restaurantsStorage.getAllRestaurantMeta(pickeat.getCode())
+                    .get().getRestaurants().get(0).getCode();
+            String participantCode = "user-123";
+
+            // when
+            restaurantService.like(pickeat.getCode(), participantCode, restaurantCode);
+
+            // then
+            assertThat(restaurantsStorage.getLikeCounts(pickeat.getCode()).get(restaurantCode))
+                    .isEqualTo(1);
+        }
+
+        @Test
+        void 이미_좋아요를_추가한_식당에_좋아요를_추가할_수_없다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("점심 메뉴 결정");
+            pickeatStorage.save(pickeat);
+
+            List<RestaurantRequest> requests = List.of(RestaurantRequestFixture.create("마라탕"));
+            restaurantService.create(pickeat.getCode(), requests);
+
+            String restaurantCode = restaurantsStorage.getAllRestaurantMeta(pickeat.getCode())
+                    .get().getRestaurants().get(0).getCode();
+            String participantCode = "user-123";
+            restaurantService.like(pickeat.getCode(), participantCode, restaurantCode);
+
+            // when & then
+            assertThatThrownBy(() -> restaurantService.like(pickeat.getCode(), participantCode, restaurantCode))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PARTICIPANT_RESTAURANT_ALREADY_LIKED);
+        }
+    }
+
+    @Nested
+    class 식당_좋아요_취소 {
+
+        @Test
+        void 식당에_좋아요를_성공적으로_취소할_수_있다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("저녁 메뉴 결정");
+            pickeatStorage.save(pickeat);
+
+            List<RestaurantRequest> requests = List.of(RestaurantRequestFixture.create("삼겹살"));
+            restaurantService.create(pickeat.getCode(), requests);
+
+            String restaurantCode = restaurantsStorage.getAllRestaurantMeta(pickeat.getCode())
+                    .get().getRestaurants().get(0).getCode();
+            String participantCode = "user-123";
+            restaurantService.like(pickeat.getCode(), participantCode, restaurantCode);
+
+            // when
+            restaurantService.cancelLike(pickeat.getCode(), participantCode, restaurantCode);
+
+            // then
+            assertThat(restaurantsStorage.getLikeCounts(pickeat.getCode()).get(restaurantCode))
+                    .isEqualTo(0);
+        }
+
+        @Test
+        void 좋아요를_추가한_적_없는_식당에_좋아요를_취소할_수_없다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("저녁 메뉴 결정");
+            pickeatStorage.save(pickeat);
+
+            List<RestaurantRequest> requests = List.of(RestaurantRequestFixture.create("삼겹살"));
+            restaurantService.create(pickeat.getCode(), requests);
+
+            String restaurantCode = restaurantsStorage.getAllRestaurantMeta(pickeat.getCode())
+                    .get().getRestaurants().get(0).getCode();
+            String participantCode = "user-123";
+
+            // when & then
+            assertThatThrownBy(() -> restaurantService.cancelLike(pickeat.getCode(), participantCode, restaurantCode))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PARTICIPANT_RESTAURANT_NOT_LIKED);
+        }
+    }
 }

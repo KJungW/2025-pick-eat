@@ -3,12 +3,13 @@ package com.pickeat.backend.restaurant.domain.storage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.global.setting.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
+import com.pickeat.backend.restaurant.domain.RestaurantV2;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.RestaurantV2Fixture;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Nested;
@@ -33,25 +34,67 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
     class 식당_관련_데이터_세팅 {
 
         @Test
-        void 식당_관련_데이터를_성공적으로_세팅한다() {
+        void 식당_메타데이터를_성공적으로_세팅한다() {
             // given
             RestaurantsV2 restaurants = new RestaurantsV2(List.of(
                     RestaurantV2Fixture.create("마라탕"),
                     RestaurantV2Fixture.create("돈가스")));
             String pickeatCode = "pickeat-code";
-            String expectedKey = StorageKey.RESTAURANT_META.generateKey("pickeat-code");
 
             // when
             Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
             // then
-            String jsonValue = redisTemplate.opsForValue().get(expectedKey);
-            RestaurantsV2 saved = jsonParser.fromJson(jsonValue, RestaurantsV2.class);
+            RestaurantsV2 savedMeta = restaurantsStorage.getAllRestaurantMeta(pickeatCode).get();
             assertAll(
                     () -> assertThat(isSuccess).isTrue(),
-                    () -> assertThat(saved).isNotNull(),
-                    () -> assertThat(saved.getRestaurants()).hasSize(2),
-                    () -> assertThat(saved.getRestaurants().get(0).getName()).isEqualTo("마라탕")
+                    () -> assertThat(savedMeta.getRestaurants()).hasSize(2),
+                    () -> assertThat(savedMeta.getRestaurants())
+                            .extracting(RestaurantV2::getName)
+                            .containsExactlyInAnyOrder("마라탕", "돈가스")
+            );
+        }
+
+        @Test
+        void 생존_식당_코드목록을_성공적으로_세팅한다() {
+            // given
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(
+                    RestaurantV2Fixture.create("마라탕"),
+                    RestaurantV2Fixture.create("돈가스")));
+            String pickeatCode = "pickeat-code";
+
+            // when
+            Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+
+            // then
+            List<String> restaurantCodes = restaurants.extrudeRestaurantCodes();
+            Set<String> aliveCodes = restaurantsStorage.getAliveRestaurantCode(pickeatCode);
+            assertAll(
+                    () -> assertThat(isSuccess).isTrue(),
+                    () -> assertThat(aliveCodes).hasSize(2),
+                    () -> assertThat(aliveCodes).containsExactlyInAnyOrderElementsOf(restaurantCodes)
+            );
+        }
+
+        @Test
+        void 식당_좋아요_합계를_성공적으로_세팅한다() {
+            // given
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(
+                    RestaurantV2Fixture.create("마라탕"),
+                    RestaurantV2Fixture.create("돈가스")));
+            String pickeatCode = "pickeat-code";
+
+            // when
+            Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+
+            // then
+            List<String> restaurantCodes = restaurants.extrudeRestaurantCodes();
+            Map<String, Integer> savedLikeCount = restaurantsStorage.getLikeCounts(pickeatCode);
+            assertAll(
+                    () -> assertThat(isSuccess).isTrue(),
+                    () -> assertThat(savedLikeCount).hasSize(2),
+                    () -> assertThat(savedLikeCount.get(restaurantCodes.get(0))).isEqualTo(0),
+                    () -> assertThat(savedLikeCount.get(restaurantCodes.get(1))).isEqualTo(0)
             );
         }
 
@@ -155,6 +198,126 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             assertAll(
                     () -> assertThat(aliveCodes).hasSize(1),
                     () -> assertThat(aliveCodes).containsExactlyInAnyOrder(restaurantsCodes.get(1))
+            );
+        }
+    }
+
+    @Nested
+    class 식당_좋아요 {
+
+        @Test
+        void 식당에_좋아요를_성공적으로_추가할_수_있다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            String participantCode = "user-1";
+            RestaurantV2 restaurant = RestaurantV2Fixture.create("마라탕");
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+
+            // when
+            boolean firstLike = restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+
+            // then
+            Map<String, Integer> likeCounts = restaurantsStorage.getLikeCounts(pickeatCode);
+            assertAll(
+                    () -> assertThat(firstLike).isTrue(),
+                    () -> assertThat(likeCounts.get(restaurant.getCode())).isEqualTo(1)
+            );
+        }
+
+        @Test
+        void 이미_좋아요를_추가한_식당에_좋아요를_추가할_수_없다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            String participantCode = "user-1";
+            RestaurantV2 restaurant = RestaurantV2Fixture.create("마라탕");
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+
+            // when
+            boolean secondLike = restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+
+            // then
+            Map<String, Integer> likeCounts = restaurantsStorage.getLikeCounts(pickeatCode);
+            assertAll(
+                    () -> assertThat(secondLike).isFalse(),
+                    () -> assertThat(likeCounts.get(restaurant.getCode())).isEqualTo(1)
+            );
+        }
+    }
+
+    @Nested
+    class 식당_좋아요_취소 {
+
+        @Test
+        void 식당에_좋아요를_성공적으로_취소할_수_있다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            String participantCode = "user-1";
+            RestaurantV2 restaurant = RestaurantV2Fixture.create("마라탕");
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+
+            // when
+            boolean isCancelled = restaurantsStorage.cancelLike(pickeatCode, participantCode, restaurant.getCode());
+
+            // then
+            Map<String, Integer> likeCounts = restaurantsStorage.getLikeCounts(pickeatCode);
+            assertAll(
+                    () -> assertThat(isCancelled).isTrue(),
+                    () -> assertThat(likeCounts.get(restaurant.getCode())).isEqualTo(0)
+            );
+        }
+
+        @Test
+        void 좋아요를_추가한_적_없는_식당에_좋아요를_취소할_수_없다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            String participantCode = "user-1";
+            RestaurantV2 restaurant = RestaurantV2Fixture.create("마라탕");
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+
+            // when
+            boolean isCancelled = restaurantsStorage.cancelLike(pickeatCode, participantCode, restaurant.getCode());
+
+            // then
+            Map<String, Integer> likeCounts = restaurantsStorage.getLikeCounts(pickeatCode);
+            assertAll(
+                    () -> assertThat(isCancelled).isFalse(),
+                    () -> assertThat(likeCounts.get(restaurant.getCode())).isEqualTo(0)
+            );
+        }
+    }
+
+    @Nested
+    class 식당_좋아요_조회 {
+
+        @Test
+        void 픽잇의_식당에_대한_좋아요를_추가할_수_있다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(
+                    RestaurantV2Fixture.create("마라탕"),
+                    RestaurantV2Fixture.create("돈가스")));
+            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+
+            List<String> restaurantCodes = restaurants.extrudeRestaurantCodes();
+            restaurantsStorage.like(pickeatCode, "user-1", restaurantCodes.get(0));
+            restaurantsStorage.like(pickeatCode, "user-2", restaurantCodes.get(0));
+            System.out.println(
+                    "restaurantCodes = " + restaurantsStorage.like(pickeatCode, "user-1", restaurantCodes.get(1)));
+
+            // when
+            Map<String, Integer> likeCounts = restaurantsStorage.getLikeCounts(pickeatCode);
+
+            // then
+            assertAll(
+                    () -> assertThat(likeCounts).hasSize(2),
+                    () -> assertThat(likeCounts.get(restaurantCodes.get(0))).isEqualTo(2),
+                    () -> assertThat(likeCounts.get(restaurantCodes.get(1))).isEqualTo(1)
             );
         }
     }

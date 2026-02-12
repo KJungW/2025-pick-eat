@@ -5,8 +5,10 @@ import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -19,42 +21,92 @@ public class RestaurantsStorage {
     private static final DefaultRedisScript<Boolean> SETUP_RESTAURANTS_SCRIPT = new DefaultRedisScript<>(
             """
                     -- KEYS[1]: 전체 식당 메타데이터 키 (String)
-                    -- KEYS[2]: 생존한 식당 코드 목록 키 (Set)
+                    -- KEYS[2]: 생존 식당 코드 목록 키 (Set)
+                    -- KEYS[3]: 식당별 좋아요 합계 키 (Hash)
+                    
                     -- ARGV[1]: TTL(초)
                     -- ARGV[2]: 전체 식당 메타데이터 JSON
-                    -- ARGV[3...]: 제외 식당 코드들
+                    -- ARGV[3...]: 전체 식당 코드들
                     
-                    -- 이미 존재하는 데이터라면 실패 처리
-                    if redis.call('EXISTS', KEYS[1]) == 1 or redis.call('EXISTS', KEYS[2]) == 1 then
+                    -- 1. 이미 저장된 데이터면 실패 처리
+                    if redis.call('EXISTS', KEYS[1]) == 1 then
                         return false
                     end
                     
-                    -- "전체 식당 메타데이터" 저장 및 TTL 설정
+                    -- 2. 식당 메타데이터 저장 및 TTL 설정
                     redis.call('SET', KEYS[1], ARGV[2], 'EX', ARGV[1])
                     
-                    -- "생존한 식당 코드 목록" 저장 및 TTL 설정
+                    -- 3. 생존 식당 코드 목록 저장 / 식당별 좋아요수 저장
                     for i = 3, #ARGV do
                         redis.call('SADD', KEYS[2], ARGV[i])
+                        redis.call('HSET', KEYS[3], ARGV[i], 0)
                     end
-                    redis.call('EXPIRE', KEYS[2], ARGV[1])
                     
-                    -- 작업을 완료했으면 성공 처리
+                    -- 4. 생존 식당 코드 목록 TTL 설정 / 식당별 좋아요수 TTL 설정
+                    redis.call('EXPIRE', KEYS[2], ARGV[1])
+                    redis.call('EXPIRE', KEYS[3], ARGV[1])
+                    
                     return true
+                    """, Boolean.class);
+
+    private static final DefaultRedisScript<Boolean> LIKE_RESTAURANT_SCRIPT = new DefaultRedisScript<>(
+            """
+                    -- KEYS[1]: 식당별 참가자의 좋아요 기록 키 (Set)
+                    -- KEYS[2]: 식당별 좋아요 합계 키 (Hash)
+                    
+                    -- ARGV[1]: TTL (초)
+                    -- ARGV[2]: 참가자 코드
+                    -- ARGV[3]: 식당 코드
+                    
+                    -- 1. 좋아요 기록에 참가자 추가 시도 (SADD는 새로 추가될 때만 1을 반환함)
+                    if redis.call('SADD', KEYS[1], ARGV[2]) == 1 then
+                        -- 2. 신규 좋아요라면 전체 합계에서 해당 식당의 count를 1 증가
+                        redis.call('HINCRBY', KEYS[2], ARGV[3], 1)
+                    
+                        -- 3. 좋아요 기록 키에 TTL 설정 (최초 생성 시점에만 걸리도록 TTL 체크 후 설정)
+                        if redis.call('TTL', KEYS[1]) < 0 then
+                            redis.call('EXPIRE', KEYS[1], ARGV[1])
+                        end
+                        return true
+                    end
+                    
+                    -- 이미 좋아요를 누른 기록이 있다면 false 반환
+                    return false
+                    """, Boolean.class);
+
+    private static final DefaultRedisScript<Boolean> CANCEL_LIKE_SCRIPT = new DefaultRedisScript<>(
+            """
+                    -- KEYS[1]: 식당별 참가자의 좋아요 기록 키 (Set)
+                    -- KEYS[2]: 식당별 좋아요 합계 키 (Hash)
+                    
+                    -- ARGV[1]: 참가자 코드
+                    -- ARGV[2]: 식당 코드
+                    
+                    -- 1. 좋아료 기록에서 참가자 제거 시도 (SREM은 데이터가 있어 제거 성공 시 1을 반환함)
+                    if redis.call('SREM', KEYS[1], ARGV[1]) == 1 then
+                        -- 2. 제거 성공 시(좋아요를 눌렀던 상태), 전체 합계(Hash)에서 1 감소
+                        redis.call('HINCRBY', KEYS[2], ARGV[2], -1)
+                        return true
+                    end
+                    
+                    -- 원래 좋아요를 누르지 않았던 상태라면 false 반환
+                    return false
                     """, Boolean.class);
 
     private final StringRedisTemplate redisTemplate;
     private final JsonParser jsonParser;
 
-    public Boolean setupRestaurants(String pickeatCode, RestaurantsV2 restaurants) {
+    public boolean setupRestaurants(String pickeatCode, RestaurantsV2 restaurants) {
         String restaurantMetaKey = StorageKey.RESTAURANT_META.generateKey(pickeatCode);
         String restaurantAliveKey = StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode);
+        String restaurantLikeCountKey = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
 
         Duration ttl = StorageKey.PICKEAT_TTL;
         Object[] args = makeSetupRestaurantsArgs(ttl, restaurants);
 
         Boolean result = redisTemplate.execute(
                 SETUP_RESTAURANTS_SCRIPT,
-                List.of(restaurantMetaKey, restaurantAliveKey),
+                List.of(restaurantMetaKey, restaurantAliveKey, restaurantLikeCountKey),
                 args
         );
 
@@ -80,6 +132,45 @@ public class RestaurantsStorage {
     public Set<String> getAliveRestaurantCode(String pickeatCode) {
         String key = StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode);
         return redisTemplate.opsForSet().members(key);
+    }
+
+    public boolean like(String pickeatCode, String participantCode, String restaurantCode) {
+        String likeRecordKey = StorageKey.RESTAURANT_LIKE_RECORD.generateKey(pickeatCode, restaurantCode);
+        String likeCountKey = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
+
+        Duration ttl = StorageKey.PICKEAT_TTL;
+
+        Boolean isSuccess = redisTemplate.execute(
+                LIKE_RESTAURANT_SCRIPT,
+                List.of(likeRecordKey, likeCountKey),
+                String.valueOf(ttl.getSeconds()),
+                participantCode,
+                restaurantCode
+        );
+
+        return Boolean.TRUE.equals(isSuccess);
+    }
+
+    public Boolean cancelLike(String pickeatCode, String participantCode, String restaurantCode) {
+        String likeRecordKey = StorageKey.RESTAURANT_LIKE_RECORD.generateKey(pickeatCode, restaurantCode);
+        String likeCountKey = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
+
+        Boolean isSuccess = redisTemplate.execute(
+                CANCEL_LIKE_SCRIPT,
+                List.of(likeRecordKey, likeCountKey),
+                participantCode,
+                restaurantCode
+        );
+
+        return Boolean.TRUE.equals(isSuccess);
+    }
+
+    public Map<String, Integer> getLikeCounts(String pickeatCode) {
+        String key = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
+        return redisTemplate.opsForHash().entries(key).entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> (String) e.getKey(),
+                        e -> Integer.parseInt((String) e.getValue())));
     }
 
     private Object[] makeSetupRestaurantsArgs(Duration ttl, RestaurantsV2 restaurants) {

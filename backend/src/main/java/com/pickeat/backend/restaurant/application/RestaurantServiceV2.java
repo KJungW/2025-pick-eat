@@ -39,6 +39,16 @@ public class RestaurantServiceV2 {
         restaurantsStorage.excludeRestaurants(pickeatCode, restaurantCodes);
     }
 
+    public void like(String pickeatCode, String participantCode, String restaurantCode) {
+        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+        likeRestaurant(pickeatCode, participantCode, restaurantCode);
+    }
+
+    public void cancelLike(String pickeatCode, String participantCode, String restaurantCode) {
+        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+        cancelLikeRestaurant(pickeatCode, participantCode, restaurantCode);
+    }
+
     private PickeatV2 getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
@@ -50,9 +60,23 @@ public class RestaurantServiceV2 {
     }
 
     private void setupRestaurants(String pickeatCode, RestaurantsV2 restaurants) {
-        Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+        boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
         if (!isSuccess) {
             throw new BusinessException(ErrorCode.RESTAURANT_ALREADY_EXISTS);
+        }
+    }
+
+    private void likeRestaurant(String pickeatCode, String participantCode, String restaurantCode) {
+        boolean isSuccess = restaurantsStorage.like(pickeatCode, participantCode, restaurantCode);
+        if (!isSuccess) {
+            throw new BusinessException(ErrorCode.PARTICIPANT_RESTAURANT_ALREADY_LIKED);
+        }
+    }
+
+    private void cancelLikeRestaurant(String pickeatCode, String participantCode, String restaurantCode) {
+        boolean isSuccess = restaurantsStorage.cancelLike(pickeatCode, participantCode, restaurantCode);
+        if (!isSuccess) {
+            throw new BusinessException(ErrorCode.PARTICIPANT_RESTAURANT_NOT_LIKED);
         }
     }
 

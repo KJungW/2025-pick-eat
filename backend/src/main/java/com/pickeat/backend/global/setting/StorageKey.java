@@ -14,7 +14,9 @@ public enum StorageKey {
     PICKEAT("pickeat:%s", 1, Duration.ofMinutes(30)),
     PARTICIPANT("pickeat:%s:participant", 1, Duration.ofMinutes(30)),
     RESTAURANT_META("pickeat:%s:restaurants", 1, Duration.ofMinutes(30)),
-    RESTAURANT_ALIVE("pickeat:%s:restaurants:alives", 1, Duration.ofMinutes(30));
+    RESTAURANT_ALIVE("pickeat:%s:restaurants:alives", 1, Duration.ofMinutes(30)),
+    RESTAURANT_LIKE_COUNT("pickeat:%s:likes:count", 1, Duration.ofMinutes(30)),
+    RESTAURANT_LIKE_RECORD("pickeat:%s:restaurants:%s:likes", 2, Duration.ofMinutes(30));
 
     public static final Duration PICKEAT_TTL = Duration.ofMinutes(30);
 
