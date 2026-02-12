@@ -10,6 +10,7 @@ import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.RestaurantV2Fixture;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,19 +30,19 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
     private JsonParser jsonParser;
 
     @Nested
-    class 식당_저장 {
+    class 식당_관련_데이터_세팅 {
 
         @Test
-        void 식당을_성공적으로_저장한다() {
+        void 식당_관련_데이터를_성공적으로_세팅한다() {
             // given
             RestaurantsV2 restaurants = new RestaurantsV2(List.of(
                     RestaurantV2Fixture.create("마라탕"),
                     RestaurantV2Fixture.create("돈가스")));
             String pickeatCode = "pickeat-code";
-            String expectedKey = StorageKey.RESTAURANT.generateKey("pickeat-code");
+            String expectedKey = StorageKey.RESTAURANT_META.generateKey("pickeat-code");
 
             // when
-            Boolean isSuccess = restaurantsStorage.saveIfAbsent(restaurants, pickeatCode);
+            Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
             // then
             String jsonValue = redisTemplate.opsForValue().get(expectedKey);
@@ -55,16 +56,16 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
         }
 
         @Test
-        void 픽잇에_이미_식당이_존재하는_경우_식당을_생성할_수_없다() {
+        void 픽잇에_이미_식당_관련_데이터가_세팅된_경우_예외를_발생시킨다() {
             // given
             RestaurantsV2 existing = new RestaurantsV2(List.of(RestaurantV2Fixture.create("기존 데이터")));
             String pickeatCode = "pickeat-code";
-            restaurantsStorage.saveIfAbsent(existing, pickeatCode);
+            restaurantsStorage.setupRestaurants(pickeatCode, existing);
 
             RestaurantsV2 newData = new RestaurantsV2(List.of(RestaurantV2Fixture.create("새 데이터")));
 
             // when
-            Boolean result = restaurantsStorage.saveIfAbsent(newData, pickeatCode);
+            Boolean result = restaurantsStorage.setupRestaurants(pickeatCode, newData);
 
             // then
             assertThat(result).isFalse();
@@ -72,17 +73,17 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
     }
 
     @Nested
-    class 식당_조회 {
+    class 식당_메타정보_조회 {
 
         @Test
-        void 식당을_성공적으로_조회한다() {
+        void 식당의_메타정보를_성공적으로_조회한다() {
             // given
             RestaurantsV2 restaurants = new RestaurantsV2(List.of(RestaurantV2Fixture.create("삼겹살")));
             String pickeatCode = "pickeat-code";
-            restaurantsStorage.saveIfAbsent(restaurants, pickeatCode);
+            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
             // when
-            Optional<RestaurantsV2> result = restaurantsStorage.get(pickeatCode);
+            Optional<RestaurantsV2> result = restaurantsStorage.getAllRestaurantMeta(pickeatCode);
 
             // then
             assertAll(
@@ -97,7 +98,7 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String nonExistentCode = "EMPTY_CODE";
 
             // when
-            Optional<RestaurantsV2> result = restaurantsStorage.get(nonExistentCode);
+            Optional<RestaurantsV2> result = restaurantsStorage.getAllRestaurantMeta(nonExistentCode);
 
             // then
             assertThat(result).isEmpty();
@@ -105,27 +106,55 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
     }
 
     @Nested
-    class 식당_제거 {
+    class 식당_소거 {
 
         @Test
-        void 식당을_성공적으로_제거한다() {
+        void 특정_식당들을_소거_처리할_수_있다() {
             // given
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(RestaurantV2Fixture.create("마라탕")));
             String pickeatCode = "pickeat-code";
-            restaurantsStorage.saveIfAbsent(restaurants, pickeatCode);
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(
+                    RestaurantV2Fixture.create("마라탕"),
+                    RestaurantV2Fixture.create("돈가스"),
+                    RestaurantV2Fixture.create("쌀국수")));
+            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
-            String expectedKey = StorageKey.RESTAURANT.generateKey(pickeatCode);
+            List<String> restaurantsCodes = restaurants.extrudeRestaurantCodes();
 
             // when
-            restaurantsStorage.remove(pickeatCode);
+            restaurantsStorage.excludeRestaurants(pickeatCode,
+                    List.of(restaurantsCodes.get(0), restaurantsCodes.get(1)));
 
             // then
-            String jsonValue = redisTemplate.opsForValue().get(expectedKey);
-            Optional<RestaurantsV2> result = restaurantsStorage.get(pickeatCode);
-
+            Set<String> remainCodes = restaurantsStorage.getAliveRestaurantCode(pickeatCode);
             assertAll(
-                    () -> assertThat(jsonValue).isNull(),
-                    () -> assertThat(result).isEmpty()
+                    () -> assertThat(remainCodes).hasSize(1),
+                    () -> assertThat(remainCodes).containsExactlyInAnyOrder(restaurantsCodes.get(2))
+            );
+        }
+    }
+
+    @Nested
+    class 소거되지_않은_식당_조회 {
+
+        @Test
+        void 소거되지_않은_식당들을_조회할_수_있다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(
+                    RestaurantV2Fixture.create("마라탕"),
+                    RestaurantV2Fixture.create("돈가스")));
+            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+
+            List<String> restaurantsCodes = restaurants.extrudeRestaurantCodes();
+            restaurantsStorage.excludeRestaurants(pickeatCode, List.of(restaurantsCodes.get(0)));
+
+            // when
+            Set<String> aliveCodes = restaurantsStorage.getAliveRestaurantCode(pickeatCode);
+
+            // then
+            assertAll(
+                    () -> assertThat(aliveCodes).hasSize(1),
+                    () -> assertThat(aliveCodes).containsExactlyInAnyOrder(restaurantsCodes.get(1))
             );
         }
     }

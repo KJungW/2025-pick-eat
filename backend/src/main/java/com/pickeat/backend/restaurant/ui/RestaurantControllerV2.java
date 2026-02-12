@@ -35,7 +35,7 @@ public class RestaurantControllerV2 {
             @PathVariable("pickeatCode") String pickeatCode,
             @Valid @RequestBody LocationRestaurantRequest request
     ) {
-        restaurantSearchFacade.searchByLocation(request, pickeatCode);
+        restaurantSearchFacade.searchByLocation(pickeatCode, request);
         URI location = URI.create("/pickeats/" + pickeatCode + "/restaurants");
         return ResponseEntity.created(location).build();
     }
@@ -45,7 +45,7 @@ public class RestaurantControllerV2 {
             @PathVariable("pickeatCode") String pickeatCode,
             @Valid @RequestBody WishRestaurantRequest request
     ) {
-        restaurantSearchFacade.searchByWish(request, pickeatCode);
+        restaurantSearchFacade.searchByWish(pickeatCode, request);
         URI location = URI.create("/pickeats/" + pickeatCode + "/restaurants");
         return ResponseEntity.created(location).build();
     }
@@ -55,7 +55,7 @@ public class RestaurantControllerV2 {
             @PathVariable("pickeatCode") String pickeatCode,
             @Valid @RequestBody TemplateRestaurantRequest request
     ) {
-        restaurantSearchFacade.searchByTemplate(request, pickeatCode);
+        restaurantSearchFacade.searchByTemplate(pickeatCode, request);
         URI location = URI.create("/pickeats/" + pickeatCode + "/restaurants");
         return ResponseEntity.created(location).build();
     }
@@ -64,7 +64,7 @@ public class RestaurantControllerV2 {
     public ResponseEntity<List<RestaurantResponseV2>> getPickeatRestaurants(
             @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
     ) {
-        List<RestaurantResponseV2> response = restaurantService.getByPickeat(principal.pickeatCode());
+        List<RestaurantResponseV2> response = restaurantService.getMetaInPickeat(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
     }
 

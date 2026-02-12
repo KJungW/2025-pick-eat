@@ -18,17 +18,17 @@ public class RestaurantSearchFacadeV2 {
     private final RestaurantService restaurantService;
 
 
-    public void searchByLocation(LocationRestaurantRequest request, String pickeatCode) {
+    public void searchByLocation(String pickeatCode, LocationRestaurantRequest request) {
         List<RestaurantRequest> restaurantRequests = locationRestaurantSearchService.searchByLocation(request);
         restaurantService.create(restaurantRequests, pickeatCode);
     }
 
-    public void searchByWish(WishRestaurantRequest request, String pickeatCode) {
+    public void searchByWish(String pickeatCode, WishRestaurantRequest request) {
         List<RestaurantRequest> restaurantRequests = wishRestaurantSearchService.searchByWish(request);
         restaurantService.create(restaurantRequests, pickeatCode);
     }
 
-    public void searchByTemplate(TemplateRestaurantRequest request, String pickeatCode) {
+    public void searchByTemplate(String pickeatCode, TemplateRestaurantRequest request) {
         List<RestaurantRequest> restaurantRequests = templateRestaurantSearchService.searchByTemplate(request);
         restaurantService.create(restaurantRequests, pickeatCode);
     }

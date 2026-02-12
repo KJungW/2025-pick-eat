@@ -8,7 +8,6 @@ import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
 import com.pickeat.backend.restaurant.domain.RestaurantV2;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;
-import com.pickeat.backend.restaurant.domain.storage.RestaurantExcludedStorage;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,24 +21,22 @@ public class RestaurantServiceV2 {
 
     private final PickeatStorage pickeatStorage;
     private final RestaurantsStorage restaurantsStorage;
-    private final RestaurantExcludedStorage excludedStorage;
 
-    public void create(List<RestaurantRequest> restaurantRequests, String pickeatCode) {
+    public void create(String pickeatCode, List<RestaurantRequest> restaurantRequests) {
         PickeatV2 pickeat = getPickeatByCode(pickeatCode);
         RestaurantsV2 restaurants = convertToRestaurants(restaurantRequests);
-        saveRestaurants(pickeat.getCode(), restaurants);
-        setupRestaurantExclude(pickeat.getCode(), restaurants);
+        setupRestaurants(pickeatCode, restaurants);
     }
 
-    public List<RestaurantResponseV2> getByPickeat(String pickeatCode) {
+    public List<RestaurantResponseV2> getMetaInPickeat(String pickeatCode) {
         PickeatV2 pickeat = getPickeatByCode(pickeatCode);
-        RestaurantsV2 restaurants = getRestaurantByPickeat(pickeatCode);
+        RestaurantsV2 restaurants = getRestaurantMetaInPickeat(pickeatCode);
         return RestaurantResponseV2.of(restaurants);
     }
 
     public void exclude(String pickeatCode, List<String> restaurantCodes) {
         PickeatV2 pickeat = getPickeatByCode(pickeatCode);
-        excludedStorage.exclude(pickeatCode, restaurantCodes);
+        restaurantsStorage.excludeRestaurants(pickeatCode, restaurantCodes);
     }
 
     private PickeatV2 getPickeatByCode(String pickeatCode) {
@@ -47,24 +44,15 @@ public class RestaurantServiceV2 {
                 .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
     }
 
-    private RestaurantsV2 getRestaurantByPickeat(String pickeatCode) {
-        return restaurantsStorage.get(pickeatCode)
+    private RestaurantsV2 getRestaurantMetaInPickeat(String pickeatCode) {
+        return restaurantsStorage.getAllRestaurantMeta(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
-    private void saveRestaurants(String pickeatCode, RestaurantsV2 restaurants) {
-        Boolean isSuccess = restaurantsStorage.saveIfAbsent(restaurants, pickeatCode);
-        if (!Boolean.TRUE.equals(isSuccess)) {
-            throw new BusinessException(ErrorCode.RESTAURANT_ALREADY_EXISTS);
-        }
-    }
-
-    private void setupRestaurantExclude(String pickeatCode, RestaurantsV2 restaurants) {
-        List<String> restaurantCodes = restaurants.extrudeRestaurantCodes();
-        boolean isSuccess = excludedStorage.setupExclude(pickeatCode, restaurantCodes);
+    private void setupRestaurants(String pickeatCode, RestaurantsV2 restaurants) {
+        Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
         if (!isSuccess) {
-            restaurantsStorage.remove(pickeatCode);
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+            throw new BusinessException(ErrorCode.RESTAURANT_ALREADY_EXISTS);
         }
     }
 

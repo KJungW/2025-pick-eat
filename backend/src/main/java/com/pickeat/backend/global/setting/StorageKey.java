@@ -12,9 +12,11 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum StorageKey {
     PICKEAT("pickeat:%s", 1, Duration.ofMinutes(30)),
-    RESTAURANT("pickeat:%s:restaurants", 1, Duration.ofMinutes(30)),
     PARTICIPANT("pickeat:%s:participant", 1, Duration.ofMinutes(30)),
-    RESTAURANT_EXCLUDED("pickeat:{pickeatcode}:excludeds", 1, Duration.ofMinutes(30));
+    RESTAURANT_META("pickeat:%s:restaurants", 1, Duration.ofMinutes(30)),
+    RESTAURANT_ALIVE("pickeat:%s:restaurants:alives", 1, Duration.ofMinutes(30));
+
+    public static final Duration PICKEAT_TTL = Duration.ofMinutes(30);
 
     private final String format;
     private final int argCount;

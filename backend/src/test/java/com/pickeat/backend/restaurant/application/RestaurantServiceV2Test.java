@@ -11,7 +11,6 @@ import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;
-import com.pickeat.backend.restaurant.domain.storage.RestaurantExcludedStorage;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.RestaurantRequestFixture;
@@ -24,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
-@Import({RestaurantServiceV2.class, RestaurantsStorage.class, PickeatStorage.class, RestaurantExcludedStorage.class})
+@Import({RestaurantServiceV2.class, RestaurantsStorage.class, PickeatStorage.class})
 class RestaurantServiceV2Test extends DatabaseSliceTest {
 
     @Autowired
@@ -32,9 +31,6 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
 
     @Autowired
     private RestaurantsStorage restaurantsStorage;
-
-    @Autowired
-    private RestaurantExcludedStorage excludedStorage;
 
     @Autowired
     private PickeatStorage pickeatStorage;
@@ -53,10 +49,10 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
                     RestaurantRequestFixture.create("돈가스"));
 
             // when
-            restaurantService.create(requests, pickeat.getCode());
+            restaurantService.create(pickeat.getCode(), requests);
 
             // then
-            Optional<RestaurantsV2> saved = restaurantsStorage.get(pickeat.getCode());
+            Optional<RestaurantsV2> saved = restaurantsStorage.getAllRestaurantMeta(pickeat.getCode());
             assertAll(
                     () -> assertThat(saved).isPresent(),
                     () -> assertThat(saved.get().getRestaurants()).hasSize(2),
@@ -75,10 +71,10 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
                     RestaurantRequestFixture.create("돈가스"));
 
             // when
-            restaurantService.create(requests, pickeat.getCode());
+            restaurantService.create(pickeat.getCode(), requests);
 
-            Optional<RestaurantsV2> savedRestaurants = restaurantsStorage.get(pickeat.getCode());
-            Set<String> aliveRestaurantCodes = excludedStorage.findAlive(pickeat.getCode());
+            Optional<RestaurantsV2> savedRestaurants = restaurantsStorage.getAllRestaurantMeta(pickeat.getCode());
+            Set<String> aliveRestaurantCodes = restaurantsStorage.getAliveRestaurantCode(pickeat.getCode());
 
             assertAll(
                     () -> assertThat(aliveRestaurantCodes).hasSize(2),
@@ -94,7 +90,7 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             List<RestaurantRequest> requests = List.of(RestaurantRequestFixture.create("마라탕"));
 
             // when & then
-            assertThatThrownBy(() -> restaurantService.create(requests, invalidCode))
+            assertThatThrownBy(() -> restaurantService.create(invalidCode, requests))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
         }
@@ -106,12 +102,12 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             pickeatStorage.save(pickeat);
 
             RestaurantsV2 existing = new RestaurantsV2(List.of(RestaurantV2Fixture.create("기존 식당")));
-            restaurantsStorage.saveIfAbsent(existing, pickeat.getCode());
+            restaurantsStorage.setupRestaurants(pickeat.getCode(), existing);
 
             List<RestaurantRequest> newRequests = List.of(RestaurantRequestFixture.create("새로운 식당"));
 
             // when & then
-            assertThatThrownBy(() -> restaurantService.create(newRequests, pickeat.getCode()))
+            assertThatThrownBy(() -> restaurantService.create(pickeat.getCode(), newRequests))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(ErrorCode.RESTAURANT_ALREADY_EXISTS.getMessage());
         }
@@ -129,10 +125,10 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             RestaurantsV2 restaurants = new RestaurantsV2(List.of(
                     RestaurantV2Fixture.create("초밥"),
                     RestaurantV2Fixture.create("삼겹살")));
-            restaurantsStorage.saveIfAbsent(restaurants, pickeat.getCode());
+            restaurantsStorage.setupRestaurants(pickeat.getCode(), restaurants);
 
             // when
-            List<RestaurantResponseV2> response = restaurantService.getByPickeat(pickeat.getCode());
+            List<RestaurantResponseV2> response = restaurantService.getMetaInPickeat(pickeat.getCode());
 
             // then
             assertAll(
@@ -148,7 +144,7 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             String invalidCode = "NON-EXISTENT-CODE";
 
             // when & then
-            assertThatThrownBy(() -> restaurantService.getByPickeat(invalidCode))
+            assertThatThrownBy(() -> restaurantService.getMetaInPickeat(invalidCode))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
         }
@@ -160,7 +156,7 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             pickeatStorage.save(pickeat);
 
             // when & then
-            assertThatThrownBy(() -> restaurantService.getByPickeat(pickeat.getCode()))
+            assertThatThrownBy(() -> restaurantService.getMetaInPickeat(pickeat.getCode()))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(ErrorCode.RESTAURANT_NOT_FOUND.getMessage());
         }
@@ -178,16 +174,16 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             List<RestaurantRequest> restaurants = List.of(
                     RestaurantRequestFixture.create("restaurant1"),
                     RestaurantRequestFixture.create("restaurant2"));
-            restaurantService.create(restaurants, pickeat.getCode());
+            restaurantService.create(pickeat.getCode(), restaurants);
 
-            RestaurantsV2 restaurantsV2 = restaurantsStorage.get(pickeat.getCode()).get();
+            RestaurantsV2 restaurantsV2 = restaurantsStorage.getAllRestaurantMeta(pickeat.getCode()).get();
             List<String> restaurantCodes = restaurantsV2.extrudeRestaurantCodes();
 
             // when
             restaurantService.exclude(pickeat.getCode(), restaurantCodes);
 
             // then
-            Set<String> aliveRestaurantCodes = excludedStorage.findAlive(pickeat.getCode());
+            Set<String> aliveRestaurantCodes = restaurantsStorage.getAliveRestaurantCode(pickeat.getCode());
             assertAll(
                     () -> assertThat(aliveRestaurantCodes).doesNotContainAnyElementsOf(restaurantCodes),
                     () -> assertThat(aliveRestaurantCodes).isEmpty()
