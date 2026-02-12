@@ -9,8 +9,6 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.pickeat.application.dto.request.ParticipantRequestV2;
-import com.pickeat.backend.pickeat.application.dto.response.ParticipantResponseV2;
-import com.pickeat.backend.pickeat.domain.ParticipantV2;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.store.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
@@ -72,53 +70,6 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             assertThatThrownBy(() -> participantServiceV2.createParticipant(request))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
-        }
-    }
-
-    @Nested
-    class 참가자_단건_조회 {
-
-        @Test
-        void 참가자를_성공적으로_조회한다() {
-            // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("저녁 모임");
-            pickeatStorage.save(pickeat);
-
-            ParticipantV2 participant = new ParticipantV2("백엔드");
-            participantStorage.save(pickeat.getCode(), participant);
-
-            // when
-            ParticipantResponseV2 response = participantServiceV2.getParticipant(
-                    pickeat.getCode(), participant.getCode());
-
-            // then
-            assertAll(
-                    () -> assertThat(response.participantCode()).isEqualTo(participant.getCode()),
-                    () -> assertThat(response.nickname()).isEqualTo(participant.getNickname())
-            );
-        }
-
-        @Test
-        void 관련_픽잇이_없는_경우_예외를_발생시킨다() {
-            // given
-            String invalidPickeatCode = "INVALID_PICK_EAT";
-
-            // when & then
-            assertThatThrownBy(() -> participantServiceV2.getParticipant(invalidPickeatCode, "ANY_PARTICIPANT"))
-                    .isInstanceOf(BusinessException.class)
-                    .hasMessageContaining(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
-        }
-
-        @Test
-        void 참가자가_없는_경우_예외를_발생시킨다() {
-            // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("팀 점심");
-            pickeatStorage.save(pickeat);
-
-            // when & then
-            assertThatThrownBy(() -> participantServiceV2.getParticipant(pickeat.getCode(), "NOT_FOUND_PARTICIPANT"))
-                    .isInstanceOf(BusinessException.class)
-                    .hasMessageContaining(ErrorCode.PARTICIPANT_NOT_FOUND.getMessage());
         }
     }
 }

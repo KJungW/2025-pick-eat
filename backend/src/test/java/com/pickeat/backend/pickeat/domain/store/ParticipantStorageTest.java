@@ -4,10 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.setting.StorageKey;
-import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.pickeat.domain.ParticipantV2;
 import com.pickeat.backend.support.DatabaseSliceTest;
-import java.util.Optional;
+import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,6 @@ class ParticipantStorageTest extends DatabaseSliceTest {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    @Autowired
-    private JsonParser jsonParser;
-
     @Nested
     class 참가자_저장 {
 
@@ -34,18 +30,17 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "pickeat-code";
             ParticipantV2 participant = new ParticipantV2("닉네임");
-            String expectedKey = StorageKey.PARTICIPANT.generateKey(pickeatCode);
 
             // when
-            participantStorage.save(pickeatCode, participant);
+            participantStorage.setupAboutParticipant(pickeatCode, participant);
 
             // then
-            Object savedValue = redisTemplate.opsForHash().get(expectedKey, participant.getCode());
-            ParticipantV2 saved = jsonParser.fromJson((String) savedValue, ParticipantV2.class);
-
+            List<ParticipantV2> allParticipants = participantStorage.getParticipants(pickeatCode);
             assertAll(
-                    () -> assertThat(saved).isNotNull(),
-                    () -> assertThat(saved.getCode()).isEqualTo(participant.getCode())
+                    () -> assertThat(allParticipants).hasSize(1),
+                    () -> assertThat(allParticipants)
+                            .extracting(ParticipantV2::getCode)
+                            .containsExactly(participant.getCode())
             );
         }
 
@@ -60,7 +55,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             ParticipantV2 secondParticipant = new ParticipantV2("두번째");
 
             // when: 첫 번째 참가자 저장 (이때 TTL이 설정됨)
-            participantStorage.save(pickeatCode, firstParticipant);
+            participantStorage.setupAboutParticipant(pickeatCode, firstParticipant);
             long firstTtl = redisTemplate.getExpire(key);
 
             // then: 설정된 TTL이 예상 범위 내에 있는지 확인
@@ -69,7 +64,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             Thread.sleep(1100);
 
             // when: 두 번째 참가자 저장 (이미 TTL이 존재하므로 Lua 스크립트에 의해 EXPIRE가 실행되지 않아야 함)
-            participantStorage.save(pickeatCode, secondParticipant);
+            participantStorage.setupAboutParticipant(pickeatCode, secondParticipant);
             long secondTtl = redisTemplate.getExpire(key);
 
             // then: 두 번째 저장 후에도 TTL이 재설정(Reset)되지 않고 첫 번째 확인 시점보다 작거나 같아야 함
@@ -81,19 +76,23 @@ class ParticipantStorageTest extends DatabaseSliceTest {
     class 참가자_조회 {
 
         @Test
-        void 참가자를_성공적으로_조회한다() {
+        void 참가자들을_성공적으로_조회한다() {
             // given
             String pickeatCode = "pickeat-code";
-            ParticipantV2 participant = new ParticipantV2("조회대상");
-            participantStorage.save(pickeatCode, participant);
+            ParticipantV2 participant1 = new ParticipantV2("참가자1");
+            participantStorage.setupAboutParticipant(pickeatCode, participant1);
+            ParticipantV2 participant2 = new ParticipantV2("참가자2");
+            participantStorage.setupAboutParticipant(pickeatCode, participant2);
 
             // when
-            Optional<ParticipantV2> result = participantStorage.get(pickeatCode, participant.getCode());
+            List<ParticipantV2> result = participantStorage.getParticipants(pickeatCode);
 
             // then
             assertAll(
-                    () -> assertThat(result).isPresent(),
-                    () -> assertThat(result.get().getCode()).isEqualTo(participant.getCode())
+                    () -> assertThat(result).hasSize(2),
+                    () -> assertThat(result)
+                            .extracting(ParticipantV2::getCode)
+                            .containsExactlyInAnyOrder(participant1.getCode(), participant2.getCode())
             );
         }
     }
