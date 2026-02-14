@@ -58,6 +58,7 @@ public class DatabaseSliceTest {
         registry.add("spring.datasource.url", MYSQL_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", MYSQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", MYSQL_CONTAINER::getPassword);
+        registry.add("spring.datasource.hikari.maximum-pool-size", () -> 3);
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
 
         registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
