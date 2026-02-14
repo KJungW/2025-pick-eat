@@ -15,7 +15,7 @@ public enum ErrorCode {
 
     // Participant 관련 에러
     PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "참가자를 찾을 수 없습니다."),
-    PARTICIPANT_ALREADY_ELIMINATED(HttpStatus.BAD_REQUEST, "이미 소거된 참가자입니다."),
+    PARTICIPANT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 픽잇에 동일한 참가자가 생성되었습니다."),
 
     // Wish 관련 에러
     WISH_NOT_FOUND(HttpStatus.NOT_FOUND, "위시를 찾을 수 없습니다."),

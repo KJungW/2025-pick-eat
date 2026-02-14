@@ -40,6 +40,22 @@ public class ParticipantControllerV2 {
         return ResponseEntity.ok(new MyParticipantCodeResponse(principal.participantCode()));
     }
 
+    @PostMapping("/participants/me/completion/complete/new")
+    public ResponseEntity<Void> markCompletion(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        participantService.markCompletion(principal.pickeatCode(), principal.participantCode());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/participants/me/completion/cancel/new")
+    public ResponseEntity<Void> cancelCompletion(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        participantService.cancelCompletion(principal.pickeatCode(), principal.participantCode());
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/participants/meta/new")
     public ResponseEntity<List<ParticipantResponseV2>> getAllParticipantMeta(
             @ParticipantInPickeatV2 ParticipantPrincipalV2 principal

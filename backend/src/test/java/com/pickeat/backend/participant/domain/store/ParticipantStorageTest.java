@@ -4,8 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.setting.StorageKey;
-import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
+import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
 import com.pickeat.backend.participant.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -36,12 +37,14 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.setupAboutParticipant(pickeatCode, participant);
 
             // then
-            List<ParticipantV2> allParticipants = participantStorage.getParticipants(pickeatCode);
+            List<ParticipantV2> allParticipants = participantStorage.getParticipantsMeta(pickeatCode);
+            ParticipantStateDto participantsState = participantStorage.getParticipantsState(pickeatCode);
             assertAll(
                     () -> assertThat(allParticipants).hasSize(1),
                     () -> assertThat(allParticipants)
                             .extracting(ParticipantV2::getCode)
-                            .containsExactly(participant.getCode())
+                            .containsExactly(participant.getCode()),
+                    () -> assertThat(participantsState.completionState().get(participant.getCode())).isFalse()
             );
         }
 
@@ -74,10 +77,10 @@ class ParticipantStorageTest extends DatabaseSliceTest {
     }
 
     @Nested
-    class 참가자_조회 {
+    class 참가자_메타데이터_조회 {
 
         @Test
-        void 참가자들을_성공적으로_조회한다() {
+        void 참가자_메타데이터를_성공적으로_조회한다() {
             // given
             String pickeatCode = "pickeat-code";
             ParticipantV2 participant1 = new ParticipantV2("참가자1");
@@ -86,7 +89,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.setupAboutParticipant(pickeatCode, participant2);
 
             // when
-            List<ParticipantV2> result = participantStorage.getParticipants(pickeatCode);
+            List<ParticipantV2> result = participantStorage.getParticipantsMeta(pickeatCode);
 
             // then
             assertAll(
@@ -95,6 +98,65 @@ class ParticipantStorageTest extends DatabaseSliceTest {
                             .extracting(ParticipantV2::getCode)
                             .containsExactlyInAnyOrder(participant1.getCode(), participant2.getCode())
             );
+        }
+    }
+
+    @Nested
+    class 참가자_상태_조회 {
+
+        @Test
+        void 참가자_상태를_성공적으로_조회한다() {
+            // given
+            String pickeatCode = "pickeat-code";
+
+            ParticipantV2 participant = new ParticipantV2("참가자");
+            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.markCompletion(pickeatCode, participant.getCode());
+
+            // when
+            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode);
+
+            // then
+            assertThat(result.completionState().get(participant.getCode())).isTrue();
+        }
+    }
+
+    @Nested
+    class 참가자_투표_완료_표시 {
+
+        @Test
+        void 참가자를_투표_완료_상태로_변경한다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            ParticipantV2 participant = new ParticipantV2("참가자");
+            participantStorage.setupAboutParticipant(pickeatCode, participant);
+
+            // when
+            participantStorage.markCompletion(pickeatCode, participant.getCode());
+
+            // then
+            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode);
+            assertThat(result.completionState().get(participant.getCode())).isTrue();
+        }
+    }
+
+    @Nested
+    class 참가자_투표_완료_표시_제거 {
+
+        @Test
+        void 참가자의_투표_완료_상태를_취소한다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            ParticipantV2 participant = new ParticipantV2("참가자");
+            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.markCompletion(pickeatCode, participant.getCode());
+
+            // when
+            participantStorage.cancelCompletion(pickeatCode, participant.getCode());
+
+            // then
+            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode);
+            assertThat(result.completionState().get(participant.getCode())).isFalse();
         }
     }
 
@@ -115,7 +177,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.remove(pickeatCode);
 
             // then
-            List<ParticipantV2> remainingParticipants = participantStorage.getParticipants(pickeatCode);
+            List<ParticipantV2> remainingParticipants = participantStorage.getParticipantsMeta(pickeatCode);
             assertThat(remainingParticipants).isEmpty();
         }
     }

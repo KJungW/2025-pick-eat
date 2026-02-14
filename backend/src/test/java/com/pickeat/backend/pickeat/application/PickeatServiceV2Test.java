@@ -3,15 +3,15 @@ package com.pickeat.backend.pickeat.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import com.pickeat.backend.participant.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
-import com.pickeat.backend.participant.domain.ParticipantV2;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
 import com.pickeat.backend.pickeat.domain.PickeatResultV2;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.repository.PickeatRecordRepository;
 import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepositoryV2;
-import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.domain.RestaurantV2;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;
@@ -150,7 +150,7 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
             assertAll(
                     () -> assertThat(pickeatStorage.get(code).isEmpty()).isTrue(),
                     () -> assertThat(restaurantsStorage.getAllRestaurantMeta(code).isEmpty()).isTrue(),
-                    () -> assertThat(participantStorage.getParticipants(code).isEmpty()).isTrue()
+                    () -> assertThat(participantStorage.getParticipantsMeta(code).isEmpty()).isTrue()
             );
         }
     }

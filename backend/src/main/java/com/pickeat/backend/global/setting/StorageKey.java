@@ -13,6 +13,7 @@ import lombok.Getter;
 public enum StorageKey {
     PICKEAT("pickeat:%s", 1, Duration.ofMinutes(30)),
     PARTICIPANT("pickeat:%s:participant", 1, Duration.ofMinutes(30)),
+    PARTICIPANT_COMPLETION("pickeat:%s:participant:completion", 1, Duration.ofMinutes(30)),
     RESTAURANT_META("pickeat:%s:restaurants", 1, Duration.ofMinutes(30)),
     RESTAURANT_ALIVE("pickeat:%s:restaurants:alives", 1, Duration.ofMinutes(30)),
     RESTAURANT_LIKE_COUNT("pickeat:%s:likes:count", 1, Duration.ofMinutes(30)),

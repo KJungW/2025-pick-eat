@@ -26,18 +26,35 @@ public class ParticipantServiceV2 {
     public TokenResponse createParticipant(ParticipantRequestV2 request) {
         PickeatV2 pickeat = getPickeatByCode(request.pickeatCode());
         ParticipantV2 participant = new ParticipantV2(request.nickname());
-        participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
+        setupAboutParticipant(pickeat, participant);
         return participantTokenProvider.createToken(participant, pickeat);
     }
 
     public List<ParticipantResponseV2> getMetaInPickeat(String pickeatCode) {
         PickeatV2 pickeat = getPickeatByCode(pickeatCode);
-        List<ParticipantV2> participants = participantStorage.getParticipants(pickeatCode);
+        List<ParticipantV2> participants = participantStorage.getParticipantsMeta(pickeatCode);
         return ParticipantResponseV2.from(participants);
+    }
+
+    public void markCompletion(String pickeatCode, String participantCode) {
+        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+        participantStorage.markCompletion(pickeatCode, participantCode);
+    }
+
+    public void cancelCompletion(String pickeatCode, String participantCode) {
+        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+        participantStorage.cancelCompletion(pickeatCode, participantCode);
     }
 
     private PickeatV2 getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
+    }
+
+    private void setupAboutParticipant(PickeatV2 pickeat, ParticipantV2 participant) {
+        boolean isSuccess = participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
+        if (!isSuccess) {
+            throw new BusinessException(ErrorCode.PARTICIPANT_ALREADY_EXISTS);
+        }
     }
 }

@@ -2,15 +2,15 @@ package com.pickeat.backend.pickeat.application;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.participant.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
-import com.pickeat.backend.participant.domain.ParticipantV2;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
 import com.pickeat.backend.pickeat.domain.PickeatResultV2;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.repository.PickeatRecordRepository;
 import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepositoryV2;
-import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.domain.RestaurantV2;
@@ -73,7 +73,7 @@ public class PickeatServiceV2 {
     }
 
     private List<ParticipantV2> getParticipantInPickeat(String pickeatCode) {
-        return participantStorage.getParticipants(pickeatCode);
+        return participantStorage.getParticipantsMeta(pickeatCode);
     }
 
     private PickeatRecord savePickeatRecord(PickeatV2 pickeat) {

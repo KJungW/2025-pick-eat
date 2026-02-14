@@ -10,6 +10,7 @@ import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
 import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
+import com.pickeat.backend.participant.domain.ParticipantV2;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
@@ -76,10 +77,10 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
     }
 
     @Nested
-    class 참가자_조회 {
+    class 참가자_메타데이터_조회 {
 
         @Test
-        void 픽잇의_모든_참가자를_조회한다() {
+        void 픽잇에_참가한_모든_참가자의_메타데이터를_조회한다() {
             // given
             PickeatV2 pickeat = PickeatV2.createWithoutRoom("저녁 회식");
             pickeatStorage.save(pickeat);
@@ -108,6 +109,82 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> participantServiceV2.getMetaInPickeat(pickeatCode))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+        }
+    }
+
+    @Nested
+    class 참가자_투표_완료_표시 {
+
+        @Test
+        void 참가자를_투표_완료_상태로_표시한다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("투표 테스트");
+            pickeatStorage.save(pickeat);
+            String pickeatCode = pickeat.getCode();
+
+            ParticipantV2 participant = new ParticipantV2("참가자");
+            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            String participantCode = participant.getCode();
+
+            // when
+            participantServiceV2.markCompletion(pickeatCode, participantCode);
+
+            // then
+            boolean isCompleted = participantStorage.getParticipantsState(pickeatCode)
+                    .completionState()
+                    .get(participantCode);
+            assertThat(isCompleted).isTrue();
+        }
+
+        @Test
+        void 픽잇이_존재하지_않는다면_예외를_발생시킨다() {
+            // given
+            String invalidPickeatCode = "INVALID_CODE";
+            String participantCode = "any-code";
+
+            // when & then
+            assertThatThrownBy(() -> participantServiceV2.markCompletion(invalidPickeatCode, participantCode))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+        }
+    }
+
+    @Nested
+    class 참가자_투표_완료_표시_취소 {
+
+        @Test
+        void 참가자를_투표_완료_상태를_취소한다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("취소 테스트");
+            pickeatStorage.save(pickeat);
+            String pickeatCode = pickeat.getCode();
+
+            ParticipantV2 participant = new ParticipantV2("참가자");
+            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            String participantCode = participant.getCode();
+
+            participantServiceV2.markCompletion(pickeatCode, participantCode);
+
+            // when
+            participantServiceV2.cancelCompletion(pickeatCode, participantCode);
+
+            // then
+            boolean isCompleted = participantStorage.getParticipantsState(pickeatCode)
+                    .completionState()
+                    .get(participantCode);
+            assertThat(isCompleted).isFalse();
+        }
+
+        @Test
+        void 픽잇이_존재하지_않는다면_예외를_발생시킨다() {
+            // given
+            String invalidPickeatCode = "INVALID_CODE";
+            String participantCode = "any-code";
+
+            // when & then
+            assertThatThrownBy(() -> participantServiceV2.cancelCompletion(invalidPickeatCode, participantCode))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
         }
