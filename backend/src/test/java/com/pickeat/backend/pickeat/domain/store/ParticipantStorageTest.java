@@ -96,4 +96,26 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             );
         }
     }
+
+    @Nested
+    class 픽잇_참가자_관련_데이터_제거 {
+
+        @Test
+        void 픽잇과_관련된_모든_참가자_데이터를_제거할_수_있다() {
+            // given
+            String pickeatCode = "remove-test-code";
+            ParticipantV2 participant1 = new ParticipantV2("참가자1");
+            ParticipantV2 participant2 = new ParticipantV2("참가자2");
+
+            participantStorage.setupAboutParticipant(pickeatCode, participant1);
+            participantStorage.setupAboutParticipant(pickeatCode, participant2);
+
+            // when
+            participantStorage.remove(pickeatCode);
+
+            // then
+            List<ParticipantV2> remainingParticipants = participantStorage.getParticipants(pickeatCode);
+            assertThat(remainingParticipants).isEmpty();
+        }
+    }
 }

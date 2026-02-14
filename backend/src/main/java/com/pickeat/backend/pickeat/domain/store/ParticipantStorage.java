@@ -57,4 +57,9 @@ public class ParticipantStorage {
                 .map(json -> jsonParser.fromJson(json, ParticipantV2.class))
                 .toList();
     }
+
+    public void remove(String pickeatCode) {
+        String key = StorageKey.PARTICIPANT.generateKey(pickeatCode);
+        redisTemplate.delete(key);
+    }
 }

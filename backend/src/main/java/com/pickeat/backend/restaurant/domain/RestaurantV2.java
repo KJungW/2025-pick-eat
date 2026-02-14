@@ -24,8 +24,8 @@ public class RestaurantV2 {
             String roadAddressName,
             String placeUrl,
             String tags,
-            String picktureKey,
-            String pickureUrl
+            String pictureKey,
+            String pictureUrl
     ) {
         this.code = UUID.randomUUID().toString();
         this.name = name;
@@ -33,7 +33,7 @@ public class RestaurantV2 {
         this.roadAddressName = roadAddressName;
         this.placeUrl = placeUrl;
         this.tags = tags;
-        this.pictureKey = picktureKey;
-        this.pictureUrl = pickureUrl;
+        this.pictureKey = pictureKey;
+        this.pictureUrl = pictureUrl;
     }
 }

@@ -1,9 +1,10 @@
 package com.pickeat.backend.pickeat.ui;
 
 import com.pickeat.backend.global.auth.annotation.LoginUserId;
+import com.pickeat.backend.global.auth.annotation.ParticipantInPickeatV2;
+import com.pickeat.backend.global.auth.principal.ParticipantPrincipalV2;
 import com.pickeat.backend.global.log.BusinessLogging;
-import com.pickeat.backend.pickeat.application.PickeatResultService;
-import com.pickeat.backend.pickeat.application.PickeatService;
+import com.pickeat.backend.pickeat.application.PickeatServiceV2;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
 import jakarta.validation.Valid;
@@ -21,12 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PickeatControllerV2 {
 
-    private final PickeatService pickeatService;
-    private final PickeatResultService pickeatResultService;
+    private final PickeatServiceV2 pickeatService;
 
     @PostMapping("/pickeats/new")
     public ResponseEntity<PickeatResponseV2> createPickeatWithoutRoomV2(@Valid @RequestBody PickeatRequest request) {
-        PickeatResponseV2 response = pickeatService.createPickeatWithoutRoomV2(request);
+        PickeatResponseV2 response = pickeatService.createPickeatWithoutRoom(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -37,8 +37,15 @@ public class PickeatControllerV2 {
             @LoginUserId Long userId,
             @Valid @RequestBody PickeatRequest request
     ) {
-        PickeatResponseV2 response = pickeatService.createPickeatWithRoomV2(roomId, userId, request);
+        PickeatResponseV2 response = pickeatService.createPickeatWithRoom(roomId, userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/pickeats/complete/new")
+    public ResponseEntity<Void> completePickeat(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        pickeatService.completePickeat(principal.pickeatCode());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

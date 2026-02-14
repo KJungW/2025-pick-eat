@@ -18,9 +18,14 @@ public class PickeatStorage {
         template.opsForValue().set(key, pickeat, StorageKey.PICKEAT.getTtl());
     }
 
-    public Optional<PickeatV2> get(String code) {
-        String key = StorageKey.PICKEAT.generateKey(code);
+    public Optional<PickeatV2> get(String pickeatCode) {
+        String key = StorageKey.PICKEAT.generateKey(pickeatCode);
         PickeatV2 result = (PickeatV2) template.opsForValue().get(key);
         return Optional.ofNullable(result);
+    }
+
+    public void remove(String pickeatCode) {
+        String key = StorageKey.PICKEAT.generateKey(pickeatCode);
+        template.delete(key);
     }
 }

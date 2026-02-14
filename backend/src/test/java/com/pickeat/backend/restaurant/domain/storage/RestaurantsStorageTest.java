@@ -3,6 +3,7 @@ package com.pickeat.backend.restaurant.domain.storage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import com.pickeat.backend.global.setting.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.domain.RestaurantV2;
@@ -301,6 +302,38 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             assertAll(
                     () -> assertThat(isCancelled).isFalse(),
                     () -> assertThat(likeCounts.get(restaurant.getCode())).isEqualTo(0)
+            );
+        }
+    }
+
+    @Nested
+    class 픽잇_식당_관련_데이터_제거 {
+
+        @Test
+        void 픽잇과_관련된_모든_식당_데이터를_제거할_수_있다() {
+            // given
+            String pickeatCode = "remove-test-code";
+            String participantCode = "user-1";
+            RestaurantV2 restaurant = RestaurantV2Fixture.create("삭제될 식당");
+            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+
+            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+
+            // when
+            restaurantsStorage.remove(pickeatCode);
+
+            // then
+            Optional<RestaurantsV2> meta = restaurantsStorage.getAllRestaurantMeta(pickeatCode);
+            RestaurantStateDto state = restaurantsStorage.getAllRestaurantState(pickeatCode);
+            Boolean hasParticipantLikeRecordKey = redisTemplate.hasKey(
+                    StorageKey.RESTAURANT_LIKE_RECORD.generateKey(participantCode, restaurant.getCode()));
+
+            assertAll(
+                    () -> assertThat(meta).isEmpty(),
+                    () -> assertThat(state.aliveRestaurantCode()).isEmpty(),
+                    () -> assertThat(state.likeCountByRestaurant()).isEmpty(),
+                    () -> assertThat(hasParticipantLikeRecordKey).isFalse()
             );
         }
     }

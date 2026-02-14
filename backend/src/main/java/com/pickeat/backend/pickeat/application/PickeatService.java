@@ -7,15 +7,12 @@ import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatRejoinAvailableResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
 import com.pickeat.backend.pickeat.domain.Participant;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.PickeatCode;
-import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.repository.ParticipantRepository;
 import com.pickeat.backend.pickeat.domain.repository.PickeatRepository;
-import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.room.domain.repository.RoomUserRepository;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +28,6 @@ public class PickeatService {
     private final PickeatRepository pickeatRepository;
     private final ParticipantRepository participantRepository;
     private final RoomUserRepository roomUserRepository;
-    private final PickeatStorage pickeatStorage;
 
     @Transactional
     public PickeatResponse createPickeatWithoutRoom(PickeatRequest request) {
@@ -40,25 +36,12 @@ public class PickeatService {
         return PickeatResponse.from(pickeat);
     }
 
-    public PickeatResponseV2 createPickeatWithoutRoomV2(PickeatRequest request) {
-        PickeatV2 pickeat = PickeatV2.createWithoutRoom(request.name());
-        pickeatStorage.save(pickeat);
-        return PickeatResponseV2.from(pickeat);
-    }
-
     @Transactional
     public PickeatResponse createPickeatWithRoom(Long roomId, Long userId, PickeatRequest request) {
         validateUserAccessToRoom(roomId, userId);
         Pickeat pickeat = Pickeat.createWithRoom(request.name(), roomId);
         pickeatRepository.save(pickeat);
         return PickeatResponse.from(pickeat);
-    }
-
-    public PickeatResponseV2 createPickeatWithRoomV2(Long roomId, Long userId, PickeatRequest request) {
-        validateUserAccessToRoom(roomId, userId);
-        PickeatV2 pickeat = PickeatV2.createWithRoom(request.name(), roomId);
-        pickeatStorage.save(pickeat);
-        return PickeatResponseV2.from(pickeat);
     }
 
     @Transactional

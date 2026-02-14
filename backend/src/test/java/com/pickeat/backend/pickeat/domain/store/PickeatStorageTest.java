@@ -74,4 +74,23 @@ class PickeatStorageTest extends DatabaseSliceTest {
             assertThat(result).isEmpty();
         }
     }
+
+    @Nested
+    class 픽잇_제거 {
+
+        @Test
+        void 픽잇과을_제거할_수_있다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("제거 테스트 픽잇");
+            String code = pickeat.getCode();
+            pickeatStorage.save(pickeat);
+
+            // when
+            pickeatStorage.remove(code);
+
+            // then
+            Optional<PickeatV2> result = pickeatStorage.get(code);
+            assertThat(result).isEmpty();
+        }
+    }
 }

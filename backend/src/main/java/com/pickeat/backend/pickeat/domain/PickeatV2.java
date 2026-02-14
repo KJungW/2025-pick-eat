@@ -1,5 +1,6 @@
 package com.pickeat.backend.pickeat.domain;
 
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,5 +22,9 @@ public class PickeatV2 {
 
     public static PickeatV2 createWithRoom(String name, Long roomId) {
         return new PickeatV2(UUID.randomUUID().toString(), name, roomId);
+    }
+
+    public boolean belongsToRoom() {
+        return Objects.isNull(roomId);
     }
 }
