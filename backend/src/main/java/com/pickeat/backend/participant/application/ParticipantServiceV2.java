@@ -3,8 +3,10 @@ package com.pickeat.backend.participant.application;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
+import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
 import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponseV2;
 import com.pickeat.backend.participant.domain.ParticipantV2;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
@@ -34,6 +36,12 @@ public class ParticipantServiceV2 {
         PickeatV2 pickeat = getPickeatByCode(pickeatCode);
         List<ParticipantV2> participants = participantStorage.getParticipantsMeta(pickeatCode);
         return ParticipantResponseV2.from(participants);
+    }
+
+    public ParticipantStateResponseV2 getStateInPickeat(String pickeatCode) {
+        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+        ParticipantStateDto state = participantStorage.getParticipantsState(pickeatCode);
+        return ParticipantStateResponseV2.from(state);
     }
 
     public void markCompletion(String pickeatCode, String participantCode) {

@@ -7,6 +7,7 @@ import com.pickeat.backend.participant.application.ParticipantServiceV2;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
 import com.pickeat.backend.participant.application.dto.response.MyParticipantCodeResponse;
 import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponseV2;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +62,14 @@ public class ParticipantControllerV2 {
             @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
     ) {
         List<ParticipantResponseV2> response = participantService.getMetaInPickeat(principal.pickeatCode());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/participants/state/new")
+    public ResponseEntity<ParticipantStateResponseV2> getAllParticipantState(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        ParticipantStateResponseV2 response = participantService.getStateInPickeat(principal.pickeatCode());
         return ResponseEntity.ok(response);
     }
 }

@@ -10,6 +10,7 @@ import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
 import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponseV2;
 import com.pickeat.backend.participant.domain.ParticipantV2;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
@@ -99,6 +100,49 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
                     () -> assertThat(result)
                             .extracting(ParticipantResponseV2::nickname)
                             .containsExactly("참가자1", "참가자2", "참가자3")
+            );
+        }
+
+        @Test
+        void 픽잇이_존재하지_않는다면_예외를_발생시킨다() {
+            // given
+            String pickeatCode = "EMPTY_PICK_EAT";
+
+            // when & then
+            assertThatThrownBy(() -> participantServiceV2.getMetaInPickeat(pickeatCode))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+        }
+    }
+
+    @Nested
+    class 참가자_상태데이터_조회 {
+
+        @Test
+        void 픽잇에_참가한_모든_참가자의_상태데이터를_조회한다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("상태 조회 테스트");
+            pickeatStorage.save(pickeat);
+            String pickeatCode = pickeat.getCode();
+
+            ParticipantV2 participantA = new ParticipantV2("참가자A");
+            participantStorage.setupAboutParticipant(pickeatCode, participantA);
+            String participantACode = participantA.getCode();
+
+            ParticipantV2 participantB = new ParticipantV2("참가자B");
+            participantStorage.setupAboutParticipant(pickeatCode, participantB);
+            String participantBCode = participantB.getCode();
+
+            participantServiceV2.markCompletion(pickeatCode, participantACode);
+
+            // when
+            ParticipantStateResponseV2 result = participantServiceV2.getStateInPickeat(pickeatCode);
+
+            // then
+            assertAll(
+                    () -> assertThat(result.completion()).hasSize(2),
+                    () -> assertThat(result.completion().get(participantACode)).isTrue(),
+                    () -> assertThat(result.completion().get(participantBCode)).isFalse()
             );
         }
 
