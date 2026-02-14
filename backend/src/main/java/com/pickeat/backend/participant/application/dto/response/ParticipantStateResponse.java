@@ -1,6 +1,6 @@
-package com.pickeat.backend.pickeat.application.dto.response;
+package com.pickeat.backend.participant.application.dto.response;
 
-import com.pickeat.backend.pickeat.domain.Participant;
+import com.pickeat.backend.participant.domain.Participant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 

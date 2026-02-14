@@ -1,8 +1,8 @@
-package com.pickeat.backend.pickeat.ui;
+package com.pickeat.backend.participant.ui;
 
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
-import com.pickeat.backend.pickeat.application.ParticipantServiceV2;
-import com.pickeat.backend.pickeat.application.dto.request.ParticipantRequestV2;
+import com.pickeat.backend.participant.application.ParticipantServiceV2;
+import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

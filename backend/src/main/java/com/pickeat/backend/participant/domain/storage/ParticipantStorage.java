@@ -1,8 +1,8 @@
-package com.pickeat.backend.pickeat.domain.store;
+package com.pickeat.backend.participant.domain.storage;
 
 import com.pickeat.backend.global.setting.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
-import com.pickeat.backend.pickeat.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.ParticipantV2;
 import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

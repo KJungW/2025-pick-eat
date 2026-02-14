@@ -18,10 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
-import com.pickeat.backend.pickeat.application.dto.request.ParticipantRequest;
+import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
+import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
-import com.pickeat.backend.pickeat.application.dto.response.ParticipantResponse;
-import com.pickeat.backend.pickeat.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;

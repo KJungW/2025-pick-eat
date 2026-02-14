@@ -1,4 +1,4 @@
-package com.pickeat.backend.pickeat.domain;
+package com.pickeat.backend.participant.domain;
 
 import java.util.UUID;
 import lombok.AccessLevel;

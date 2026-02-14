@@ -1,6 +1,6 @@
 package com.pickeat.backend.support.fixture;
 
-import com.pickeat.backend.pickeat.domain.Participant;
+import com.pickeat.backend.participant.domain.Participant;
 
 public class ParticipantFixture {
 

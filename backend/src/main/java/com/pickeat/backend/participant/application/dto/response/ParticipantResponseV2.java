@@ -1,6 +1,6 @@
-package com.pickeat.backend.pickeat.application.dto.response;
+package com.pickeat.backend.participant.application.dto.response;
 
-import com.pickeat.backend.pickeat.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.ParticipantV2;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "참가자 응답")

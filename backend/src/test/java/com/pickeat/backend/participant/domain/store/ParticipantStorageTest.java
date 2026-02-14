@@ -1,10 +1,11 @@
-package com.pickeat.backend.pickeat.domain.store;
+package com.pickeat.backend.participant.domain.store;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.setting.StorageKey;
-import com.pickeat.backend.pickeat.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
+import com.pickeat.backend.participant.domain.ParticipantV2;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import java.util.List;
 import org.junit.jupiter.api.Nested;

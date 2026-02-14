@@ -5,7 +5,7 @@ import com.pickeat.backend.global.auth.annotation.ParticipantInPickeatV2;
 import com.pickeat.backend.global.auth.principal.ParticipantPrincipalV2;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.pickeat.application.ParticipantTokenProviderV2;
+import com.pickeat.backend.participant.application.ParticipantTokenProviderV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

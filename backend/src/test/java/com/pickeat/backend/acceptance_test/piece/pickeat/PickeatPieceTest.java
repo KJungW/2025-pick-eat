@@ -4,8 +4,8 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
-import com.pickeat.backend.pickeat.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResultResponse;

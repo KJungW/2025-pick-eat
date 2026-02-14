@@ -1,8 +1,8 @@
 package com.pickeat.backend.pickeat.ui.api;
 
 import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
-import com.pickeat.backend.pickeat.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatRejoinAvailableResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;

@@ -3,10 +3,10 @@ package com.pickeat.backend.pickeat.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.pickeat.domain.Participant;
+import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.PickeatResult;
-import com.pickeat.backend.pickeat.domain.repository.ParticipantRepository;
+import com.pickeat.backend.participant.domain.repository.ParticipantRepository;
 import com.pickeat.backend.pickeat.domain.repository.PickeatRepository;
 import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepository;
 import com.pickeat.backend.restaurant.domain.Restaurant;

@@ -3,7 +3,7 @@ package com.pickeat.backend.acceptance_test.piece.participant;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
-import com.pickeat.backend.pickeat.application.dto.request.ParticipantRequest;
+import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.springframework.http.HttpStatus;

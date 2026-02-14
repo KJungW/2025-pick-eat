@@ -1,4 +1,4 @@
-package com.pickeat.backend.pickeat.application;
+package com.pickeat.backend.participant.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -8,9 +8,9 @@ import com.pickeat.backend.global.auth.JwtProvider;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
-import com.pickeat.backend.pickeat.application.dto.request.ParticipantRequestV2;
+import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
-import com.pickeat.backend.pickeat.domain.store.ParticipantStorage;
+import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import org.junit.jupiter.api.Nested;

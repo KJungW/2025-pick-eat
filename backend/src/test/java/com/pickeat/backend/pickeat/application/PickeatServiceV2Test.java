@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
-import com.pickeat.backend.pickeat.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.ParticipantV2;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
 import com.pickeat.backend.pickeat.domain.PickeatResultV2;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.repository.PickeatRecordRepository;
 import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepositoryV2;
-import com.pickeat.backend.pickeat.domain.store.ParticipantStorage;
+import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.domain.RestaurantV2;
 import com.pickeat.backend.restaurant.domain.RestaurantsV2;

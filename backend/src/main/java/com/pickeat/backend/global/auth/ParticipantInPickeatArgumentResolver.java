@@ -4,7 +4,7 @@ import com.pickeat.backend.global.auth.annotation.ParticipantInPickeat;
 import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.pickeat.application.ParticipantTokenProvider;
+import com.pickeat.backend.participant.application.ParticipantTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -28,7 +28,7 @@ public class ParticipantInPickeatArgumentResolver implements HandlerMethodArgume
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+            NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 
         ParticipantInPickeat participantInPickeatAnnotation = parameter.getParameterAnnotation(
                 ParticipantInPickeat.class);

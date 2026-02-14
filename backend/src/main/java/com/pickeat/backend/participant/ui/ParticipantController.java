@@ -1,11 +1,11 @@
-package com.pickeat.backend.pickeat.ui;
+package com.pickeat.backend.participant.ui;
 
 import com.pickeat.backend.global.auth.annotation.ParticipantInPickeat;
 import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
-import com.pickeat.backend.pickeat.application.ParticipantService;
-import com.pickeat.backend.pickeat.application.dto.request.ParticipantRequest;
-import com.pickeat.backend.pickeat.application.dto.response.ParticipantResponse;
+import com.pickeat.backend.participant.application.ParticipantService;
+import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
+import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
 import com.pickeat.backend.pickeat.ui.api.ParticipantApiSpec;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
