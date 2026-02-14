@@ -4,10 +4,12 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
+import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
 import com.pickeat.backend.participant.domain.ParticipantV2;
-import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
+import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,12 @@ public class ParticipantServiceV2 {
         ParticipantV2 participant = new ParticipantV2(request.nickname());
         participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
         return participantTokenProvider.createToken(participant, pickeat);
+    }
+
+    public List<ParticipantResponseV2> getMetaInPickeat(String pickeatCode) {
+        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+        List<ParticipantV2> participants = participantStorage.getParticipants(pickeatCode);
+        return ParticipantResponseV2.from(participants);
     }
 
     private PickeatV2 getPickeatByCode(String pickeatCode) {

@@ -1,12 +1,18 @@
 package com.pickeat.backend.participant.ui;
 
+import com.pickeat.backend.global.auth.annotation.ParticipantInPickeatV2;
+import com.pickeat.backend.global.auth.principal.ParticipantPrincipalV2;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.ParticipantServiceV2;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
+import com.pickeat.backend.participant.application.dto.response.MyParticipantCodeResponse;
+import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,5 +31,20 @@ public class ParticipantControllerV2 {
     ) {
         TokenResponse response = participantService.createParticipant(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/participants/me/new")
+    public ResponseEntity<MyParticipantCodeResponse> getMyParticipantCode(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        return ResponseEntity.ok(new MyParticipantCodeResponse(principal.participantCode()));
+    }
+
+    @GetMapping("/participants/meta/new")
+    public ResponseEntity<List<ParticipantResponseV2>> getAllParticipantMeta(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        List<ParticipantResponseV2> response = participantService.getMetaInPickeat(principal.pickeatCode());
+        return ResponseEntity.ok(response);
     }
 }

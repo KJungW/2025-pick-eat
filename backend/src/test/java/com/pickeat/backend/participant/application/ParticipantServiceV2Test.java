@@ -9,10 +9,12 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
-import com.pickeat.backend.pickeat.domain.PickeatV2;
+import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
+import com.pickeat.backend.pickeat.domain.PickeatV2;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
+import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +72,44 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             assertThatThrownBy(() -> participantServiceV2.createParticipant(request))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+        }
+    }
+
+    @Nested
+    class 참가자_조회 {
+
+        @Test
+        void 픽잇의_모든_참가자를_조회한다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("저녁 회식");
+            pickeatStorage.save(pickeat);
+            String pickeatCode = pickeat.getCode();
+
+            participantServiceV2.createParticipant(new ParticipantRequestV2("참가자1", pickeatCode));
+            participantServiceV2.createParticipant(new ParticipantRequestV2("참가자2", pickeatCode));
+            participantServiceV2.createParticipant(new ParticipantRequestV2("참가자3", pickeatCode));
+
+            // when
+            List<ParticipantResponseV2> result = participantServiceV2.getMetaInPickeat(pickeatCode);
+
+            // then
+            assertAll(
+                    () -> assertThat(result).hasSize(3),
+                    () -> assertThat(result)
+                            .extracting(ParticipantResponseV2::nickname)
+                            .containsExactly("참가자1", "참가자2", "참가자3")
+            );
+        }
+
+        @Test
+        void 픽잇이_존재하지_않는다면_예외를_발생시킨다() {
+            // given
+            String pickeatCode = "EMPTY_PICK_EAT";
+
+            // when & then
+            assertThatThrownBy(() -> participantServiceV2.getMetaInPickeat(pickeatCode))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
         }
     }
 }
