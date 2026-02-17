@@ -3,7 +3,7 @@ package com.pickeat.backend.restaurant.domain.storage;
 import com.pickeat.backend.global.setting.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
-import com.pickeat.backend.restaurant.domain.RestaurantsV2;
+import com.pickeat.backend.restaurant.domain.Restaurants;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +107,7 @@ public class RestaurantsStorage {
     private final StringRedisTemplate redisTemplate;
     private final JsonParser jsonParser;
 
-    public boolean setupRestaurants(String pickeatCode, RestaurantsV2 restaurants) {
+    public boolean setupRestaurants(String pickeatCode, Restaurants restaurants) {
         String restaurantMetaKey = StorageKey.RESTAURANT_META.generateKey(pickeatCode);
         String restaurantAliveKey = StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode);
         String restaurantLikeCountKey = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
@@ -120,14 +120,14 @@ public class RestaurantsStorage {
                 args);
     }
 
-    public Optional<RestaurantsV2> getAllRestaurantMeta(String pickeatCode) {
+    public Optional<Restaurants> getAllRestaurantMeta(String pickeatCode) {
         String key = StorageKey.RESTAURANT_META.generateKey(pickeatCode);
         String result = redisTemplate.opsForValue().get(key);
 
         if (result == null) {
             return Optional.empty();
         }
-        return Optional.of(jsonParser.fromJson(result, RestaurantsV2.class));
+        return Optional.of(jsonParser.fromJson(result, Restaurants.class));
     }
 
     public RestaurantStateDto getAllRestaurantState(String pickeatCode) {
@@ -171,7 +171,7 @@ public class RestaurantsStorage {
         redisTemplate.delete(allRestaurantKeyInPickeat);
     }
 
-    private Object[] makeSetupRestaurantsArgs(Duration ttl, RestaurantsV2 restaurants) {
+    private Object[] makeSetupRestaurantsArgs(Duration ttl, Restaurants restaurants) {
         // 인자 구성: [0] TTL, [1] 전체 식당 정보 json, [2...] 전체 식당 코드들
         List<String> restaurantCodes = restaurants.extrudeRestaurantCodes();
         Object[] args = new Object[restaurantCodes.size() + 2];

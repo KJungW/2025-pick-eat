@@ -1,14 +1,14 @@
 package com.pickeat.backend.restaurant.ui;
 
-import com.pickeat.backend.global.auth.annotation.ParticipantInPickeatV2;
-import com.pickeat.backend.global.auth.principal.ParticipantPrincipalV2;
-import com.pickeat.backend.restaurant.application.RestaurantSearchFacadeV2;
-import com.pickeat.backend.restaurant.application.RestaurantServiceV2;
+import com.pickeat.backend.global.auth.annotation.ParticipantInPickeat;
+import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
+import com.pickeat.backend.restaurant.application.RestaurantSearchFacade;
+import com.pickeat.backend.restaurant.application.RestaurantService;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequestV2;
+import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequest;
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
-import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
+import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v2")
 @RequiredArgsConstructor
-public class RestaurantControllerV2 {
+public class RestaurantController {
 
-    private final RestaurantServiceV2 restaurantService;
-    private final RestaurantSearchFacadeV2 restaurantSearchFacade;
+    private final RestaurantService restaurantService;
+    private final RestaurantSearchFacade restaurantSearchFacade;
 
-    @PostMapping("/pickeats/{pickeatCode}/restaurants/location/new")
+    @PostMapping("/pickeats/{pickeatCode}/restaurants/location")
     public ResponseEntity<Void> createRestaurantsByLocation(
             @PathVariable("pickeatCode") String pickeatCode,
             @Valid @RequestBody LocationRestaurantRequest request
@@ -41,7 +41,7 @@ public class RestaurantControllerV2 {
         return ResponseEntity.created(location).build();
     }
 
-    @PostMapping("/pickeats/{pickeatCode}/restaurants/wish/new")
+    @PostMapping("/pickeats/{pickeatCode}/restaurants/wish")
     public ResponseEntity<Void> createRestaurantsByWish(
             @PathVariable("pickeatCode") String pickeatCode,
             @Valid @RequestBody WishRestaurantRequest request
@@ -51,7 +51,7 @@ public class RestaurantControllerV2 {
         return ResponseEntity.created(location).build();
     }
 
-    @PostMapping("/pickeats/{pickeatCode}/restaurants/template/new")
+    @PostMapping("/pickeats/{pickeatCode}/restaurants/template")
     public ResponseEntity<Void> createRestaurantsByTemplate(
             @PathVariable("pickeatCode") String pickeatCode,
             @Valid @RequestBody TemplateRestaurantRequest request
@@ -61,44 +61,44 @@ public class RestaurantControllerV2 {
         return ResponseEntity.created(location).build();
     }
 
-    @GetMapping("/pickeats/restaurants/new")
-    public ResponseEntity<List<RestaurantResponseV2>> getRestaurantMetaInPickeat(
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    @GetMapping("/pickeats/restaurants")
+    public ResponseEntity<List<RestaurantResponse>> getRestaurantMetaInPickeat(
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
-        List<RestaurantResponseV2> response = restaurantService.getMetaInPickeat(principal.pickeatCode());
+        List<RestaurantResponse> response = restaurantService.getMetaInPickeat(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/pickeats/restaurants/state/new")
+    @GetMapping("/pickeats/restaurants/state")
     public ResponseEntity<RestaurantStateResponse> getRestaurantStateInPickeat(
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
         RestaurantStateResponse response = restaurantService.getStateInPickeat(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
     }
 
-    @PatchMapping("/restaurants/exclude/new")
+    @PatchMapping("/restaurants/exclude")
     public ResponseEntity<Void> excludeRestaurants(
-            @RequestBody RestaurantExcludeRequestV2 request,
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+            @RequestBody RestaurantExcludeRequest request,
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
         restaurantService.exclude(principal.pickeatCode(), request.restaurantCodes());
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/restaurants/{restaurantCode}/like/new")
+    @PatchMapping("/restaurants/{restaurantCode}/like")
     public ResponseEntity<Void> likeRestaurant(
             @PathVariable("restaurantCode") String restaurantCode,
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
         restaurantService.like(principal.pickeatCode(), principal.participantCode(), restaurantCode);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/restaurants/{restaurantCode}/unlike/new")
+    @PatchMapping("/restaurants/{restaurantCode}/unlike")
     public ResponseEntity<Void> cancelLikeRestaurant(
             @PathVariable("restaurantCode") String restaurantCode,
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
         restaurantService.cancelLike(principal.pickeatCode(), principal.participantCode(), restaurantCode);
         return ResponseEntity.noContent().build();

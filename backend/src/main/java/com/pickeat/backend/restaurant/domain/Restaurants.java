@@ -11,19 +11,19 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class RestaurantsV2 {
+public class Restaurants {
 
-    private final List<RestaurantV2> restaurants;
+    private final List<Restaurant> restaurants;
 
-    public RestaurantsV2(List<RestaurantV2> restaurants) {
+    public Restaurants(List<Restaurant> restaurants) {
         this.restaurants = List.copyOf(restaurants);
     }
 
     public List<String> extrudeRestaurantCodes() {
-        return restaurants.stream().map(RestaurantV2::getCode).toList();
+        return restaurants.stream().map(Restaurant::getCode).toList();
     }
 
-    public RestaurantV2 selectRestaurant(RestaurantStateDto restaurantState) {
+    public Restaurant selectRestaurant(RestaurantStateDto restaurantState) {
         if (restaurantState.hasNoAliveRestaurants()) {
             return randomSelectRestaurant();
         }
@@ -31,17 +31,17 @@ public class RestaurantsV2 {
         return randomSelectTopRatedRestaurant(topRatedRestaurantCodes);
     }
 
-    private RestaurantV2 randomSelectRestaurant() {
+    private Restaurant randomSelectRestaurant() {
         return restaurants.get(ThreadLocalRandom.current().nextInt(restaurants.size()));
     }
 
-    private RestaurantV2 randomSelectTopRatedRestaurant(List<String> topRatedRestaurantCodes) {
+    private Restaurant randomSelectTopRatedRestaurant(List<String> topRatedRestaurantCodes) {
         String randomSelectedCode = topRatedRestaurantCodes
                 .get(ThreadLocalRandom.current().nextInt(topRatedRestaurantCodes.size()));
         return findBySelectedCode(randomSelectedCode);
     }
 
-    private RestaurantV2 findBySelectedCode(String selectedCode) {
+    private Restaurant findBySelectedCode(String selectedCode) {
         return restaurants.stream()
                 .filter(restaurant -> restaurant.getCode().equals(selectedCode))
                 .findFirst()

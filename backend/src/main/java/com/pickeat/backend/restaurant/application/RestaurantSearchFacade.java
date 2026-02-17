@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RestaurantSearchFacadeV2 {
+public class RestaurantSearchFacade {
 
     private final LocationRestaurantSearchService locationRestaurantSearchService;
     private final WishRestaurantSearchService wishRestaurantSearchService;
     private final TemplateRestaurantSearchService templateRestaurantSearchService;
-    private final RestaurantServiceV2 restaurantService;
+    private final RestaurantService restaurantService;
 
 
     public void searchByLocation(String pickeatCode, LocationRestaurantRequest request) {

@@ -1,13 +1,13 @@
 package com.pickeat.backend.participant.ui;
 
-import com.pickeat.backend.global.auth.annotation.ParticipantInPickeatV2;
-import com.pickeat.backend.global.auth.principal.ParticipantPrincipalV2;
+import com.pickeat.backend.global.auth.annotation.ParticipantInPickeat;
+import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
-import com.pickeat.backend.participant.application.ParticipantServiceV2;
-import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
+import com.pickeat.backend.participant.application.ParticipantService;
+import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
 import com.pickeat.backend.participant.application.dto.response.MyParticipantCodeResponse;
-import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
-import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponseV2;
+import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,54 +23,54 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class ParticipantControllerV2 {
+public class ParticipantController {
 
-    private final ParticipantServiceV2 participantService;
+    private final ParticipantService participantService;
 
-    @PostMapping("/participants/new")
+    @PostMapping("/participants")
     public ResponseEntity<TokenResponse> createParticipant(
-            @Valid @RequestBody ParticipantRequestV2 request
+            @Valid @RequestBody ParticipantRequest request
     ) {
         TokenResponse response = participantService.createParticipant(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/participants/me/new")
+    @GetMapping("/participants/me")
     public ResponseEntity<MyParticipantCodeResponse> getMyParticipantCode(
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
         return ResponseEntity.ok(new MyParticipantCodeResponse(principal.participantCode()));
     }
 
-    @PatchMapping("/participants/me/completion/complete/new")
+    @PatchMapping("/participants/me/completion/complete")
     public ResponseEntity<Void> markCompletion(
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
         participantService.markCompletion(principal.pickeatCode(), principal.participantCode());
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/participants/me/completion/cancel/new")
+    @PatchMapping("/participants/me/completion/cancel")
     public ResponseEntity<Void> cancelCompletion(
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
         participantService.cancelCompletion(principal.pickeatCode(), principal.participantCode());
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/participants/meta/new")
-    public ResponseEntity<List<ParticipantResponseV2>> getAllParticipantMeta(
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    @GetMapping("/participants/meta")
+    public ResponseEntity<List<ParticipantResponse>> getAllParticipantMeta(
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
-        List<ParticipantResponseV2> response = participantService.getMetaInPickeat(principal.pickeatCode());
+        List<ParticipantResponse> response = participantService.getMetaInPickeat(principal.pickeatCode());
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/participants/state/new")
-    public ResponseEntity<ParticipantStateResponseV2> getAllParticipantState(
-            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    @GetMapping("/participants/state")
+    public ResponseEntity<ParticipantStateResponse> getAllParticipantState(
+            @ParticipantInPickeat ParticipantPrincipal principal
     ) {
-        ParticipantStateResponseV2 response = participantService.getStateInPickeat(principal.pickeatCode());
+        ParticipantStateResponse response = participantService.getStateInPickeat(principal.pickeatCode());
         return ResponseEntity.ok(response);
     }
 }

@@ -3,7 +3,7 @@ package com.pickeat.backend.participant.domain.storage;
 import com.pickeat.backend.global.setting.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
-import com.pickeat.backend.participant.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.Participant;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class ParticipantStorage {
     private final StringRedisTemplate redisTemplate;
     private final JsonParser jsonParser;
 
-    public boolean setupAboutParticipant(String pickeatCode, ParticipantV2 participant) {
+    public boolean setupAboutParticipant(String pickeatCode, Participant participant) {
         String participantKey = StorageKey.PARTICIPANT.generateKey(pickeatCode);
         String participantCompletionKey = StorageKey.PARTICIPANT_COMPLETION.generateKey(pickeatCode);
         String participantValue = jsonParser.toJson(participant);
@@ -62,7 +62,7 @@ public class ParticipantStorage {
                 participantCode);
     }
 
-    public List<ParticipantV2> getParticipantsMeta(String pickeatCode) {
+    public List<Participant> getParticipantsMeta(String pickeatCode) {
         String key = StorageKey.PARTICIPANT.generateKey(pickeatCode);
         List<String> rawParticipants = redisTemplate.opsForList().range(key, 0, -1);
 
@@ -71,7 +71,7 @@ public class ParticipantStorage {
         }
 
         return rawParticipants.stream()
-                .map(json -> jsonParser.fromJson(json, ParticipantV2.class))
+                .map(json -> jsonParser.fromJson(json, Participant.class))
                 .toList();
     }
 

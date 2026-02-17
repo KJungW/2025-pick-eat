@@ -6,24 +6,24 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.participant.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponseV2;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
+import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
-import com.pickeat.backend.pickeat.domain.PickeatResultV2;
-import com.pickeat.backend.pickeat.domain.PickeatV2;
+import com.pickeat.backend.pickeat.domain.PickeatResult;
 import com.pickeat.backend.pickeat.domain.repository.PickeatRecordRepository;
-import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepositoryV2;
+import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepository;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
-import com.pickeat.backend.restaurant.domain.RestaurantV2;
-import com.pickeat.backend.restaurant.domain.RestaurantsV2;
+import com.pickeat.backend.restaurant.domain.Restaurant;
+import com.pickeat.backend.restaurant.domain.Restaurants;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
 import com.pickeat.backend.support.DatabaseSliceTest;
-import com.pickeat.backend.support.fixture.RestaurantV2Fixture;
+import com.pickeat.backend.support.fixture.RestaurantFixture;
 import com.pickeat.backend.support.fixture.RoomFixture;
 import com.pickeat.backend.support.fixture.UserFixture;
 import com.pickeat.backend.user.domain.User;
@@ -35,8 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-@Import({PickeatServiceV2.class, PickeatStorage.class, RestaurantsStorage.class, ParticipantStorage.class})
-class PickeatServiceV2Test extends DatabaseSliceTest {
+@Import({PickeatService.class, PickeatStorage.class, RestaurantsStorage.class, ParticipantStorage.class})
+class PickeatServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private TestEntityManager testEntityManager;
@@ -54,10 +54,10 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
     private PickeatRecordRepository pickeatRecordRepository;
 
     @Autowired
-    private PickeatResultRepositoryV2 pickeatResultRepository;
+    private PickeatResultRepository pickeatResultRepository;
 
     @Autowired
-    private PickeatServiceV2 pickeatService;
+    private PickeatService pickeatService;
 
     @Nested
     class 픽잇_생성 {
@@ -68,10 +68,10 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
             PickeatRequest pickeatRequest = new PickeatRequest("픽잇");
 
             // when
-            PickeatResponseV2 response = pickeatService.createPickeatWithoutRoom(pickeatRequest);
+            PickeatResponse response = pickeatService.createPickeatWithoutRoom(pickeatRequest);
 
             // then
-            Optional<PickeatV2> pickeat = pickeatStorage.get(response.code());
+            Optional<Pickeat> pickeat = pickeatStorage.get(response.code());
             assertAll(
                     () -> assertThat(pickeat.isPresent()).isTrue(),
                     () -> assertThat(pickeat.get().getCode()).isEqualTo(response.code())
@@ -88,11 +88,11 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
             PickeatRequest pickeatRequest = new PickeatRequest("픽잇");
 
             // when
-            PickeatResponseV2 response = pickeatService.createPickeatWithRoom(
+            PickeatResponse response = pickeatService.createPickeatWithRoom(
                     room.getId(), user.getId(), pickeatRequest);
 
             // then
-            Optional<PickeatV2> pickeat = pickeatStorage.get(response.code());
+            Optional<Pickeat> pickeat = pickeatStorage.get(response.code());
             assertAll(
                     () -> assertThat(pickeat.isPresent()).isTrue(),
                     () -> assertThat(pickeat.get().getCode()).isEqualTo(response.code())
@@ -106,15 +106,15 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
         @Test
         void 픽잇_결과를_DB에_저장할_수_있다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("테스트 픽잇");
+            Pickeat pickeat = Pickeat.createWithoutRoom("테스트 픽잇");
             pickeatStorage.save(pickeat);
 
-            RestaurantV2 restaurantA = RestaurantV2Fixture.create("식당A");
-            RestaurantV2 restaurantB = RestaurantV2Fixture.create("식당B");
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurantA, restaurantB));
+            Restaurant restaurantA = RestaurantFixture.create("식당A");
+            Restaurant restaurantB = RestaurantFixture.create("식당B");
+            Restaurants restaurants = new Restaurants(List.of(restaurantA, restaurantB));
             restaurantsStorage.setupRestaurants(pickeat.getCode(), restaurants);
 
-            ParticipantV2 participant = new ParticipantV2("참가자");
+            Participant participant = new Participant("참가자");
             participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
 
             restaurantsStorage.like(pickeat.getCode(), participant.getCode(), restaurantA.getCode());
@@ -124,7 +124,7 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
 
             // then
             PickeatRecord pickeatRecord = pickeatRecordRepository.findAll().get(0);
-            PickeatResultV2 pickeatResult = pickeatResultRepository.findAll().get(0);
+            PickeatResult pickeatResult = pickeatResultRepository.findAll().get(0);
 
             assertAll(
                     () -> assertThat(pickeatRecord.getCode()).isEqualTo(pickeat.getCode()),
@@ -136,14 +136,14 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
         @Test
         void 픽잇_관련_스토리지_데이터를_제거할_수_있다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("테스트 픽잇");
+            Pickeat pickeat = Pickeat.createWithoutRoom("테스트 픽잇");
             String code = pickeat.getCode();
             pickeatStorage.save(pickeat);
 
-            RestaurantV2 restaurant = RestaurantV2Fixture.create("식당");
-            restaurantsStorage.setupRestaurants(code, new RestaurantsV2(List.of(restaurant)));
+            Restaurant restaurant = RestaurantFixture.create("식당");
+            restaurantsStorage.setupRestaurants(code, new Restaurants(List.of(restaurant)));
 
-            ParticipantV2 participant = new ParticipantV2("참가자");
+            Participant participant = new Participant("참가자");
             participantStorage.setupAboutParticipant(code, participant);
 
             // when
@@ -164,11 +164,11 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
         @Test
         void 진행중이_픽잇의_메타데이터를_조회할_수_있다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("진행중인 픽잇");
+            Pickeat pickeat = Pickeat.createWithoutRoom("진행중인 픽잇");
             pickeatStorage.save(pickeat);
 
             // when
-            PickeatResponseV2 response = pickeatService.getPickeatMeta(pickeat.getCode());
+            PickeatResponse response = pickeatService.getPickeatMeta(pickeat.getCode());
 
             // then
             assertAll(
@@ -180,11 +180,11 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
         @Test
         void 완료된_픽잇의_메타데이터를_조회할_수_있다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("완료된 픽잇");
+            Pickeat pickeat = Pickeat.createWithoutRoom("완료된 픽잇");
             PickeatRecord record = pickeatRecordRepository.save(PickeatRecord.from(pickeat));
 
             // when
-            PickeatResponseV2 response = pickeatService.getPickeatMeta(record.getCode());
+            PickeatResponse response = pickeatService.getPickeatMeta(record.getCode());
 
             // then
             assertAll(
@@ -211,11 +211,11 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
         @Test
         void 진행중인_픽잇의_상태를_조회할_수_있다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("진행중인 픽잇");
+            Pickeat pickeat = Pickeat.createWithoutRoom("진행중인 픽잇");
             pickeatStorage.save(pickeat);
 
             // when
-            PickeatStateResponseV2 response = pickeatService.getPickeatState(pickeat.getCode());
+            PickeatStateResponse response = pickeatService.getPickeatState(pickeat.getCode());
 
             // then
             assertThat(response.isComplete()).isFalse();
@@ -224,11 +224,11 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
         @Test
         void 완료된_픽잇의_상태를_조회할_수_있다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("완료된 픽잇");
+            Pickeat pickeat = Pickeat.createWithoutRoom("완료된 픽잇");
             pickeatRecordRepository.save(PickeatRecord.from(pickeat));
 
             // when
-            PickeatStateResponseV2 response = pickeatService.getPickeatState(pickeat.getCode());
+            PickeatStateResponse response = pickeatService.getPickeatState(pickeat.getCode());
 
             // then
             assertThat(response.isComplete()).isTrue();

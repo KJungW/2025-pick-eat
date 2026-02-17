@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.pickeat.domain.PickeatV2;
+import com.pickeat.backend.pickeat.domain.Pickeat;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ class StorageKeyTest {
         @Test
         void 정상적인_인자가_전달되면_포맷에_맞는_키를_생성한다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("점심");
+            Pickeat pickeat = Pickeat.createWithoutRoom("점심");
 
             // when
             String key = StorageKey.PICKEAT.generateKey(pickeat.getCode());

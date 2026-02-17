@@ -2,12 +2,11 @@ package com.pickeat.backend.pickeat.domain;
 
 import com.pickeat.backend.global.BaseEntity;
 import com.pickeat.backend.restaurant.domain.FoodCategory;
-import com.pickeat.backend.restaurant.domain.RestaurantV2;
+import com.pickeat.backend.restaurant.domain.Restaurant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,11 +15,10 @@ import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
-@Table(name = "pickeat_result_v2")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("deleted_at IS NULL")
-@SQLDelete(sql = "UPDATE pickeat_result_v2 SET deleted_at = NOW() WHERE id = ?")
-public class PickeatResultV2 extends BaseEntity {
+@SQLDelete(sql = "UPDATE pickeat_result SET deleted_at = NOW() WHERE id = ?")
+public class PickeatResult extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private Long pickeatRecordId;
@@ -45,7 +43,7 @@ public class PickeatResultV2 extends BaseEntity {
     private String pictureKey;
     private String pictureUrl;
 
-    public PickeatResultV2(
+    public PickeatResult(
             Long pickeatRecordId,
             String code,
             String name,
@@ -67,8 +65,8 @@ public class PickeatResultV2 extends BaseEntity {
         this.pictureUrl = pictureUrl;
     }
 
-    public static PickeatResultV2 from(Long pickeatRecordId, RestaurantV2 restaurant) {
-        return new PickeatResultV2(
+    public static PickeatResult from(Long pickeatRecordId, Restaurant restaurant) {
+        return new PickeatResult(
                 pickeatRecordId,
                 restaurant.getCode(),
                 restaurant.getName(),

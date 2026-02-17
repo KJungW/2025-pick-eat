@@ -1,12 +1,13 @@
-package com.pickeat.backend.pickeat.application.dto.response;
+package com.pickeat.backend.restaurant.application.dto.response;
 
-import com.pickeat.backend.pickeat.domain.PickeatResultV2;
+import com.pickeat.backend.restaurant.domain.Restaurant;
+import com.pickeat.backend.restaurant.domain.Restaurants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Arrays;
 import java.util.List;
 
-@Schema(description = "픽잇 결과 응답")
-public record PickeatResultResponseV2(
+@Schema(description = "식당 메타데이터 응답")
+public record RestaurantResponse(
         @Schema(description = "식당 코드", example = "RWSDKK31412YE234")
         String code,
         @Schema(description = "식당 이름", example = "맛있는 한식당")
@@ -23,15 +24,21 @@ public record PickeatResultResponseV2(
         String pictureUrl
 ) {
 
-    public static PickeatResultResponseV2 of(PickeatResultV2 pickeatResult) {
-        return new PickeatResultResponseV2(
-                pickeatResult.getCode(),
-                pickeatResult.getName(),
-                pickeatResult.getFoodCategory().getName(),
-                pickeatResult.getRoadAddressName(),
-                pickeatResult.getPlaceUrl(),
-                parseTags(pickeatResult.getTags()),
-                pickeatResult.getPictureUrl());
+    public static RestaurantResponse of(Restaurant restaurant) {
+        return new RestaurantResponse(
+                restaurant.getCode(),
+                restaurant.getName(),
+                restaurant.getFoodCategory().getName(),
+                restaurant.getRoadAddressName(),
+                restaurant.getPlaceUrl(),
+                parseTags(restaurant.getTags()),
+                restaurant.getPictureUrl());
+    }
+
+    public static List<RestaurantResponse> of(Restaurants restaurants) {
+        return restaurants.getRestaurants().stream()
+                .map(RestaurantResponse::of)
+                .toList();
     }
 
     private static List<String> parseTags(String tags) {

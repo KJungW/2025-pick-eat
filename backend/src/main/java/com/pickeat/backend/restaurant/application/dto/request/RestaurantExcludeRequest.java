@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 @Schema(description = "식당 소거 요청")
-public record RestaurantExcludeRequestV2(
+public record RestaurantExcludeRequest(
         @Schema(description = "소거할 식당 코드 목록")
         List<String> restaurantCodes
 ) {

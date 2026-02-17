@@ -30,7 +30,7 @@ public class PickeatRecord extends BaseEntity {
         this.roomId = roomId;
     }
 
-    public static PickeatRecord from(PickeatV2 pickeat) {
+    public static PickeatRecord from(Pickeat pickeat) {
         if (pickeat.belongsToRoom()) {
             return new PickeatRecord(pickeat.getCode(), pickeat.getName(), pickeat.getRoomId());
         }

@@ -8,12 +8,12 @@ import com.pickeat.backend.global.auth.JwtProvider;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
-import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
-import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
-import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponseV2;
-import com.pickeat.backend.participant.domain.ParticipantV2;
+import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
+import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
+import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
-import com.pickeat.backend.pickeat.domain.PickeatV2;
+import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import java.util.List;
@@ -23,15 +23,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
 @Import({
-        ParticipantServiceV2.class,
+        ParticipantService.class,
         PickeatStorage.class,
         ParticipantStorage.class,
-        ParticipantTokenProviderV2.class,
+        ParticipantTokenProvider.class,
         JwtProvider.class})
-class ParticipantServiceV2Test extends DatabaseSliceTest {
+class ParticipantServiceTest extends DatabaseSliceTest {
 
     @Autowired
-    private ParticipantServiceV2 participantServiceV2;
+    private ParticipantService participantService;
 
     @Autowired
     private ParticipantStorage participantStorage;
@@ -40,7 +40,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
     private PickeatStorage pickeatStorage;
 
     @Autowired
-    private ParticipantTokenProviderV2 tokenProvider;
+    private ParticipantTokenProvider tokenProvider;
 
     @Nested
     class 참가자_저장 {
@@ -48,12 +48,12 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
         @Test
         void 참가자를_성공적으로_저장한다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("점심 회식");
+            Pickeat pickeat = Pickeat.createWithoutRoom("점심 회식");
             pickeatStorage.save(pickeat);
-            ParticipantRequestV2 request = new ParticipantRequestV2("참가자1", pickeat.getCode());
+            ParticipantRequest request = new ParticipantRequest("참가자1", pickeat.getCode());
 
             // when
-            TokenResponse response = participantServiceV2.createParticipant(request);
+            TokenResponse response = participantService.createParticipant(request);
 
             // then
             String token = response.token();
@@ -68,10 +68,10 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
         void 관련_픽잇이_없는_경우_예외를_발생시킨다() {
             // given
             String invalidCode = "NON_EXISTENT_CODE";
-            ParticipantRequestV2 request = new ParticipantRequestV2("참가자1", invalidCode);
+            ParticipantRequest request = new ParticipantRequest("참가자1", invalidCode);
 
             // when & then
-            assertThatThrownBy(() -> participantServiceV2.createParticipant(request))
+            assertThatThrownBy(() -> participantService.createParticipant(request))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
@@ -83,22 +83,22 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
         @Test
         void 픽잇에_참가한_모든_참가자의_메타데이터를_조회한다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("저녁 회식");
+            Pickeat pickeat = Pickeat.createWithoutRoom("저녁 회식");
             pickeatStorage.save(pickeat);
             String pickeatCode = pickeat.getCode();
 
-            participantServiceV2.createParticipant(new ParticipantRequestV2("참가자1", pickeatCode));
-            participantServiceV2.createParticipant(new ParticipantRequestV2("참가자2", pickeatCode));
-            participantServiceV2.createParticipant(new ParticipantRequestV2("참가자3", pickeatCode));
+            participantService.createParticipant(new ParticipantRequest("참가자1", pickeatCode));
+            participantService.createParticipant(new ParticipantRequest("참가자2", pickeatCode));
+            participantService.createParticipant(new ParticipantRequest("참가자3", pickeatCode));
 
             // when
-            List<ParticipantResponseV2> result = participantServiceV2.getMetaInPickeat(pickeatCode);
+            List<ParticipantResponse> result = participantService.getMetaInPickeat(pickeatCode);
 
             // then
             assertAll(
                     () -> assertThat(result).hasSize(3),
                     () -> assertThat(result)
-                            .extracting(ParticipantResponseV2::nickname)
+                            .extracting(ParticipantResponse::nickname)
                             .containsExactly("참가자1", "참가자2", "참가자3")
             );
         }
@@ -109,7 +109,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             String pickeatCode = "EMPTY_PICK_EAT";
 
             // when & then
-            assertThatThrownBy(() -> participantServiceV2.getMetaInPickeat(pickeatCode))
+            assertThatThrownBy(() -> participantService.getMetaInPickeat(pickeatCode))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
@@ -121,22 +121,22 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
         @Test
         void 픽잇에_참가한_모든_참가자의_상태데이터를_조회한다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("상태 조회 테스트");
+            Pickeat pickeat = Pickeat.createWithoutRoom("상태 조회 테스트");
             pickeatStorage.save(pickeat);
             String pickeatCode = pickeat.getCode();
 
-            ParticipantV2 participantA = new ParticipantV2("참가자A");
+            Participant participantA = new Participant("참가자A");
             participantStorage.setupAboutParticipant(pickeatCode, participantA);
             String participantACode = participantA.getCode();
 
-            ParticipantV2 participantB = new ParticipantV2("참가자B");
+            Participant participantB = new Participant("참가자B");
             participantStorage.setupAboutParticipant(pickeatCode, participantB);
             String participantBCode = participantB.getCode();
 
-            participantServiceV2.markCompletion(pickeatCode, participantACode);
+            participantService.markCompletion(pickeatCode, participantACode);
 
             // when
-            ParticipantStateResponseV2 result = participantServiceV2.getStateInPickeat(pickeatCode);
+            ParticipantStateResponse result = participantService.getStateInPickeat(pickeatCode);
 
             // then
             assertAll(
@@ -152,7 +152,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             String pickeatCode = "EMPTY_PICK_EAT";
 
             // when & then
-            assertThatThrownBy(() -> participantServiceV2.getMetaInPickeat(pickeatCode))
+            assertThatThrownBy(() -> participantService.getMetaInPickeat(pickeatCode))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
@@ -164,16 +164,16 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
         @Test
         void 참가자를_투표_완료_상태로_표시한다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("투표 테스트");
+            Pickeat pickeat = Pickeat.createWithoutRoom("투표 테스트");
             pickeatStorage.save(pickeat);
             String pickeatCode = pickeat.getCode();
 
-            ParticipantV2 participant = new ParticipantV2("참가자");
+            Participant participant = new Participant("참가자");
             participantStorage.setupAboutParticipant(pickeatCode, participant);
             String participantCode = participant.getCode();
 
             // when
-            participantServiceV2.markCompletion(pickeatCode, participantCode);
+            participantService.markCompletion(pickeatCode, participantCode);
 
             // then
             boolean isCompleted = participantStorage.getParticipantsState(pickeatCode)
@@ -189,7 +189,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             String participantCode = "any-code";
 
             // when & then
-            assertThatThrownBy(() -> participantServiceV2.markCompletion(invalidPickeatCode, participantCode))
+            assertThatThrownBy(() -> participantService.markCompletion(invalidPickeatCode, participantCode))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
@@ -201,18 +201,18 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
         @Test
         void 참가자를_투표_완료_상태를_취소한다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("취소 테스트");
+            Pickeat pickeat = Pickeat.createWithoutRoom("취소 테스트");
             pickeatStorage.save(pickeat);
             String pickeatCode = pickeat.getCode();
 
-            ParticipantV2 participant = new ParticipantV2("참가자");
+            Participant participant = new Participant("참가자");
             participantStorage.setupAboutParticipant(pickeatCode, participant);
             String participantCode = participant.getCode();
 
-            participantServiceV2.markCompletion(pickeatCode, participantCode);
+            participantService.markCompletion(pickeatCode, participantCode);
 
             // when
-            participantServiceV2.cancelCompletion(pickeatCode, participantCode);
+            participantService.cancelCompletion(pickeatCode, participantCode);
 
             // then
             boolean isCompleted = participantStorage.getParticipantsState(pickeatCode)
@@ -228,7 +228,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             String participantCode = "any-code";
 
             // when & then
-            assertThatThrownBy(() -> participantServiceV2.cancelCompletion(invalidPickeatCode, participantCode))
+            assertThatThrownBy(() -> participantService.cancelCompletion(invalidPickeatCode, participantCode))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }

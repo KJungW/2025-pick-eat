@@ -4,12 +4,12 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
-import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
-import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
-import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponseV2;
-import com.pickeat.backend.participant.domain.ParticipantV2;
+import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
+import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
+import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
-import com.pickeat.backend.pickeat.domain.PickeatV2;
+import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,47 +19,47 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ParticipantServiceV2 {
+public class ParticipantService {
 
     private final PickeatStorage pickeatStorage;
     private final ParticipantStorage participantStorage;
-    private final ParticipantTokenProviderV2 participantTokenProvider;
+    private final ParticipantTokenProvider participantTokenProvider;
 
-    public TokenResponse createParticipant(ParticipantRequestV2 request) {
-        PickeatV2 pickeat = getPickeatByCode(request.pickeatCode());
-        ParticipantV2 participant = new ParticipantV2(request.nickname());
+    public TokenResponse createParticipant(ParticipantRequest request) {
+        Pickeat pickeat = getPickeatByCode(request.pickeatCode());
+        Participant participant = new Participant(request.nickname());
         setupAboutParticipant(pickeat, participant);
         return participantTokenProvider.createToken(participant, pickeat);
     }
 
-    public List<ParticipantResponseV2> getMetaInPickeat(String pickeatCode) {
-        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
-        List<ParticipantV2> participants = participantStorage.getParticipantsMeta(pickeatCode);
-        return ParticipantResponseV2.from(participants);
+    public List<ParticipantResponse> getMetaInPickeat(String pickeatCode) {
+        Pickeat pickeat = getPickeatByCode(pickeatCode);
+        List<Participant> participants = participantStorage.getParticipantsMeta(pickeatCode);
+        return ParticipantResponse.from(participants);
     }
 
-    public ParticipantStateResponseV2 getStateInPickeat(String pickeatCode) {
-        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+    public ParticipantStateResponse getStateInPickeat(String pickeatCode) {
+        Pickeat pickeat = getPickeatByCode(pickeatCode);
         ParticipantStateDto state = participantStorage.getParticipantsState(pickeatCode);
-        return ParticipantStateResponseV2.from(state);
+        return ParticipantStateResponse.from(state);
     }
 
     public void markCompletion(String pickeatCode, String participantCode) {
-        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+        Pickeat pickeat = getPickeatByCode(pickeatCode);
         participantStorage.markCompletion(pickeatCode, participantCode);
     }
 
     public void cancelCompletion(String pickeatCode, String participantCode) {
-        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
+        Pickeat pickeat = getPickeatByCode(pickeatCode);
         participantStorage.cancelCompletion(pickeatCode, participantCode);
     }
 
-    private PickeatV2 getPickeatByCode(String pickeatCode) {
+    private Pickeat getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 
-    private void setupAboutParticipant(PickeatV2 pickeat, ParticipantV2 participant) {
+    private void setupAboutParticipant(Pickeat pickeat, Participant participant) {
         boolean isSuccess = participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
         if (!isSuccess) {
             throw new BusinessException(ErrorCode.PARTICIPANT_ALREADY_EXISTS);

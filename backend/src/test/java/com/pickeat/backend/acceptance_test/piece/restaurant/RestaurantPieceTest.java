@@ -1,10 +1,10 @@
 package com.pickeat.backend.acceptance_test.piece.restaurant;
 
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequestV2;
+import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequest;
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
-import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
+import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
@@ -20,7 +20,7 @@ public class RestaurantPieceTest {
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
-                .post("/api/v2/pickeats/{pickeatCode}/restaurants/location/new", pickeatCode)
+                .post("/api/v2/pickeats/{pickeatCode}/restaurants/location", pickeatCode)
                 .then().log().all()
                 .statusCode(HttpStatus.CREATED.value());
     }
@@ -31,7 +31,7 @@ public class RestaurantPieceTest {
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
-                .post("/api/v2/pickeats/{pickeatCode}/restaurants/wish/new", pickeatCode)
+                .post("/api/v2/pickeats/{pickeatCode}/restaurants/wish", pickeatCode)
                 .then().log().all()
                 .statusCode(HttpStatus.CREATED.value());
     }
@@ -42,17 +42,17 @@ public class RestaurantPieceTest {
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
-                .post("/api/v2/pickeats/{pickeatCode}/restaurants/template/new", pickeatCode)
+                .post("/api/v2/pickeats/{pickeatCode}/restaurants/template", pickeatCode)
                 .then().log().all()
                 .statusCode(HttpStatus.CREATED.value());
     }
 
-    public static List<RestaurantResponseV2> 식당_메타데이터_조회(String participantToken) {
+    public static List<RestaurantResponse> 식당_메타데이터_조회(String participantToken) {
         return RestAssured
                 .given().log().all()
                 .header("Pickeat-Participant-Token", "Bearer " + participantToken)
                 .when()
-                .get("/api/v2/pickeats/restaurants/new")
+                .get("/api/v2/pickeats/restaurants")
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -65,21 +65,21 @@ public class RestaurantPieceTest {
                 .given().log().all()
                 .header("Pickeat-Participant-Token", "Bearer " + participantToken)
                 .when()
-                .get("/api/v2/pickeats/restaurants/state/new")
+                .get("/api/v2/pickeats/restaurants/state")
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .as(RestaurantStateResponse.class);
     }
 
-    public static void 식당_제외(String participantToken, RestaurantExcludeRequestV2 request) {
+    public static void 식당_제외(String participantToken, RestaurantExcludeRequest request) {
         RestAssured
                 .given().log().all()
                 .header("Pickeat-Participant-Token", "Bearer " + participantToken)
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
-                .patch("/api/v2/restaurants/exclude/new")
+                .patch("/api/v2/restaurants/exclude")
                 .then().log().all()
                 .statusCode(HttpStatus.NO_CONTENT.value());
     }
@@ -89,7 +89,7 @@ public class RestaurantPieceTest {
                 .given().log().all()
                 .header("Pickeat-Participant-Token", "Bearer " + participantToken)
                 .when()
-                .patch("/api/v2/restaurants/{restaurantCode}/like/new", restaurantCode)
+                .patch("/api/v2/restaurants/{restaurantCode}/like", restaurantCode)
                 .then().log().all()
                 .statusCode(HttpStatus.NO_CONTENT.value());
     }
@@ -99,7 +99,7 @@ public class RestaurantPieceTest {
                 .given().log().all()
                 .header("Pickeat-Participant-Token", "Bearer " + participantToken)
                 .when()
-                .patch("/api/v2/restaurants/{restaurantCode}/unlike/new", restaurantCode)
+                .patch("/api/v2/restaurants/{restaurantCode}/unlike", restaurantCode)
                 .then().log().all()
                 .statusCode(HttpStatus.NO_CONTENT.value());
     }

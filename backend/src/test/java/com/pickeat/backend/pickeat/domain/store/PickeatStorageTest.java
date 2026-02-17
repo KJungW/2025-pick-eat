@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.setting.StorageKey;
-import com.pickeat.backend.pickeat.domain.PickeatV2;
+import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import java.util.Optional;
 import org.junit.jupiter.api.Nested;
@@ -28,14 +28,14 @@ class PickeatStorageTest extends DatabaseSliceTest {
         @Test
         void Pickeat을_성공적으로_저장한다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("점식메뉴");
+            Pickeat pickeat = Pickeat.createWithoutRoom("점식메뉴");
             String expectedKey = StorageKey.PICKEAT.generateKey(pickeat.getCode());
 
             // when
             pickeatStorage.save(pickeat);
 
             // then
-            PickeatV2 saved = (PickeatV2) redisTemplate.opsForValue().get(expectedKey);
+            Pickeat saved = (Pickeat) redisTemplate.opsForValue().get(expectedKey);
             assertAll(
                     () -> assertThat(saved).isNotNull(),
                     () -> assertThat(saved.getCode()).isEqualTo(pickeat.getCode())
@@ -49,11 +49,11 @@ class PickeatStorageTest extends DatabaseSliceTest {
         @Test
         void Pickeat을_성공적으로_조회한다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("점식메뉴");
+            Pickeat pickeat = Pickeat.createWithoutRoom("점식메뉴");
             pickeatStorage.save(pickeat);
 
             // when
-            Optional<PickeatV2> result = pickeatStorage.get(pickeat.getCode());
+            Optional<Pickeat> result = pickeatStorage.get(pickeat.getCode());
 
             // then
             assertAll(
@@ -68,7 +68,7 @@ class PickeatStorageTest extends DatabaseSliceTest {
             String nonExistentCode = "NOT_FOUND";
 
             // when
-            Optional<PickeatV2> result = pickeatStorage.get(nonExistentCode);
+            Optional<Pickeat> result = pickeatStorage.get(nonExistentCode);
 
             // then
             assertThat(result).isEmpty();
@@ -81,7 +81,7 @@ class PickeatStorageTest extends DatabaseSliceTest {
         @Test
         void 픽잇과을_제거할_수_있다() {
             // given
-            PickeatV2 pickeat = PickeatV2.createWithoutRoom("제거 테스트 픽잇");
+            Pickeat pickeat = Pickeat.createWithoutRoom("제거 테스트 픽잇");
             String code = pickeat.getCode();
             pickeatStorage.save(pickeat);
 
@@ -89,7 +89,7 @@ class PickeatStorageTest extends DatabaseSliceTest {
             pickeatStorage.remove(code);
 
             // then
-            Optional<PickeatV2> result = pickeatStorage.get(code);
+            Optional<Pickeat> result = pickeatStorage.get(code);
             assertThat(result).isEmpty();
         }
     }

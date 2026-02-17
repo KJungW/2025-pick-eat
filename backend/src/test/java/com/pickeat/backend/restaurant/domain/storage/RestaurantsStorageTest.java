@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import com.pickeat.backend.global.setting.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
-import com.pickeat.backend.restaurant.domain.RestaurantV2;
-import com.pickeat.backend.restaurant.domain.RestaurantsV2;
+import com.pickeat.backend.restaurant.domain.Restaurant;
+import com.pickeat.backend.restaurant.domain.Restaurants;
 import com.pickeat.backend.support.DatabaseSliceTest;
-import com.pickeat.backend.support.fixture.RestaurantV2Fixture;
+import com.pickeat.backend.support.fixture.RestaurantFixture;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,21 +38,21 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
         @Test
         void 식당_메타데이터를_성공적으로_세팅한다() {
             // given
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(
-                    RestaurantV2Fixture.create("마라탕"),
-                    RestaurantV2Fixture.create("돈가스")));
+            Restaurants restaurants = new Restaurants(List.of(
+                    RestaurantFixture.create("마라탕"),
+                    RestaurantFixture.create("돈가스")));
             String pickeatCode = "pickeat-code";
 
             // when
             Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
             // then
-            RestaurantsV2 savedMeta = restaurantsStorage.getAllRestaurantMeta(pickeatCode).get();
+            Restaurants savedMeta = restaurantsStorage.getAllRestaurantMeta(pickeatCode).get();
             assertAll(
                     () -> assertThat(isSuccess).isTrue(),
                     () -> assertThat(savedMeta.getRestaurants()).hasSize(2),
                     () -> assertThat(savedMeta.getRestaurants())
-                            .extracting(RestaurantV2::getName)
+                            .extracting(Restaurant::getName)
                             .containsExactlyInAnyOrder("마라탕", "돈가스")
             );
         }
@@ -60,9 +60,9 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
         @Test
         void 생존_식당_코드목록을_성공적으로_세팅한다() {
             // given
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(
-                    RestaurantV2Fixture.create("마라탕"),
-                    RestaurantV2Fixture.create("돈가스")));
+            Restaurants restaurants = new Restaurants(List.of(
+                    RestaurantFixture.create("마라탕"),
+                    RestaurantFixture.create("돈가스")));
             String pickeatCode = "pickeat-code";
 
             // when
@@ -82,9 +82,9 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
         @Test
         void 식당_좋아요_합계를_성공적으로_세팅한다() {
             // given
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(
-                    RestaurantV2Fixture.create("마라탕"),
-                    RestaurantV2Fixture.create("돈가스")));
+            Restaurants restaurants = new Restaurants(List.of(
+                    RestaurantFixture.create("마라탕"),
+                    RestaurantFixture.create("돈가스")));
             String pickeatCode = "pickeat-code";
 
             // when
@@ -105,11 +105,11 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
         @Test
         void 픽잇에_이미_식당_관련_데이터가_세팅된_경우_예외를_발생시킨다() {
             // given
-            RestaurantsV2 existing = new RestaurantsV2(List.of(RestaurantV2Fixture.create("기존 데이터")));
+            Restaurants existing = new Restaurants(List.of(RestaurantFixture.create("기존 데이터")));
             String pickeatCode = "pickeat-code";
             restaurantsStorage.setupRestaurants(pickeatCode, existing);
 
-            RestaurantsV2 newData = new RestaurantsV2(List.of(RestaurantV2Fixture.create("새 데이터")));
+            Restaurants newData = new Restaurants(List.of(RestaurantFixture.create("새 데이터")));
 
             // when
             Boolean result = restaurantsStorage.setupRestaurants(pickeatCode, newData);
@@ -125,12 +125,12 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
         @Test
         void 식당의_메타정보를_성공적으로_조회한다() {
             // given
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(RestaurantV2Fixture.create("삼겹살")));
+            Restaurants restaurants = new Restaurants(List.of(RestaurantFixture.create("삼겹살")));
             String pickeatCode = "pickeat-code";
             restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
             // when
-            Optional<RestaurantsV2> result = restaurantsStorage.getAllRestaurantMeta(pickeatCode);
+            Optional<Restaurants> result = restaurantsStorage.getAllRestaurantMeta(pickeatCode);
 
             // then
             assertAll(
@@ -145,7 +145,7 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String nonExistentCode = "EMPTY_CODE";
 
             // when
-            Optional<RestaurantsV2> result = restaurantsStorage.getAllRestaurantMeta(nonExistentCode);
+            Optional<Restaurants> result = restaurantsStorage.getAllRestaurantMeta(nonExistentCode);
 
             // then
             assertThat(result).isEmpty();
@@ -159,9 +159,9 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
         void 식당의_상태정보를_성공적으로_조회한다() {
             // given
             String pickeatCode = "pickeat-code";
-            RestaurantV2 restaurant1 = RestaurantV2Fixture.create("마라탕");
-            RestaurantV2 restaurant2 = RestaurantV2Fixture.create("돈가스");
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant1, restaurant2));
+            Restaurant restaurant1 = RestaurantFixture.create("마라탕");
+            Restaurant restaurant2 = RestaurantFixture.create("돈가스");
+            Restaurants restaurants = new Restaurants(List.of(restaurant1, restaurant2));
 
             restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
@@ -190,10 +190,10 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
         void 특정_식당들을_소거_처리할_수_있다() {
             // given
             String pickeatCode = "pickeat-code";
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(
-                    RestaurantV2Fixture.create("마라탕"),
-                    RestaurantV2Fixture.create("돈가스"),
-                    RestaurantV2Fixture.create("쌀국수")));
+            Restaurants restaurants = new Restaurants(List.of(
+                    RestaurantFixture.create("마라탕"),
+                    RestaurantFixture.create("돈가스"),
+                    RestaurantFixture.create("쌀국수")));
             restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
             List<String> restaurantsCodes = restaurants.extrudeRestaurantCodes();
@@ -220,8 +220,8 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "pickeat-code";
             String participantCode = "user-1";
-            RestaurantV2 restaurant = RestaurantV2Fixture.create("마라탕");
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+            Restaurant restaurant = RestaurantFixture.create("마라탕");
+            Restaurants restaurants = new Restaurants(List.of(restaurant));
             restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
             // when
@@ -241,8 +241,8 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "pickeat-code";
             String participantCode = "user-1";
-            RestaurantV2 restaurant = RestaurantV2Fixture.create("마라탕");
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+            Restaurant restaurant = RestaurantFixture.create("마라탕");
+            Restaurants restaurants = new Restaurants(List.of(restaurant));
             restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
             restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
 
@@ -267,8 +267,8 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "pickeat-code";
             String participantCode = "user-1";
-            RestaurantV2 restaurant = RestaurantV2Fixture.create("마라탕");
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+            Restaurant restaurant = RestaurantFixture.create("마라탕");
+            Restaurants restaurants = new Restaurants(List.of(restaurant));
             restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
             restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
 
@@ -289,8 +289,8 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "pickeat-code";
             String participantCode = "user-1";
-            RestaurantV2 restaurant = RestaurantV2Fixture.create("마라탕");
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+            Restaurant restaurant = RestaurantFixture.create("마라탕");
+            Restaurants restaurants = new Restaurants(List.of(restaurant));
             restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
 
             // when
@@ -314,8 +314,8 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "remove-test-code";
             String participantCode = "user-1";
-            RestaurantV2 restaurant = RestaurantV2Fixture.create("삭제될 식당");
-            RestaurantsV2 restaurants = new RestaurantsV2(List.of(restaurant));
+            Restaurant restaurant = RestaurantFixture.create("삭제될 식당");
+            Restaurants restaurants = new Restaurants(List.of(restaurant));
 
             restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
             restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
@@ -324,7 +324,7 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             restaurantsStorage.remove(pickeatCode);
 
             // then
-            Optional<RestaurantsV2> meta = restaurantsStorage.getAllRestaurantMeta(pickeatCode);
+            Optional<Restaurants> meta = restaurantsStorage.getAllRestaurantMeta(pickeatCode);
             RestaurantStateDto state = restaurantsStorage.getAllRestaurantState(pickeatCode);
             Boolean hasParticipantLikeRecordKey = redisTemplate.hasKey(
                     StorageKey.RESTAURANT_LIKE_RECORD.generateKey(participantCode, restaurant.getCode()));

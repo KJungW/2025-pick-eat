@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class ParticipantV2 {
+public class Participant {
 
     private final String code;
     private final String nickname;
 
-    public ParticipantV2(String nickname) {
+    public Participant(String nickname) {
         this.code = UUID.randomUUID().toString();
         this.nickname = nickname;
     }

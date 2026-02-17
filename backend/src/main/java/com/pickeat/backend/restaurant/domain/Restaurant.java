@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class RestaurantV2 {
+public class Restaurant {
 
     private final String code;
     private final String name;
@@ -18,7 +18,7 @@ public class RestaurantV2 {
     private final String pictureKey;
     private final String pictureUrl;
 
-    public RestaurantV2(
+    public Restaurant(
             String name,
             FoodCategory foodCategory,
             String roadAddressName,

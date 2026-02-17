@@ -2,20 +2,20 @@ package com.pickeat.backend.pickeat.application;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.participant.domain.ParticipantV2;
+import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponseV2;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
+import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
-import com.pickeat.backend.pickeat.domain.PickeatResultV2;
-import com.pickeat.backend.pickeat.domain.PickeatV2;
+import com.pickeat.backend.pickeat.domain.PickeatResult;
 import com.pickeat.backend.pickeat.domain.repository.PickeatRecordRepository;
-import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepositoryV2;
+import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepository;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
-import com.pickeat.backend.restaurant.domain.RestaurantV2;
-import com.pickeat.backend.restaurant.domain.RestaurantsV2;
+import com.pickeat.backend.restaurant.domain.Restaurant;
+import com.pickeat.backend.restaurant.domain.Restaurants;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import com.pickeat.backend.room.domain.repository.RoomUserRepository;
 import java.util.List;
@@ -27,89 +27,89 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class PickeatServiceV2 {
+public class PickeatService {
 
     private final PickeatStorage pickeatStorage;
     private final RestaurantsStorage restaurantsStorage;
     private final ParticipantStorage participantStorage;
     private final RoomUserRepository roomUserRepository;
     private final PickeatRecordRepository pickeatRecordRepository;
-    private final PickeatResultRepositoryV2 pickeatResultRepository;
+    private final PickeatResultRepository pickeatResultRepository;
 
-    public PickeatResponseV2 createPickeatWithoutRoom(PickeatRequest request) {
-        PickeatV2 pickeat = PickeatV2.createWithoutRoom(request.name());
+    public PickeatResponse createPickeatWithoutRoom(PickeatRequest request) {
+        Pickeat pickeat = Pickeat.createWithoutRoom(request.name());
         pickeatStorage.save(pickeat);
-        return PickeatResponseV2.from(pickeat);
+        return PickeatResponse.from(pickeat);
     }
 
-    public PickeatResponseV2 createPickeatWithRoom(Long roomId, Long userId, PickeatRequest request) {
+    public PickeatResponse createPickeatWithRoom(Long roomId, Long userId, PickeatRequest request) {
         validateUserAccessToRoom(roomId, userId);
-        PickeatV2 pickeat = PickeatV2.createWithRoom(request.name(), roomId);
+        Pickeat pickeat = Pickeat.createWithRoom(request.name(), roomId);
         pickeatStorage.save(pickeat);
-        return PickeatResponseV2.from(pickeat);
+        return PickeatResponse.from(pickeat);
     }
 
     @Transactional
     public void completePickeat(String pickeatCode) {
-        PickeatV2 pickeat = getPickeatByCode(pickeatCode);
-        List<ParticipantV2> participants = getParticipantInPickeat(pickeatCode);
-        RestaurantV2 selectedRestaurant = selectRestaurantInPickeat(pickeatCode);
+        Pickeat pickeat = getPickeatByCode(pickeatCode);
+        List<Participant> participants = getParticipantInPickeat(pickeatCode);
+        Restaurant selectedRestaurant = selectRestaurantInPickeat(pickeatCode);
 
         PickeatRecord pickeatRecord = savePickeatRecord(pickeat);
-        PickeatResultV2 pickeatResult = savePickeatResult(pickeatRecord, selectedRestaurant);
+        PickeatResult pickeatResult = savePickeatResult(pickeatRecord, selectedRestaurant);
 
         removeAllAboutPickeatAtStorage(pickeatCode);
     }
 
-    public PickeatResponseV2 getPickeatMeta(String pickeatCode) {
-        Optional<PickeatV2> pickeat = pickeatStorage.get(pickeatCode);
+    public PickeatResponse getPickeatMeta(String pickeatCode) {
+        Optional<Pickeat> pickeat = pickeatStorage.get(pickeatCode);
         if (pickeat.isPresent()) {
-            return PickeatResponseV2.from(pickeat.get());
+            return PickeatResponse.from(pickeat.get());
         }
         Optional<PickeatRecord> pickeatRecord = pickeatRecordRepository.findByCode(pickeatCode);
         if (pickeatRecord.isPresent()) {
-            return PickeatResponseV2.from(pickeatRecord.get());
+            return PickeatResponse.from(pickeatRecord.get());
         }
         throw new BusinessException(ErrorCode.PICKEAT_NOT_FOUND);
     }
 
-    public PickeatStateResponseV2 getPickeatState(String pickeatCode) {
-        Optional<PickeatV2> pickeat = pickeatStorage.get(pickeatCode);
+    public PickeatStateResponse getPickeatState(String pickeatCode) {
+        Optional<Pickeat> pickeat = pickeatStorage.get(pickeatCode);
         if (pickeat.isPresent()) {
-            return new PickeatStateResponseV2(false);
+            return new PickeatStateResponse(false);
         }
         Optional<PickeatRecord> pickeatRecord = pickeatRecordRepository.findByCode(pickeatCode);
         if (pickeatRecord.isPresent()) {
-            return new PickeatStateResponseV2(true);
+            return new PickeatStateResponse(true);
         }
         throw new BusinessException(ErrorCode.PICKEAT_NOT_FOUND);
     }
 
-    private PickeatV2 getPickeatByCode(String pickeatCode) {
+    private Pickeat getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 
-    private RestaurantsV2 getRestaurantMetaInPickeat(String pickeatCode) {
+    private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
         return restaurantsStorage.getAllRestaurantMeta(pickeatCode)
-                .orElse(new RestaurantsV2(List.of()));
+                .orElse(new Restaurants(List.of()));
     }
 
     private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
         return restaurantsStorage.getAllRestaurantState(pickeatCode);
     }
 
-    private List<ParticipantV2> getParticipantInPickeat(String pickeatCode) {
+    private List<Participant> getParticipantInPickeat(String pickeatCode) {
         return participantStorage.getParticipantsMeta(pickeatCode);
     }
 
-    private PickeatRecord savePickeatRecord(PickeatV2 pickeat) {
+    private PickeatRecord savePickeatRecord(Pickeat pickeat) {
         PickeatRecord pickeatRecord = PickeatRecord.from(pickeat);
         return pickeatRecordRepository.save(pickeatRecord);
     }
 
-    private PickeatResultV2 savePickeatResult(PickeatRecord pickeatRecord, RestaurantV2 selectedRestaurant) {
-        PickeatResultV2 pickeatResult = PickeatResultV2.from(pickeatRecord.getId(), selectedRestaurant);
+    private PickeatResult savePickeatResult(PickeatRecord pickeatRecord, Restaurant selectedRestaurant) {
+        PickeatResult pickeatResult = PickeatResult.from(pickeatRecord.getId(), selectedRestaurant);
         return pickeatResultRepository.save(pickeatResult);
     }
 
@@ -125,8 +125,8 @@ public class PickeatServiceV2 {
         participantStorage.remove(pickeatCode);
     }
 
-    private RestaurantV2 selectRestaurantInPickeat(String pickeatCode) {
-        RestaurantsV2 restaurantMeta = getRestaurantMetaInPickeat(pickeatCode);
+    private Restaurant selectRestaurantInPickeat(String pickeatCode) {
+        Restaurants restaurantMeta = getRestaurantMetaInPickeat(pickeatCode);
         RestaurantStateDto restaurantState = getRestaurantStateInPickeat(pickeatCode);
         return restaurantMeta.selectRestaurant(restaurantState);
     }

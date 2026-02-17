@@ -21,17 +21,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
-import com.pickeat.backend.participant.application.dto.request.ParticipantRequestV2;
+import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
 import com.pickeat.backend.participant.application.dto.response.MyParticipantCodeResponse;
-import com.pickeat.backend.participant.application.dto.response.ParticipantResponseV2;
-import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponseV2;
+import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
+import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponseV2;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponseV2;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponse;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequestV2;
-import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponseV2;
+import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequest;
+import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
 import com.pickeat.backend.support.AcceptanceTest;
 import java.util.List;
@@ -46,19 +46,19 @@ public class PickeatByPositionScenarioTest extends AcceptanceTest {
     void 위치_기반_픽잇_플로우() {
 
         // 픽잇 생성
-        PickeatResponseV2 createdPickeat = 외부용_픽잇_생성(new PickeatRequest("우테코 점심 픽잇"));
+        PickeatResponse createdPickeat = 외부용_픽잇_생성(new PickeatRequest("우테코 점심 픽잇"));
         위치_기반_식당_후보_생성(createdPickeat.code(), new LocationRestaurantRequest(127.123, 37.123, 500));
 
         // 참여자 생성
-        TokenResponse participant1Token = 참가자_생성(new ParticipantRequestV2("참여자1", createdPickeat.code()));
-        TokenResponse participant2Token = 참가자_생성(new ParticipantRequestV2("참여자2", createdPickeat.code()));
-        TokenResponse participant3Token = 참가자_생성(new ParticipantRequestV2("참여자3", createdPickeat.code()));
+        TokenResponse participant1Token = 참가자_생성(new ParticipantRequest("참여자1", createdPickeat.code()));
+        TokenResponse participant2Token = 참가자_생성(new ParticipantRequest("참여자2", createdPickeat.code()));
+        TokenResponse participant3Token = 참가자_생성(new ParticipantRequest("참여자3", createdPickeat.code()));
 
         // 초기 픽잇 정보 조회
-        PickeatResponseV2 pickeatMeta = 픽잇_메타데이터_조회(participant1Token.token());
+        PickeatResponse pickeatMeta = 픽잇_메타데이터_조회(participant1Token.token());
         checkPickeatMeta(pickeatMeta, createdPickeat.code(), "우테코 점심 픽잇");
 
-        PickeatStateResponseV2 initialPickeatState = 픽잇_상태_조회(participant1Token.token());
+        PickeatStateResponse initialPickeatState = 픽잇_상태_조회(participant1Token.token());
         checkInitialPickeatState(initialPickeatState);
 
         // 참가자 정보 조회
@@ -70,25 +70,25 @@ public class PickeatByPositionScenarioTest extends AcceptanceTest {
                 participant2Code.participantCode(),
                 participant3Code.participantCode());
 
-        List<ParticipantResponseV2> allParticipantMeta = 모든_참가자_메타데이터_조회(participant1Token.token());
+        List<ParticipantResponse> allParticipantMeta = 모든_참가자_메타데이터_조회(participant1Token.token());
         checkAllParticipantMeta(allParticipantMeta, allParticipantCodes);
 
-        ParticipantStateResponseV2 initialParticipantState = 모든_참가자_상태_조회(participant1Token.token());
+        ParticipantStateResponse initialParticipantState = 모든_참가자_상태_조회(participant1Token.token());
         checkInitialParticipantState(initialParticipantState, allParticipantCodes);
 
         // 초기 식당 정보 조회
-        List<RestaurantResponseV2> restaurantMeta = 식당_메타데이터_조회(participant1Token.token());
+        List<RestaurantResponse> restaurantMeta = 식당_메타데이터_조회(participant1Token.token());
         checkRestaurantMeta(restaurantMeta);
 
         RestaurantStateResponse initialRestaurantStates = 식당_상태_조회(participant1Token.token());
-        List<String> allRestaurantCodes = restaurantMeta.stream().map(RestaurantResponseV2::code).toList();
+        List<String> allRestaurantCodes = restaurantMeta.stream().map(RestaurantResponse::code).toList();
         checkInitialRestaurantStates(initialRestaurantStates, allRestaurantCodes);
 
         // 참여자들의 식당 소거
         List<String> excludeRestaurantCodes = allRestaurantCodes.subList(0, 10);
-        식당_제외(participant1Token.token(), new RestaurantExcludeRequestV2(excludeRestaurantCodes.subList(0, 4)));
-        식당_제외(participant2Token.token(), new RestaurantExcludeRequestV2(excludeRestaurantCodes.subList(3, 7)));
-        식당_제외(participant3Token.token(), new RestaurantExcludeRequestV2(excludeRestaurantCodes.subList(6, 10)));
+        식당_제외(participant1Token.token(), new RestaurantExcludeRequest(excludeRestaurantCodes.subList(0, 4)));
+        식당_제외(participant2Token.token(), new RestaurantExcludeRequest(excludeRestaurantCodes.subList(3, 7)));
+        식당_제외(participant3Token.token(), new RestaurantExcludeRequest(excludeRestaurantCodes.subList(6, 10)));
 
         RestaurantStateResponse restaurantStateAfterExclude = 식당_상태_조회(participant1Token.token());
         checkRestaurantExcludedSuccess(restaurantStateAfterExclude.aliveRestaurantCode(), excludeRestaurantCodes);
@@ -120,7 +120,7 @@ public class PickeatByPositionScenarioTest extends AcceptanceTest {
         참가자_선택_완료_표시(participant2Token.token());
         참가자_선택_완료_표시(participant3Token.token());
 
-        ParticipantStateResponseV2 participantStateAfterCompletion = 모든_참가자_상태_조회(participant1Token.token());
+        ParticipantStateResponse participantStateAfterCompletion = 모든_참가자_상태_조회(participant1Token.token());
         Map<String, Boolean> expectedParticipantStateAfterCompletion = Map.of(
                 participant1Code.participantCode(), true,
                 participant2Code.participantCode(), true,
@@ -131,7 +131,7 @@ public class PickeatByPositionScenarioTest extends AcceptanceTest {
         // 참여자들의 선택 완료 취소
         참가자_선택_완료_표시_취소(participant1Token.token());
 
-        ParticipantStateResponseV2 participantStateAfterCompletionCancel = 모든_참가자_상태_조회(participant1Token.token());
+        ParticipantStateResponse participantStateAfterCompletionCancel = 모든_참가자_상태_조회(participant1Token.token());
         Map<String, Boolean> expectedParticipantStateAfterCompletionCancel = Map.of(
                 participant1Code.participantCode(), false,
                 participant2Code.participantCode(), true,
@@ -142,33 +142,33 @@ public class PickeatByPositionScenarioTest extends AcceptanceTest {
         // 픽잇 종료
         픽잇_종료(participant1Token.token());
 
-        PickeatStateResponseV2 pickeatStateAfterCompletion = 픽잇_상태_조회(participant1Token.token());
+        PickeatStateResponse pickeatStateAfterCompletion = 픽잇_상태_조회(participant1Token.token());
         assertThat(pickeatStateAfterCompletion.isComplete()).isTrue();
 
-        PickeatResultResponseV2 pickeatResult = 픽잇_결과_조회(participant1Token.token());
+        PickeatResultResponse pickeatResult = 픽잇_결과_조회(participant1Token.token());
         assertThat(pickeatResult.code()).isEqualTo(aliveRestaurantCodes.get(1));
     }
 
-    private void checkPickeatMeta(PickeatResponseV2 response, String pickeatCode, String pickeatName) {
+    private void checkPickeatMeta(PickeatResponse response, String pickeatCode, String pickeatName) {
         assertAll(
                 () -> assertThat(response.code()).isEqualTo(pickeatCode),
                 () -> assertThat(response.name()).isEqualTo(pickeatName)
         );
     }
 
-    private void checkInitialPickeatState(PickeatStateResponseV2 response) {
+    private void checkInitialPickeatState(PickeatStateResponse response) {
         assertThat(response.isComplete()).isFalse();
     }
 
-    private void checkAllParticipantMeta(List<ParticipantResponseV2> response, List<String> participantCodes) {
+    private void checkAllParticipantMeta(List<ParticipantResponse> response, List<String> participantCodes) {
         assertThat(response)
                 .as("모든 참가자가 올바르게 생성되어야 합니다.")
-                .extracting(ParticipantResponseV2::participantCode)
+                .extracting(ParticipantResponse::participantCode)
                 .containsAnyElementsOf(participantCodes);
     }
 
     private void checkInitialParticipantState(
-            ParticipantStateResponseV2 response,
+            ParticipantStateResponse response,
             List<String> participantCodes
     ) {
         assertAll(
@@ -181,7 +181,7 @@ public class PickeatByPositionScenarioTest extends AcceptanceTest {
         );
     }
 
-    private void checkRestaurantMeta(List<RestaurantResponseV2> response) {
+    private void checkRestaurantMeta(List<RestaurantResponse> response) {
         assertThat(response).isNotEmpty();
     }
 

@@ -2,8 +2,8 @@ package com.pickeat.backend.restaurant.application.dto.request;
 
 import com.pickeat.backend.restaurant.domain.FoodCategory;
 import com.pickeat.backend.restaurant.domain.Picture;
+import com.pickeat.backend.restaurant.domain.Restaurant;
 import com.pickeat.backend.restaurant.domain.RestaurantInfo;
-import com.pickeat.backend.restaurant.domain.RestaurantV2;
 import com.pickeat.backend.template.domain.TemplateWish;
 import com.pickeat.backend.wish.domain.Wish;
 
@@ -62,8 +62,8 @@ public record RestaurantRequest(
         );
     }
 
-    public RestaurantV2 toRestaurantV2() {
-        return new RestaurantV2(
+    public Restaurant toRestaurant() {
+        return new Restaurant(
                 this.name,
                 this.category,
                 this.roadAddressName,
