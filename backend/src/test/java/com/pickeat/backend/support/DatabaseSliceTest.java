@@ -1,6 +1,5 @@
 package com.pickeat.backend.support;
 
-import com.pickeat.backend.global.config.RedisConfig;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.support.utility.DatabaseCleaner;
 import com.pickeat.backend.support.utility.StorageCleaner;
@@ -19,7 +18,6 @@ import org.testcontainers.utility.DockerImageName;
 @Import({
         DatabaseCleaner.class,
         StorageCleaner.class,
-        RedisConfig.class,
         RedisAutoConfiguration.class,
         JsonParser.class})
 public class DatabaseSliceTest {

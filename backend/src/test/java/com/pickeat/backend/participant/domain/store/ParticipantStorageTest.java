@@ -53,7 +53,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "ttl-test-code";
             String key = StorageKey.PARTICIPANT.generateKey(pickeatCode);
-            long configTtl = StorageKey.PARTICIPANT.getTtl().getSeconds();
+            long configTtl = StorageKey.PICKEAT_TTL.getSeconds();
 
             Participant firstParticipant = new Participant("첫번째");
             Participant secondParticipant = new Participant("두번째");

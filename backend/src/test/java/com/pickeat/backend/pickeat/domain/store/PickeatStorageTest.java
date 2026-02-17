@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Import(PickeatStorage.class)
 class PickeatStorageTest extends DatabaseSliceTest {
@@ -20,7 +20,7 @@ class PickeatStorageTest extends DatabaseSliceTest {
     private PickeatStorage pickeatStorage;
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private StringRedisTemplate redisTemplate;
 
     @Nested
     class 픽잇_저장 {
@@ -35,10 +35,10 @@ class PickeatStorageTest extends DatabaseSliceTest {
             pickeatStorage.save(pickeat);
 
             // then
-            Pickeat saved = (Pickeat) redisTemplate.opsForValue().get(expectedKey);
+            Optional<Pickeat> saved = pickeatStorage.get(pickeat.getCode());
             assertAll(
-                    () -> assertThat(saved).isNotNull(),
-                    () -> assertThat(saved.getCode()).isEqualTo(pickeat.getCode())
+                    () -> assertThat(saved).isPresent(),
+                    () -> assertThat(saved.get().getCode()).isEqualTo(pickeat.getCode())
             );
         }
     }
