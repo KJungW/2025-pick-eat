@@ -4,9 +4,11 @@ import com.pickeat.backend.global.auth.annotation.LoginUserId;
 import com.pickeat.backend.global.auth.annotation.ParticipantInPickeatV2;
 import com.pickeat.backend.global.auth.principal.ParticipantPrincipalV2;
 import com.pickeat.backend.global.log.BusinessLogging;
+import com.pickeat.backend.pickeat.application.PickeatResultServiceV2;
 import com.pickeat.backend.pickeat.application.PickeatServiceV2;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponseV2;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponseV2;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PickeatControllerV2 {
 
     private final PickeatServiceV2 pickeatService;
+    private final PickeatResultServiceV2 pickeatResultService;
 
     @PostMapping("/pickeats/new")
     public ResponseEntity<PickeatResponseV2> createPickeatWithoutRoomV2(@Valid @RequestBody PickeatRequest request) {
@@ -64,6 +67,14 @@ public class PickeatControllerV2 {
             @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
     ) {
         PickeatStateResponseV2 response = pickeatService.getPickeatState(principal.pickeatCode());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/pickeats/result/new")
+    public ResponseEntity<PickeatResultResponseV2> getPickeatResult(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        PickeatResultResponseV2 response = pickeatResultService.getByPickeatCode(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
     }
 }
