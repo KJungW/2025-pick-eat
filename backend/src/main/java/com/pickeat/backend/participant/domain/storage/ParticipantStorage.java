@@ -7,6 +7,7 @@ import com.pickeat.backend.participant.domain.Participant;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -47,7 +48,7 @@ public class ParticipantStorage {
     private final StringRedisTemplate redisTemplate;
     private final JsonParser jsonParser;
 
-    public boolean setupAboutParticipant(String pickeatCode, Participant participant) {
+    public Boolean setupAboutParticipant(String pickeatCode, Participant participant) {
         String participantKey = StorageKey.PARTICIPANT.generateKey(pickeatCode);
         String participantCompletionKey = StorageKey.PARTICIPANT_COMPLETION.generateKey(pickeatCode);
         String participantValue = jsonParser.toJson(participant);
@@ -75,7 +76,7 @@ public class ParticipantStorage {
                 .toList();
     }
 
-    public ParticipantStateDto getParticipantsState(String pickeatCode) {
+    public Optional<ParticipantStateDto> getParticipantsState(String pickeatCode) {
         String key = StorageKey.PARTICIPANT_COMPLETION.generateKey(pickeatCode);
         Map<Object, Object> result = redisTemplate.opsForHash().entries(key);
         return parseParticipantState(result);
@@ -96,9 +97,9 @@ public class ParticipantStorage {
         redisTemplate.delete(key);
     }
 
-    private ParticipantStateDto parseParticipantState(Map<Object, Object> result) {
+    private Optional<ParticipantStateDto> parseParticipantState(Map<Object, Object> result) {
         if (result.isEmpty()) {
-            return new ParticipantStateDto(Map.of());
+            return Optional.empty();
         }
         Map<String, Boolean> completionState = new java.util.HashMap<>();
         for (Map.Entry<Object, Object> entry : result.entrySet()) {
@@ -106,6 +107,6 @@ public class ParticipantStorage {
             Boolean isComplete = Boolean.parseBoolean((String) entry.getValue());
             completionState.put(participantCode, isComplete);
         }
-        return new ParticipantStateDto(completionState);
+        return Optional.of(new ParticipantStateDto(completionState));
     }
 }

@@ -9,15 +9,14 @@ public enum ErrorCode {
     // Pickeat 관련 에러
     PROCESSING_PICKEAT_NOT_FOUND(HttpStatus.NOT_FOUND, "진행중인 픽잇을 찾을 수 없습니다. 존재하지 않는 픽잇이거나 이미 종료된 픽잇입니다."),
     PICKEAT_NOT_FOUND(HttpStatus.NOT_FOUND, "픽잇을 찾을 수 없습니다."),
-    PICKEAT_ALREADY_INACTIVE(HttpStatus.BAD_REQUEST, "이미 비활성화된 픽잇입니다."),
-    INVALID_PICKEAT_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 픽잇 코드입니다."),
-    PICKEAT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 픽잇에 접근 권한이 없습니다."),
     PICKEAT_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "픽잇 기록을 찾을 수 없습니다."),
     PICKEAT_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, "픽잇 결과를 찾을 수 없습니다."),
 
     // Participant 관련 에러
-    PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "참가자를 찾을 수 없습니다."),
     PARTICIPANT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 픽잇에 동일한 참가자가 생성되었습니다."),
+    PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 참가자가 존재하지 않습니다."),
+    PARTICIPANT_RESTAURANT_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요를 눌렀거나 올바르지 않은 식당입니다."),
+    PARTICIPANT_RESTAURANT_NOT_LIKED(HttpStatus.BAD_REQUEST, "좋아요 기록이 없거나 올바르지 않은 식당입니다."),
 
     // Wish 관련 에러
     WISH_NOT_FOUND(HttpStatus.NOT_FOUND, "위시를 찾을 수 없습니다."),
@@ -28,12 +27,9 @@ public enum ErrorCode {
     WISH_PICTURE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 위시 이미지에 접근할 권한이 없습니다."),
 
     // Restaurant 관련 에러
+    RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "식당이 존재하지 않습니다."),
     RESTAURANT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 픽잇에 대한 식당이 생성되었습니다."),
-    RESTAURANT_ELIMINATION_FORBIDDEN(HttpStatus.FORBIDDEN, "식당 소거 권한이 없습니다."),
-    RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "식당을 찾을 수 없습니다."),
-    PARTICIPANT_RESTAURANT_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요를 눌렀거나 올바르지 않은 식당입니다."),
-    PARTICIPANT_RESTAURANT_NOT_LIKED(HttpStatus.BAD_REQUEST, "좋아요 기록이 없거나 올바르지 않은 식당입니다."),
-    RESTAURANTS_IS_EMPTY(HttpStatus.BAD_REQUEST, "픽잇의 식당이 비어있습니다."),
+    RESTAURANT_EXCLUDE_FAIL(HttpStatus.BAD_REQUEST, "식당 소거에 실패했습니다. 식당 코드를 다시 한번 확인해주세요."),
 
     // User 관련 에러
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
@@ -65,8 +61,7 @@ public enum ErrorCode {
     STORAGE_KEY_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Storage 키를 생성하는데 실패했습니다."),
 
     // 시스템 에러
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생했습니다."),
-    ;
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생했습니다.");
 
     private final HttpStatus status;
     private final String message;

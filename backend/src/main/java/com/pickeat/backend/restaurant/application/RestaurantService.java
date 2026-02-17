@@ -38,13 +38,13 @@ public class RestaurantService {
 
     public RestaurantStateResponse getStateInPickeat(String pickeatCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
-        RestaurantStateDto restaurantState = restaurantsStorage.getAllRestaurantState(pickeatCode);
+        RestaurantStateDto restaurantState = getRestaurantStateInPickeat(pickeatCode);
         return RestaurantStateResponse.of(restaurantState);
     }
 
     public void exclude(String pickeatCode, List<String> restaurantCodes) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
-        restaurantsStorage.excludeRestaurants(pickeatCode, restaurantCodes);
+        excludeRestaurants(pickeatCode, restaurantCodes);
     }
 
     public void like(String pickeatCode, String participantCode, String restaurantCode) {
@@ -63,8 +63,13 @@ public class RestaurantService {
     }
 
     private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
-        return restaurantsStorage.getAllRestaurantMeta(pickeatCode)
-                .orElse(new Restaurants(List.of()));
+        return restaurantsStorage.getRestaurantMetaInPickeat(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+    }
+
+    private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
+        return restaurantsStorage.getRestaurantStateInPickeat(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private void setupRestaurants(String pickeatCode, Restaurants restaurants) {
@@ -72,6 +77,10 @@ public class RestaurantService {
         if (!isSuccess) {
             throw new BusinessException(ErrorCode.RESTAURANT_ALREADY_EXISTS);
         }
+    }
+
+    private void excludeRestaurants(String pickeatCode, List<String> restaurantCodes) {
+        restaurantsStorage.excludeRestaurants(pickeatCode, restaurantCodes);
     }
 
     private void likeRestaurant(String pickeatCode, String participantCode, String restaurantCode) {

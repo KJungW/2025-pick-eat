@@ -176,7 +176,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
             participantService.markCompletion(pickeatCode, participantCode);
 
             // then
-            boolean isCompleted = participantStorage.getParticipantsState(pickeatCode)
+            Boolean isCompleted = participantStorage.getParticipantsState(pickeatCode).get()
                     .completionState()
                     .get(participantCode);
             assertThat(isCompleted).isTrue();
@@ -215,7 +215,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
             participantService.cancelCompletion(pickeatCode, participantCode);
 
             // then
-            boolean isCompleted = participantStorage.getParticipantsState(pickeatCode)
+            Boolean isCompleted = participantStorage.getParticipantsState(pickeatCode).get()
                     .completionState()
                     .get(participantCode);
             assertThat(isCompleted).isFalse();

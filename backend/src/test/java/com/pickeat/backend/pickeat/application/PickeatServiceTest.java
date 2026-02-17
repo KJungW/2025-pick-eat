@@ -152,7 +152,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
             // then
             assertAll(
                     () -> assertThat(pickeatStorage.get(code).isEmpty()).isTrue(),
-                    () -> assertThat(restaurantsStorage.getAllRestaurantMeta(code).isEmpty()).isTrue(),
+                    () -> assertThat(restaurantsStorage.getRestaurantMetaInPickeat(code).isEmpty()).isTrue(),
                     () -> assertThat(participantStorage.getParticipantsMeta(code).isEmpty()).isTrue()
             );
         }

@@ -9,6 +9,7 @@ import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
 
             // then
             List<Participant> allParticipants = participantStorage.getParticipantsMeta(pickeatCode);
-            ParticipantStateDto participantsState = participantStorage.getParticipantsState(pickeatCode);
+            ParticipantStateDto participantsState = participantStorage.getParticipantsState(pickeatCode).get();
             assertAll(
                     () -> assertThat(allParticipants).hasSize(1),
                     () -> assertThat(allParticipants)
@@ -99,6 +100,18 @@ class ParticipantStorageTest extends DatabaseSliceTest {
                             .containsExactlyInAnyOrder(participant1.getCode(), participant2.getCode())
             );
         }
+
+        @Test
+        void 존재하지_않는_픽잇코드의_메타데이터_조회_시_빈_리스트를_반환한다() {
+            // given
+            String invalidPickeatCode = "not-exist-code";
+
+            // when
+            List<Participant> result = participantStorage.getParticipantsMeta(invalidPickeatCode);
+
+            // then
+            assertThat(result).isEmpty();
+        }
     }
 
     @Nested
@@ -114,10 +127,25 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // when
-            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode);
+            Optional<ParticipantStateDto> result = participantStorage.getParticipantsState(pickeatCode);
 
             // then
-            assertThat(result.completionState().get(participant.getCode())).isTrue();
+            assertAll(
+                    () -> assertThat(result).isPresent(),
+                    () -> assertThat(result.get().completionState().get(participant.getCode())).isTrue()
+            );
+        }
+
+        @Test
+        void 존재하지_않는_픽잇코드의_상태_조회_시_Empty_Optional을_반환한다() {
+            // given
+            String invalidPickeatCode = "not-exist-code";
+
+            // when
+            Optional<ParticipantStateDto> result = participantStorage.getParticipantsState(invalidPickeatCode);
+
+            // then
+            assertThat(result).isEmpty();
         }
     }
 
@@ -135,7 +163,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // then
-            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode);
+            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode).get();
             assertThat(result.completionState().get(participant.getCode())).isTrue();
         }
     }
@@ -155,7 +183,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.cancelCompletion(pickeatCode, participant.getCode());
 
             // then
-            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode);
+            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode).get();
             assertThat(result.completionState().get(participant.getCode())).isFalse();
         }
     }

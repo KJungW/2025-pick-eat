@@ -12,6 +12,7 @@ import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,13 +35,13 @@ public class ParticipantService {
 
     public List<ParticipantResponse> getMetaInPickeat(String pickeatCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
-        List<Participant> participants = participantStorage.getParticipantsMeta(pickeatCode);
+        List<Participant> participants = getParticipantsMetaInPickeat(pickeatCode);
         return ParticipantResponse.from(participants);
     }
 
     public ParticipantStateResponse getStateInPickeat(String pickeatCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
-        ParticipantStateDto state = participantStorage.getParticipantsState(pickeatCode);
+        ParticipantStateDto state = getParticipantsStateInPickeat(pickeatCode);
         return ParticipantStateResponse.from(state);
     }
 
@@ -57,6 +58,15 @@ public class ParticipantService {
     private Pickeat getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
+    }
+
+    private List<Participant> getParticipantsMetaInPickeat(String pickeatCode) {
+        return participantStorage.getParticipantsMeta(pickeatCode);
+    }
+
+    private ParticipantStateDto getParticipantsStateInPickeat(String pickeatCode) {
+        return participantStorage.getParticipantsState(pickeatCode)
+                .orElse(new ParticipantStateDto(Map.of()));
     }
 
     private void setupAboutParticipant(Pickeat pickeat, Participant participant) {

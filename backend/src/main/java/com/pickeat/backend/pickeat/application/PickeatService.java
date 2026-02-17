@@ -91,12 +91,13 @@ public class PickeatService {
     }
 
     private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
-        return restaurantsStorage.getAllRestaurantMeta(pickeatCode)
-                .orElse(new Restaurants(List.of()));
+        return restaurantsStorage.getRestaurantMetaInPickeat(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
-        return restaurantsStorage.getAllRestaurantState(pickeatCode);
+        return restaurantsStorage.getRestaurantStateInPickeat(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private List<Participant> getParticipantInPickeat(String pickeatCode) {

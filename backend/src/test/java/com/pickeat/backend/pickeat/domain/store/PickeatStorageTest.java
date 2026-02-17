@@ -79,7 +79,7 @@ class PickeatStorageTest extends DatabaseSliceTest {
     class 픽잇_제거 {
 
         @Test
-        void 픽잇과을_제거할_수_있다() {
+        void 픽잇을_제거할_수_있다() {
             // given
             Pickeat pickeat = Pickeat.createWithoutRoom("제거 테스트 픽잇");
             String code = pickeat.getCode();
