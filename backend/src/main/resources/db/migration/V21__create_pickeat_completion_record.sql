@@ -1,3 +1,15 @@
+-- -------------------------------
+-- 기존 테이블 정리
+-- -------------------------------
+RENAME TABLE pickeat TO old_pickeat;
+RENAME TABLE participant TO old_participant;
+RENAME TABLE restaurant TO old_restaurant;
+RENAME TABLE restaurant_like TO old_restaurant_like;
+RENAME TABLE pickeat_result TO old_pickeat_result;
+
+-- -------------------------------
+-- 새로운 테이블 생성
+-- -------------------------------
 CREATE TABLE `pickeat_record`
 (
     `id`         bigint       NOT NULL AUTO_INCREMENT,
@@ -13,7 +25,7 @@ CREATE TABLE `pickeat_record`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
 
-CREATE TABLE `pickeat_result_v2`
+CREATE TABLE `pickeat_result`
 (
     `id`                bigint                                                  NOT NULL AUTO_INCREMENT,
     `created_at`        datetime(6)                                             NOT NULL,
@@ -29,8 +41,8 @@ CREATE TABLE `pickeat_result_v2`
     `picture_key`       varchar(255)                                            DEFAULT NULL,
     `picture_url`       varchar(255)                                            DEFAULT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `UK_result_v2_pickeat_record_id` (`pickeat_record_id`),
-    UNIQUE KEY `UK_result_v2_code` (`code`)
+    UNIQUE KEY `UK_result_pickeat_record_id` (`pickeat_record_id`),
+    UNIQUE KEY `UK_result_code` (`code`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
