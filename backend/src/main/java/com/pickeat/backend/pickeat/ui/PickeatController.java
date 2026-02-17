@@ -10,6 +10,7 @@ import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
+import com.pickeat.backend.pickeat.ui.api.PickeatApiSpec;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,17 +25,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class PickeatController {
+public class PickeatController implements PickeatApiSpec {
 
     private final PickeatService pickeatService;
     private final PickeatResultService pickeatResultService;
 
+    @Override
     @PostMapping("/pickeats")
     public ResponseEntity<PickeatResponse> createPickeatWithoutRoom(@Valid @RequestBody PickeatRequest request) {
         PickeatResponse response = pickeatService.createPickeatWithoutRoom(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Override
     @BusinessLogging("방에서 픽잇 생성")
     @PostMapping("/rooms/{roomId}/pickeats")
     public ResponseEntity<PickeatResponse> createPickeatWithRoom(
@@ -46,6 +49,7 @@ public class PickeatController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Override
     @PostMapping("/pickeats/complete")
     public ResponseEntity<Void> completePickeat(
             @ParticipantInPickeat ParticipantPrincipal principal
@@ -54,6 +58,7 @@ public class PickeatController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @Override
     @GetMapping("/pickeats/meta")
     public ResponseEntity<PickeatResponse> getPickeatMeta(
             @ParticipantInPickeat ParticipantPrincipal principal
@@ -61,6 +66,7 @@ public class PickeatController {
         PickeatResponse response = pickeatService.getPickeatMeta(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
     }
+
 
     @GetMapping("/pickeats/state")
     public ResponseEntity<PickeatStateResponse> getPickeatState(
@@ -70,6 +76,7 @@ public class PickeatController {
         return ResponseEntity.ok().body(response);
     }
 
+    @Override
     @GetMapping("/pickeats/result")
     public ResponseEntity<PickeatResultResponse> getPickeatResult(
             @ParticipantInPickeat ParticipantPrincipal principal

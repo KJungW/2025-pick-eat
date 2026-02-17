@@ -10,6 +10,7 @@ import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurant
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
+import com.pickeat.backend.restaurant.ui.api.RestaurantApiSpec;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -26,11 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v2")
 @RequiredArgsConstructor
-public class RestaurantController {
+public class RestaurantController implements RestaurantApiSpec {
 
     private final RestaurantService restaurantService;
     private final RestaurantSearchFacade restaurantSearchFacade;
 
+    @Override
     @PostMapping("/pickeats/{pickeatCode}/restaurants/location")
     public ResponseEntity<Void> createRestaurantsByLocation(
             @PathVariable("pickeatCode") String pickeatCode,
@@ -41,6 +43,7 @@ public class RestaurantController {
         return ResponseEntity.created(location).build();
     }
 
+    @Override
     @PostMapping("/pickeats/{pickeatCode}/restaurants/wish")
     public ResponseEntity<Void> createRestaurantsByWish(
             @PathVariable("pickeatCode") String pickeatCode,
@@ -51,6 +54,7 @@ public class RestaurantController {
         return ResponseEntity.created(location).build();
     }
 
+    @Override
     @PostMapping("/pickeats/{pickeatCode}/restaurants/template")
     public ResponseEntity<Void> createRestaurantsByTemplate(
             @PathVariable("pickeatCode") String pickeatCode,
@@ -61,6 +65,7 @@ public class RestaurantController {
         return ResponseEntity.created(location).build();
     }
 
+    @Override
     @GetMapping("/pickeats/restaurants")
     public ResponseEntity<List<RestaurantResponse>> getRestaurantMetaInPickeat(
             @ParticipantInPickeat ParticipantPrincipal principal
@@ -69,6 +74,7 @@ public class RestaurantController {
         return ResponseEntity.ok().body(response);
     }
 
+    @Override
     @GetMapping("/pickeats/restaurants/state")
     public ResponseEntity<RestaurantStateResponse> getRestaurantStateInPickeat(
             @ParticipantInPickeat ParticipantPrincipal principal
@@ -77,6 +83,7 @@ public class RestaurantController {
         return ResponseEntity.ok().body(response);
     }
 
+    @Override
     @PatchMapping("/restaurants/exclude")
     public ResponseEntity<Void> excludeRestaurants(
             @RequestBody RestaurantExcludeRequest request,
@@ -86,6 +93,7 @@ public class RestaurantController {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @PatchMapping("/restaurants/{restaurantCode}/like")
     public ResponseEntity<Void> likeRestaurant(
             @PathVariable("restaurantCode") String restaurantCode,
@@ -95,6 +103,7 @@ public class RestaurantController {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @PatchMapping("/restaurants/{restaurantCode}/unlike")
     public ResponseEntity<Void> cancelLikeRestaurant(
             @PathVariable("restaurantCode") String restaurantCode,
