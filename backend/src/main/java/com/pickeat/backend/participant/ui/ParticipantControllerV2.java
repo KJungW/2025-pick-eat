@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +42,7 @@ public class ParticipantControllerV2 {
         return ResponseEntity.ok(new MyParticipantCodeResponse(principal.participantCode()));
     }
 
-    @PostMapping("/participants/me/completion/complete/new")
+    @PatchMapping("/participants/me/completion/complete/new")
     public ResponseEntity<Void> markCompletion(
             @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
     ) {
@@ -49,7 +50,7 @@ public class ParticipantControllerV2 {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/participants/me/completion/cancel/new")
+    @PatchMapping("/participants/me/completion/cancel/new")
     public ResponseEntity<Void> cancelCompletion(
             @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
     ) {

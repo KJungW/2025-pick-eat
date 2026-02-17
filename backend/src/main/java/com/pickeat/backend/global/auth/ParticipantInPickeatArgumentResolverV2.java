@@ -1,6 +1,5 @@
 package com.pickeat.backend.global.auth;
 
-import com.pickeat.backend.global.auth.annotation.ParticipantInPickeat;
 import com.pickeat.backend.global.auth.annotation.ParticipantInPickeatV2;
 import com.pickeat.backend.global.auth.principal.ParticipantPrincipalV2;
 import com.pickeat.backend.global.exception.BusinessException;
@@ -31,8 +30,8 @@ public class ParticipantInPickeatArgumentResolverV2 implements HandlerMethodArgu
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
             NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 
-        ParticipantInPickeat participantInPickeatAnnotation = parameter.getParameterAnnotation(
-                ParticipantInPickeat.class);
+        ParticipantInPickeatV2 participantInPickeatAnnotation = parameter.getParameterAnnotation(
+                ParticipantInPickeatV2.class);
         boolean required = participantInPickeatAnnotation.required();
 
         String authHeader = webRequest.getHeader("Pickeat-Participant-Token");

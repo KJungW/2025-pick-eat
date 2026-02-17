@@ -49,6 +49,7 @@ public class PickeatServiceV2 {
         return PickeatResponseV2.from(pickeat);
     }
 
+    @Transactional
     public void completePickeat(String pickeatCode) {
         PickeatV2 pickeat = getPickeatByCode(pickeatCode);
         List<ParticipantV2> participants = getParticipantInPickeat(pickeatCode);

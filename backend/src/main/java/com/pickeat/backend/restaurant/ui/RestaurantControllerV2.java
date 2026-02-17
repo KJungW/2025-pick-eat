@@ -103,6 +103,4 @@ public class RestaurantControllerV2 {
         restaurantService.cancelLike(principal.pickeatCode(), principal.participantCode(), restaurantCode);
         return ResponseEntity.noContent().build();
     }
-
-
 }

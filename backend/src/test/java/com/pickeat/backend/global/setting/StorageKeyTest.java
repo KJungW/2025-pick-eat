@@ -5,9 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.participant.domain.Participant;
-import com.pickeat.backend.pickeat.domain.Pickeat;
-import com.pickeat.backend.support.fixture.PickeatFixture;
+import com.pickeat.backend.pickeat.domain.PickeatV2;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,19 +21,13 @@ class StorageKeyTest {
         @Test
         void 정상적인_인자가_전달되면_포맷에_맞는_키를_생성한다() {
             // given
-            String nickname = "테스트유저";
-            Pickeat pickeat = PickeatFixture.createWithoutRoom();
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("점심");
 
             // when
-            Participant participant = new Participant(nickname, pickeat.getId());
+            String key = StorageKey.PICKEAT.generateKey(pickeat.getCode());
 
             // then
-            assertThat(participant)
-                    .extracting(
-                            Participant::getNickname,
-                            Participant::getPickeatId,
-                            Participant::getIsCompleted)
-                    .containsExactly(nickname, pickeat.getId(), false);
+            assertThat(key).isEqualTo("pickeat:" + pickeat.getCode());
         }
 
         @ParameterizedTest

@@ -1,116 +1,85 @@
 package com.pickeat.backend.acceptance_test.piece.pickeat;
 
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-
-import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
-import com.pickeat.backend.restaurant.application.dto.response.RestaurantResultResponse;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponseV2;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponseV2;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.springframework.http.HttpStatus;
 
 public class PickeatPieceTest {
 
-    public static PickeatResponse 외부용_픽잇_생성(PickeatRequest request) {
+    public static PickeatResponseV2 외부용_픽잇_생성(PickeatRequest request) {
         return RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
-                .post("/api/v1/pickeats")
+                .post("/api/v1/pickeats/new")
                 .then().log().all()
                 .statusCode(HttpStatus.CREATED.value())
-                .body("id", notNullValue())
-                .body("code", notNullValue())
-                .body("name", is(request.name()))
-                .body("isActive", is(true))
                 .extract()
-                .as(PickeatResponse.class);
+                .as(PickeatResponseV2.class);
     }
 
-    public static PickeatResponse 픽잇_정보_조회(String pickeatCode) {
+    public static PickeatResponseV2 방_내부용_픽잇_생성(Long roomId, String accessToken, PickeatRequest request) {
         return RestAssured
                 .given().log().all()
+                .auth().oauth2(accessToken)
+                .contentType(ContentType.JSON)
+                .body(request)
                 .when()
-                .get("/api/v1/pickeats/{pickeatCode}", pickeatCode)
+                .post("/api/v1/rooms/{roomId}/pickeats/new", roomId)
                 .then().log().all()
-                .statusCode(HttpStatus.OK.value())
-                .body("code", is(pickeatCode))
+                .statusCode(HttpStatus.CREATED.value())
                 .extract()
-                .as(PickeatResponse.class);
+                .as(PickeatResponseV2.class);
     }
 
-    public static void 픽잇_비활성화(String pickeatCode, String participantToken) {
+    public static void 픽잇_종료(String participantToken) {
         RestAssured
                 .given().log().all()
                 .header("Pickeat-Participant-Token", "Bearer " + participantToken)
                 .when()
-                .patch("/api/v1/pickeats/{pickeatCode}/deactive", pickeatCode)
+                .post("/api/v1/pickeats/complete/new")
                 .then().log().all()
                 .statusCode(HttpStatus.NO_CONTENT.value());
     }
 
-    public static PickeatStateResponse 픽잇_활성화_상태_조회(String pickeatCode) {
-        return RestAssured
-                .given().log().all()
-                .when()
-                .get("/api/v1/pickeats/{pickeatCode}/state", pickeatCode)
-                .then().log().all()
-                .statusCode(HttpStatus.OK.value())
-                .extract()
-                .as(PickeatStateResponse.class);
-    }
-
-    public static RestaurantResultResponse 픽잇_결과_생성(String pickeatCode, String participantToken) {
+    public static PickeatResponseV2 픽잇_메타데이터_조회(String participantToken) {
         return RestAssured
                 .given().log().all()
                 .header("Pickeat-Participant-Token", "Bearer " + participantToken)
                 .when()
-                .post("/api/v1/pickeats/{pickeatCode}/result", pickeatCode)
+                .get("/api/v1/pickeats/meta/new")
                 .then().log().all()
-                .statusCode(anyOf(is(HttpStatus.CREATED.value()), is(HttpStatus.OK.value())))
+                .statusCode(HttpStatus.OK.value())
                 .extract()
-                .as(RestaurantResultResponse.class);
+                .as(PickeatResponseV2.class);
     }
 
-    public static RestaurantResultResponse 픽잇_결과_조회(String pickeatCode, String participantToken) {
+    public static PickeatStateResponseV2 픽잇_상태_조회(String participantToken) {
         return RestAssured
                 .given().log().all()
                 .header("Pickeat-Participant-Token", "Bearer " + participantToken)
                 .when()
-                .get("/api/v1/pickeats/{pickeatCode}/result", pickeatCode)
+                .get("/api/v1/pickeats/state/new")
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
-                .as(RestaurantResultResponse.class);
+                .as(PickeatStateResponseV2.class);
     }
 
-    public static ParticipantStateResponse 픽잇의_참가자_요약_정보_조회(String pickeatCode) {
+    public static PickeatResultResponseV2 픽잇_결과_조회(String participantToken) {
         return RestAssured
                 .given().log().all()
+                .header("Pickeat-Participant-Token", "Bearer " + participantToken)
                 .when()
-                .get("/api/v1/pickeats/{pickeatCode}/participants/state", pickeatCode)
+                .get("/api/v1/pickeats/result/new")
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
-                .as(ParticipantStateResponse.class);
-    }
-
-    public static PickeatResponse 방에서_픽잇_생성(Long roomId, PickeatRequest request, String accessToken) {
-        return RestAssured
-                .given().log().all()
-                .header("Authorization", "Bearer " + accessToken)
-                .contentType(ContentType.JSON)
-                .body(request)
-                .when()
-                .post("/api/v1/rooms/{roomId}/pickeats", roomId)
-                .then().log().all()
-                .statusCode(HttpStatus.CREATED.value())
-                .extract()
-                .as(PickeatResponse.class);
+                .as(PickeatResultResponseV2.class);
     }
 }
