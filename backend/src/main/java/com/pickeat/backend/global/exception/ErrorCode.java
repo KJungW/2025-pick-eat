@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     // Pickeat 관련 에러
-    PICKEAT_NOT_FOUND(HttpStatus.NOT_FOUND, "진행중인 픽잇을 찾을 수 없습니다. 존재하지 않는 픽잇이거나 이미 종료된 픽잇입니다."),
+    PROCESSING_PICKEAT_NOT_FOUND(HttpStatus.NOT_FOUND, "진행중인 픽잇을 찾을 수 없습니다. 존재하지 않는 픽잇이거나 이미 종료된 픽잇입니다."),
+    PICKEAT_NOT_FOUND(HttpStatus.NOT_FOUND, "픽잇을 찾을 수 없습니다."),
     PICKEAT_ALREADY_INACTIVE(HttpStatus.BAD_REQUEST, "이미 비활성화된 픽잇입니다."),
     INVALID_PICKEAT_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 픽잇 코드입니다."),
     PICKEAT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 픽잇에 접근 권한이 없습니다."),

@@ -6,8 +6,8 @@ import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
 import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
 import com.pickeat.backend.participant.domain.Participant;
-import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.participant.domain.repository.ParticipantRepository;
+import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.repository.PickeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,6 +51,6 @@ public class ParticipantService {
 
     private Pickeat findPickeatById(Long pickeatId) {
         return pickeatRepository.findById(pickeatId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 }

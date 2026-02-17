@@ -159,7 +159,7 @@ public class PickeatResultServiceTest extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> pickeatResultService.createPickeatResult(invalidCode, participant.getId()))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
 
         @Test
@@ -231,7 +231,7 @@ public class PickeatResultServiceTest extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> pickeatResultService.getPickeatResult(invalidCode))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
 }

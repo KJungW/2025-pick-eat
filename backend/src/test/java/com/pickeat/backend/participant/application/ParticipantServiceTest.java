@@ -8,8 +8,8 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
 import com.pickeat.backend.participant.domain.Participant;
-import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.participant.domain.repository.ParticipantRepository;
+import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.ParticipantFixture;
 import com.pickeat.backend.support.fixture.PickeatFixture;
@@ -59,7 +59,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
             ParticipantRequest request = new ParticipantRequest("테스트유저", Long.MAX_VALUE);
             assertThatThrownBy(() -> participantService.createParticipant(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
 

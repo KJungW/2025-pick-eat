@@ -3,10 +3,10 @@ package com.pickeat.backend.pickeat.application;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.participant.domain.Participant;
+import com.pickeat.backend.participant.domain.repository.ParticipantRepository;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.PickeatCode;
 import com.pickeat.backend.pickeat.domain.PickeatResult;
-import com.pickeat.backend.participant.domain.repository.ParticipantRepository;
 import com.pickeat.backend.pickeat.domain.repository.PickeatRepository;
 import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepository;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResultResponse;
@@ -87,7 +87,7 @@ public class PickeatResultService {
     private Pickeat getPickeatByCode(String pickeatCode) {
         PickeatCode code = new PickeatCode(pickeatCode);
         return pickeatRepository.findByCode(code)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 
     private void validateParticipantAccessToPickeat(Long participantId, Pickeat pickeat) {

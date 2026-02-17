@@ -9,11 +9,11 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
 import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
+import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatRejoinAvailableResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
-import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
@@ -224,7 +224,7 @@ public class PickeatServiceTest extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> pickeatService.getPickeatState(invalidCode))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
 

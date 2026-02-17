@@ -95,7 +95,7 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> restaurantService.create(invalidCode, requests))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessageContaining(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessageContaining(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
 
         @Test
@@ -149,7 +149,7 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> restaurantService.getMetaInPickeat(invalidCode))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessageContaining(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessageContaining(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
 
@@ -195,7 +195,7 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> restaurantService.getStateInPickeat(invalidCode))
                     .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PICKEAT_NOT_FOUND);
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROCESSING_PICKEAT_NOT_FOUND);
         }
     }
 
@@ -233,7 +233,7 @@ class RestaurantServiceV2Test extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> restaurantService.exclude(invalidPickeatCode, restaurantCodes))
                     .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PICKEAT_NOT_FOUND);
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROCESSING_PICKEAT_NOT_FOUND);
         }
     }
 

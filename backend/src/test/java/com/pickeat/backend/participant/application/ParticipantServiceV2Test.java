@@ -73,7 +73,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> participantServiceV2.createParticipant(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessageContaining(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessageContaining(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
 
@@ -111,7 +111,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> participantServiceV2.getMetaInPickeat(pickeatCode))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
 
@@ -154,7 +154,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> participantServiceV2.getMetaInPickeat(pickeatCode))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
 
@@ -191,7 +191,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> participantServiceV2.markCompletion(invalidPickeatCode, participantCode))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
 
@@ -230,7 +230,7 @@ class ParticipantServiceV2Test extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(() -> participantServiceV2.cancelCompletion(invalidPickeatCode, participantCode))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage(ErrorCode.PICKEAT_NOT_FOUND.getMessage());
+                    .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
 }

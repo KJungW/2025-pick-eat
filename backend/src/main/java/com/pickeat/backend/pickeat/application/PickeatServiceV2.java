@@ -86,7 +86,7 @@ public class PickeatServiceV2 {
 
     private PickeatV2 getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 
     private RestaurantsV2 getRestaurantMetaInPickeat(String pickeatCode) {

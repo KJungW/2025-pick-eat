@@ -56,7 +56,7 @@ public class ParticipantServiceV2 {
 
     private PickeatV2 getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 
     private void setupAboutParticipant(PickeatV2 pickeat, ParticipantV2 participant) {
