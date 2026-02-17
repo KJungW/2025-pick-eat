@@ -7,10 +7,12 @@ import com.pickeat.backend.global.log.BusinessLogging;
 import com.pickeat.backend.pickeat.application.PickeatServiceV2;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponseV2;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,5 +49,21 @@ public class PickeatControllerV2 {
     ) {
         pickeatService.completePickeat(principal.pickeatCode());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/pickeats/meta/new")
+    public ResponseEntity<PickeatResponseV2> getPickeatMeta(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        PickeatResponseV2 response = pickeatService.getPickeatMeta(principal.pickeatCode());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/pickeats/state/new")
+    public ResponseEntity<PickeatStateResponseV2> getPickeatState(
+            @ParticipantInPickeatV2 ParticipantPrincipalV2 principal
+    ) {
+        PickeatStateResponseV2 response = pickeatService.getPickeatState(principal.pickeatCode());
+        return ResponseEntity.ok().body(response);
     }
 }

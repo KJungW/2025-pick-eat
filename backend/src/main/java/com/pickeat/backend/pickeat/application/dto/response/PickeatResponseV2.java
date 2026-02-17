@@ -1,5 +1,6 @@
 package com.pickeat.backend.pickeat.application.dto.response;
 
+import com.pickeat.backend.pickeat.domain.PickeatRecord;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
@@ -14,6 +15,10 @@ public record PickeatResponseV2(
 ) {
 
     public static PickeatResponseV2 from(PickeatV2 pickeat) {
+        return new PickeatResponseV2(pickeat.getCode(), pickeat.getName());
+    }
+
+    public static PickeatResponseV2 from(PickeatRecord pickeat) {
         return new PickeatResponseV2(pickeat.getCode(), pickeat.getName());
     }
 

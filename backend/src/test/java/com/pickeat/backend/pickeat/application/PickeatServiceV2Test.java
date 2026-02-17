@@ -1,12 +1,16 @@
 package com.pickeat.backend.pickeat.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import com.pickeat.backend.global.exception.BusinessException;
+import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.participant.domain.ParticipantV2;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponseV2;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
 import com.pickeat.backend.pickeat.domain.PickeatResultV2;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
@@ -96,7 +100,6 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
         }
     }
 
-
     @Nested
     class 픽잇_종료 {
 
@@ -152,6 +155,94 @@ class PickeatServiceV2Test extends DatabaseSliceTest {
                     () -> assertThat(restaurantsStorage.getAllRestaurantMeta(code).isEmpty()).isTrue(),
                     () -> assertThat(participantStorage.getParticipantsMeta(code).isEmpty()).isTrue()
             );
+        }
+    }
+
+    @Nested
+    class 픽잇_메타데이터_조회 {
+
+        @Test
+        void 진행중이_픽잇의_메타데이터를_조회할_수_있다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("진행중인 픽잇");
+            pickeatStorage.save(pickeat);
+
+            // when
+            PickeatResponseV2 response = pickeatService.getPickeatMeta(pickeat.getCode());
+
+            // then
+            assertAll(
+                    () -> assertThat(response.code()).isEqualTo(pickeat.getCode()),
+                    () -> assertThat(response.name()).isEqualTo("진행중인 픽잇")
+            );
+        }
+
+        @Test
+        void 완료된_픽잇의_메타데이터를_조회할_수_있다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("완료된 픽잇");
+            PickeatRecord record = pickeatRecordRepository.save(PickeatRecord.from(pickeat));
+
+            // when
+            PickeatResponseV2 response = pickeatService.getPickeatMeta(record.getCode());
+
+            // then
+            assertAll(
+                    () -> assertThat(response.code()).isEqualTo(record.getCode()),
+                    () -> assertThat(response.name()).isEqualTo(record.getName())
+            );
+        }
+
+        @Test
+        void 존재하지_않는_픽잇에_대해서는_예외를_발생시킨다() {
+            // given
+            String invalidCode = "invalid_code";
+
+            // when & then
+            assertThatThrownBy(() -> pickeatService.getPickeatMeta(invalidCode))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PICKEAT_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    class 픽잇_상태_조회 {
+
+        @Test
+        void 진행중인_픽잇의_상태를_조회할_수_있다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("진행중인 픽잇");
+            pickeatStorage.save(pickeat);
+
+            // when
+            PickeatStateResponseV2 response = pickeatService.getPickeatState(pickeat.getCode());
+
+            // then
+            assertThat(response.isComplete()).isFalse();
+        }
+
+        @Test
+        void 완료된_픽잇의_상태를_조회할_수_있다() {
+            // given
+            PickeatV2 pickeat = PickeatV2.createWithoutRoom("완료된 픽잇");
+            pickeatRecordRepository.save(PickeatRecord.from(pickeat));
+
+            // when
+            PickeatStateResponseV2 response = pickeatService.getPickeatState(pickeat.getCode());
+
+            // then
+            assertThat(response.isComplete()).isTrue();
+        }
+
+        @Test
+        void 존재하지_않는_픽잇에_대해서는_예외를_발생시킨다() {
+            // given
+            String invalidCode = "not_exist_code";
+
+            // when & then
+            assertThatThrownBy(() -> pickeatService.getPickeatState(invalidCode))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PICKEAT_NOT_FOUND);
         }
     }
 }

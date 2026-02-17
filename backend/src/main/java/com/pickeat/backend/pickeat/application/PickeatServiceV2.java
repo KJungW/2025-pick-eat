@@ -6,6 +6,7 @@ import com.pickeat.backend.participant.domain.ParticipantV2;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponseV2;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponseV2;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
 import com.pickeat.backend.pickeat.domain.PickeatResultV2;
 import com.pickeat.backend.pickeat.domain.PickeatV2;
@@ -18,6 +19,7 @@ import com.pickeat.backend.restaurant.domain.RestaurantsV2;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import com.pickeat.backend.room.domain.repository.RoomUserRepository;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +60,30 @@ public class PickeatServiceV2 {
         removeAllAboutPickeatAtStorage(pickeatCode);
     }
 
+    public PickeatResponseV2 getPickeatMeta(String pickeatCode) {
+        Optional<PickeatV2> pickeat = pickeatStorage.get(pickeatCode);
+        if (pickeat.isPresent()) {
+            return PickeatResponseV2.from(pickeat.get());
+        }
+        Optional<PickeatRecord> pickeatRecord = pickeatRecordRepository.findByCode(pickeatCode);
+        if (pickeatRecord.isPresent()) {
+            return PickeatResponseV2.from(pickeatRecord.get());
+        }
+        throw new BusinessException(ErrorCode.PICKEAT_NOT_FOUND);
+    }
+
+    public PickeatStateResponseV2 getPickeatState(String pickeatCode) {
+        Optional<PickeatV2> pickeat = pickeatStorage.get(pickeatCode);
+        if (pickeat.isPresent()) {
+            return new PickeatStateResponseV2(false);
+        }
+        Optional<PickeatRecord> pickeatRecord = pickeatRecordRepository.findByCode(pickeatCode);
+        if (pickeatRecord.isPresent()) {
+            return new PickeatStateResponseV2(true);
+        }
+        throw new BusinessException(ErrorCode.PICKEAT_NOT_FOUND);
+    }
+
     private PickeatV2 getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
@@ -68,7 +94,7 @@ public class PickeatServiceV2 {
                 .orElse(new RestaurantsV2(List.of()));
     }
 
-    private RestaurantStateDto getStateInPickeat(String pickeatCode) {
+    private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
         return restaurantsStorage.getAllRestaurantState(pickeatCode);
     }
 
@@ -86,16 +112,6 @@ public class PickeatServiceV2 {
         return pickeatResultRepository.save(pickeatResult);
     }
 
-//    private List<ParticipantRecord> saveParticipantRecords(
-//            PickeatRecord pickeatRecord,
-//            List<ParticipantV2> participants
-//    ) {
-//        List<ParticipantRecord> participantRecords = participants.stream()
-//                .map(participant -> ParticipantRecord.from(pickeatRecord.getId(), participant))
-//                .toList();
-//        return participantRecordRepository.saveAll(participantRecords);
-//    }
-
     private void validateUserAccessToRoom(Long roomId, Long userId) {
         if (!roomUserRepository.existsByRoomIdAndUserId(roomId, userId)) {
             throw new BusinessException(ErrorCode.ROOM_ACCESS_DENIED);
@@ -110,7 +126,7 @@ public class PickeatServiceV2 {
 
     private RestaurantV2 selectRestaurantInPickeat(String pickeatCode) {
         RestaurantsV2 restaurantMeta = getRestaurantMetaInPickeat(pickeatCode);
-        RestaurantStateDto restaurantState = getStateInPickeat(pickeatCode);
+        RestaurantStateDto restaurantState = getRestaurantStateInPickeat(pickeatCode);
         return restaurantMeta.selectRestaurant(restaurantState);
     }
 }
