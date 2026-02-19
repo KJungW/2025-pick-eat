@@ -1,52 +1,30 @@
 package com.pickeat.backend.pickeat.domain;
 
-import com.pickeat.backend.global.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 
-@Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLRestriction("deleted_at IS NULL")
-@SQLDelete(sql = "UPDATE pickeat SET deleted_at = NOW() WHERE id = ?")
-public class Pickeat extends BaseEntity {
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class Pickeat {
 
-    @Embedded
-    private PickeatCode code;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private Boolean isActive = true;
-
-    private Long roomId;
-
-    private Pickeat(String name, Long roomId) {
-        this.name = name;
-        this.roomId = roomId;
-        this.code = new PickeatCode();
-    }
+    private final String code;
+    private final String name;
+    private final Long roomId;
 
     public static Pickeat createWithoutRoom(String name) {
-        return new Pickeat(name, null);
+        return new Pickeat(UUID.randomUUID().toString(), name, null);
     }
 
     public static Pickeat createWithRoom(String name, Long roomId) {
-        return new Pickeat(name, roomId);
+        return new Pickeat(UUID.randomUUID().toString(), name, roomId);
     }
 
-    public void deactivate() {
-        this.isActive = false;
-    }
-
-    public Boolean isEqualPickeatCode(String pickeatCode) {
-        return this.code.isEqualCode(pickeatCode);
+    public boolean belongsToRoom() {
+        return Objects.isNull(roomId);
     }
 }

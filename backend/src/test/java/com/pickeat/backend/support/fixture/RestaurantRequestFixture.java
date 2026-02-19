@@ -1,0 +1,20 @@
+package com.pickeat.backend.support.fixture;
+
+import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
+import com.pickeat.backend.restaurant.domain.FoodCategory;
+
+public class RestaurantRequestFixture {
+
+    public static RestaurantRequest create(String name) {
+        return new RestaurantRequest(
+                name,
+                FoodCategory.KOREAN,
+                10,
+                "도로명 주소",
+                "URL",
+                "태그1,태그2",
+                null,
+                null
+        );
+    }
+}

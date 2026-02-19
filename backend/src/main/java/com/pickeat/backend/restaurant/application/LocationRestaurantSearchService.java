@@ -17,7 +17,6 @@ public class LocationRestaurantSearchService {
     private static final int RESTAURANT_SEARCH_SIZE = 10;
     private final RestaurantSearchClient restaurantSearchClient;
 
-    //TODO: 분명 개선 여지가 있을텐데... + 테스트 (2025-07-21, 월, 20:32)
     public List<RestaurantRequest> searchByLocation(LocationRestaurantRequest request) {
         Double x = request.x();
         Double y = request.y();

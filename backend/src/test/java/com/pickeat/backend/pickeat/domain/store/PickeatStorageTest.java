@@ -1,0 +1,96 @@
+package com.pickeat.backend.pickeat.domain.store;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
+import com.pickeat.backend.global.setting.StorageKey;
+import com.pickeat.backend.pickeat.domain.Pickeat;
+import com.pickeat.backend.support.DatabaseSliceTest;
+import java.util.Optional;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.StringRedisTemplate;
+
+@Import(PickeatStorage.class)
+class PickeatStorageTest extends DatabaseSliceTest {
+
+    @Autowired
+    private PickeatStorage pickeatStorage;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Nested
+    class 픽잇_저장 {
+
+        @Test
+        void Pickeat을_성공적으로_저장한다() {
+            // given
+            Pickeat pickeat = Pickeat.createWithoutRoom("점식메뉴");
+            String expectedKey = StorageKey.PICKEAT.generateKey(pickeat.getCode());
+
+            // when
+            pickeatStorage.save(pickeat);
+
+            // then
+            Optional<Pickeat> saved = pickeatStorage.get(pickeat.getCode());
+            assertAll(
+                    () -> assertThat(saved).isPresent(),
+                    () -> assertThat(saved.get().getCode()).isEqualTo(pickeat.getCode())
+            );
+        }
+    }
+
+    @Nested
+    class 픽잇_조회 {
+
+        @Test
+        void Pickeat을_성공적으로_조회한다() {
+            // given
+            Pickeat pickeat = Pickeat.createWithoutRoom("점식메뉴");
+            pickeatStorage.save(pickeat);
+
+            // when
+            Optional<Pickeat> result = pickeatStorage.get(pickeat.getCode());
+
+            // then
+            assertAll(
+                    () -> assertThat(result).isPresent(),
+                    () -> assertThat(result.get().getCode()).isEqualTo(pickeat.getCode())
+            );
+        }
+
+        @Test
+        void 픽잇이_존재하지_않는_경우_빈_Optional이_반환된다() {
+            // given
+            String nonExistentCode = "NOT_FOUND";
+
+            // when
+            Optional<Pickeat> result = pickeatStorage.get(nonExistentCode);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    class 픽잇_제거 {
+
+        @Test
+        void 픽잇을_제거할_수_있다() {
+            // given
+            Pickeat pickeat = Pickeat.createWithoutRoom("제거 테스트 픽잇");
+            String code = pickeat.getCode();
+            pickeatStorage.save(pickeat);
+
+            // when
+            pickeatStorage.remove(code);
+
+            // then
+            Optional<Pickeat> result = pickeatStorage.get(code);
+            assertThat(result).isEmpty();
+        }
+    }
+}

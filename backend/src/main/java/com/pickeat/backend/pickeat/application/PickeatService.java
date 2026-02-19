@@ -1,21 +1,25 @@
 package com.pickeat.backend.pickeat.application;
 
-import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.participant.domain.Participant;
+import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
-import com.pickeat.backend.pickeat.application.dto.response.ParticipantStateResponse;
-import com.pickeat.backend.pickeat.application.dto.response.PickeatRejoinAvailableResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
-import com.pickeat.backend.pickeat.domain.Participant;
 import com.pickeat.backend.pickeat.domain.Pickeat;
-import com.pickeat.backend.pickeat.domain.PickeatCode;
-import com.pickeat.backend.pickeat.domain.repository.ParticipantRepository;
-import com.pickeat.backend.pickeat.domain.repository.PickeatRepository;
+import com.pickeat.backend.pickeat.domain.PickeatRecord;
+import com.pickeat.backend.pickeat.domain.PickeatResult;
+import com.pickeat.backend.pickeat.domain.repository.PickeatRecordRepository;
+import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepository;
+import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
+import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
+import com.pickeat.backend.restaurant.domain.Restaurant;
+import com.pickeat.backend.restaurant.domain.Restaurants;
+import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import com.pickeat.backend.room.domain.repository.RoomUserRepository;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,76 +29,89 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PickeatService {
 
-    private final PickeatRepository pickeatRepository;
-    private final ParticipantRepository participantRepository;
+    private final PickeatStorage pickeatStorage;
+    private final RestaurantsStorage restaurantsStorage;
+    private final ParticipantStorage participantStorage;
     private final RoomUserRepository roomUserRepository;
+    private final PickeatRecordRepository pickeatRecordRepository;
+    private final PickeatResultRepository pickeatResultRepository;
 
-    @Transactional
     public PickeatResponse createPickeatWithoutRoom(PickeatRequest request) {
         Pickeat pickeat = Pickeat.createWithoutRoom(request.name());
-
-        pickeatRepository.save(pickeat);
+        pickeatStorage.save(pickeat);
         return PickeatResponse.from(pickeat);
     }
 
-    @Transactional
     public PickeatResponse createPickeatWithRoom(Long roomId, Long userId, PickeatRequest request) {
         validateUserAccessToRoom(roomId, userId);
-
         Pickeat pickeat = Pickeat.createWithRoom(request.name(), roomId);
-
-        pickeatRepository.save(pickeat);
+        pickeatStorage.save(pickeat);
         return PickeatResponse.from(pickeat);
     }
 
     @Transactional
-    public void deactivatePickeat(String pickeatCode, Long participantId) {
-        validateParticipantAccessToPickeat(participantId, pickeatCode);
+    public void completePickeat(String pickeatCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
-        pickeat.deactivate();
+        List<Participant> participants = getParticipantInPickeat(pickeatCode);
+        Restaurant selectedRestaurant = selectRestaurantInPickeat(pickeatCode);
+
+        PickeatRecord pickeatRecord = savePickeatRecord(pickeat);
+        PickeatResult pickeatResult = savePickeatResult(pickeatRecord, selectedRestaurant);
+
+        removeAllAboutPickeatAtStorage(pickeatCode);
     }
 
-    public ParticipantStateResponse getParticipantStateSummary(String pickeatCode) {
-        Pickeat pickeat = getPickeatByCode(pickeatCode);
-        List<Participant> participants = participantRepository.findByPickeatId(pickeat.getId());
-        return ParticipantStateResponse.from(participants);
-    }
-
-    public PickeatResponse getPickeat(String pickeatCode) {
-        Pickeat pickeat = getPickeatByCode(pickeatCode);
-        return PickeatResponse.from(pickeat);
+    public PickeatResponse getPickeatMeta(String pickeatCode) {
+        Optional<Pickeat> pickeat = pickeatStorage.get(pickeatCode);
+        if (pickeat.isPresent()) {
+            return PickeatResponse.from(pickeat.get());
+        }
+        Optional<PickeatRecord> pickeatRecord = pickeatRecordRepository.findByCode(pickeatCode);
+        if (pickeatRecord.isPresent()) {
+            return PickeatResponse.from(pickeatRecord.get());
+        }
+        throw new BusinessException(ErrorCode.PICKEAT_NOT_FOUND);
     }
 
     public PickeatStateResponse getPickeatState(String pickeatCode) {
-        Pickeat pickeat = getPickeatByCode(pickeatCode);
-        return PickeatStateResponse.from(pickeat);
-    }
-
-    public List<PickeatResponse> getPickeatInRoom(Long roomId, Long userId) {
-        validateUserAccessToRoom(roomId, userId);
-        List<Pickeat> pickeats = pickeatRepository.findByRoomId(roomId);
-        return PickeatResponse.from(pickeats);
-    }
-
-    public List<PickeatResponse> getActivePickeatInRoom(Long roomId, Long userId) {
-        validateUserAccessToRoom(roomId, userId);
-        List<Pickeat> pickeats = pickeatRepository.findByRoomIdAndIsActive(roomId, true);
-        return PickeatResponse.from(pickeats);
-    }
-
-    public PickeatRejoinAvailableResponse getRejoinAvailableToPickeat(String pickeatCode,
-                                                                      ParticipantPrincipal participantPrincipal) {
-        if (participantPrincipal == null) {
-            return new PickeatRejoinAvailableResponse(false);
+        Optional<Pickeat> pickeat = pickeatStorage.get(pickeatCode);
+        if (pickeat.isPresent()) {
+            return new PickeatStateResponse(false);
         }
-        boolean rejoinAvailable = Objects.equals(participantPrincipal.pickeatCode(), pickeatCode);
-        return new PickeatRejoinAvailableResponse(rejoinAvailable);
+        Optional<PickeatRecord> pickeatRecord = pickeatRecordRepository.findByCode(pickeatCode);
+        if (pickeatRecord.isPresent()) {
+            return new PickeatStateResponse(true);
+        }
+        throw new BusinessException(ErrorCode.PICKEAT_NOT_FOUND);
     }
 
-    public List<PickeatResponse> getPickeatsByUser(Long userId) {
-        List<Long> allRoomIds = roomUserRepository.getAllRoomIdsByUserId(userId);
-        List<Pickeat> roomPickeats = pickeatRepository.findByRoomIdIn(allRoomIds);
-        return PickeatResponse.from(roomPickeats);
+    private Pickeat getPickeatByCode(String pickeatCode) {
+        return pickeatStorage.get(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
+    }
+
+    private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
+        return restaurantsStorage.getRestaurantMetaInPickeat(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+    }
+
+    private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
+        return restaurantsStorage.getRestaurantStateInPickeat(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+    }
+
+    private List<Participant> getParticipantInPickeat(String pickeatCode) {
+        return participantStorage.getParticipantsMeta(pickeatCode);
+    }
+
+    private PickeatRecord savePickeatRecord(Pickeat pickeat) {
+        PickeatRecord pickeatRecord = PickeatRecord.from(pickeat);
+        return pickeatRecordRepository.save(pickeatRecord);
+    }
+
+    private PickeatResult savePickeatResult(PickeatRecord pickeatRecord, Restaurant selectedRestaurant) {
+        PickeatResult pickeatResult = PickeatResult.from(pickeatRecord.getId(), selectedRestaurant);
+        return pickeatResultRepository.save(pickeatResult);
     }
 
     private void validateUserAccessToRoom(Long roomId, Long userId) {
@@ -103,22 +120,15 @@ public class PickeatService {
         }
     }
 
-    private void validateParticipantAccessToPickeat(Long participantId, String pickeatCode) {
-        Participant participant = getParticipant(participantId);
-        Pickeat pickeat = getPickeatByCode(pickeatCode);
-        if (!participant.getPickeatId().equals(pickeat.getId())) {
-            throw new BusinessException(ErrorCode.PICKEAT_ACCESS_DENIED);
-        }
+    private void removeAllAboutPickeatAtStorage(String pickeatCode) {
+        pickeatStorage.remove(pickeatCode);
+        restaurantsStorage.remove(pickeatCode);
+        participantStorage.remove(pickeatCode);
     }
 
-    private Pickeat getPickeatByCode(String pickeatCode) {
-        PickeatCode code = new PickeatCode(pickeatCode);
-        return pickeatRepository.findByCode(code)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
-    }
-
-    private Participant getParticipant(Long participantId) {
-        return participantRepository.findById(participantId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PARTICIPANT_NOT_FOUND));
+    private Restaurant selectRestaurantInPickeat(String pickeatCode) {
+        Restaurants restaurantMeta = getRestaurantMetaInPickeat(pickeatCode);
+        RestaurantStateDto restaurantState = getRestaurantStateInPickeat(pickeatCode);
+        return restaurantMeta.selectRestaurant(restaurantState);
     }
 }

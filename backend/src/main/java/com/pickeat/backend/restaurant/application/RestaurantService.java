@@ -2,20 +2,15 @@ package com.pickeat.backend.restaurant.application;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.pickeat.domain.Participant;
 import com.pickeat.backend.pickeat.domain.Pickeat;
-import com.pickeat.backend.pickeat.domain.PickeatCode;
-import com.pickeat.backend.pickeat.domain.repository.ParticipantRepository;
-import com.pickeat.backend.pickeat.domain.repository.PickeatRepository;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequest;
+import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
+import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
+import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
 import com.pickeat.backend.restaurant.domain.Restaurant;
-import com.pickeat.backend.restaurant.domain.RestaurantLike;
-import com.pickeat.backend.restaurant.domain.repository.RestaurantBulkRepository;
-import com.pickeat.backend.restaurant.domain.repository.RestaurantLikeRepository;
-import com.pickeat.backend.restaurant.domain.repository.RestaurantRepository;
-import java.util.ArrayList;
+import com.pickeat.backend.restaurant.domain.Restaurants;
+import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,106 +21,86 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RestaurantService {
 
-    private final RestaurantRepository restaurantRepository;
-    private final RestaurantBulkRepository restaurantBulkRepository;
-    private final PickeatRepository pickeatRepository;
-    private final ParticipantRepository participantRepository;
-    private final RestaurantLikeRepository restaurantLikeRepository;
+    private final PickeatStorage pickeatStorage;
+    private final RestaurantsStorage restaurantsStorage;
 
-    @Transactional
-    public void create(List<RestaurantRequest> restaurantRequests, String pickeatCode) {
+    public void create(String pickeatCode, List<RestaurantRequest> restaurantRequests) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
-        List<Restaurant> restaurants = restaurantRequests.stream()
-                .map(request -> new Restaurant(
-                        request.name(),
-                        request.category(),
-                        request.distance(),
-                        request.roadAddressName(),
-                        request.placeUrl(),
-                        request.tags(),
-                        request.pictureKey(),
-                        request.pictureUrl(),
-                        pickeat.getId()))
-                .toList();
-        restaurantBulkRepository.batchInsert(restaurants);
+        Restaurants restaurants = convertToRestaurants(restaurantRequests);
+        setupRestaurants(pickeatCode, restaurants);
     }
 
-    public List<RestaurantResponse> getPickeatRestaurants(String pickeatCode, Boolean isExcluded, Long participantId) {
+    public List<RestaurantResponse> getMetaInPickeat(String pickeatCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
-        List<Restaurant> restaurants = restaurantRepository.findByPickeatIdAndIsExcludedIfProvided(pickeat.getId(),
-                isExcluded);
-        List<RestaurantResponse> response = new ArrayList<>();
-
-        for (Restaurant restaurant : restaurants) {
-            boolean isLiked = existsLike(restaurant.getId(), participantId);
-            response.add(RestaurantResponse.of(restaurant, isLiked));
-        }
-        return response;
+        Restaurants restaurants = getRestaurantMetaInPickeat(pickeatCode);
+        return RestaurantResponse.of(restaurants);
     }
 
-    @Transactional
-    public void exclude(RestaurantExcludeRequest request, Long participantId) {
-        //TODO: 입력된 식당 개수만큼 UPDATE 쿼리가 발생 -> 배치사이즈를 활용한 최적화 필요  (2025-07-18, 금, 16:35)
-        Participant participant = getParticipant(participantId);
-
-        List<Restaurant> restaurants = restaurantRepository.findAllById(request.restaurantIds());
-        validateParticipantAccessToRestaurants(restaurants, participant);
-        restaurants.forEach(Restaurant::exclude);
+    public RestaurantStateResponse getStateInPickeat(String pickeatCode) {
+        Pickeat pickeat = getPickeatByCode(pickeatCode);
+        RestaurantStateDto restaurantState = getRestaurantStateInPickeat(pickeatCode);
+        return RestaurantStateResponse.of(restaurantState);
     }
 
-    @Transactional
-    public void like(Long restaurantId, Long participantId) {
-        if (existsLike(restaurantId, participantId)) {
-            throw new BusinessException(ErrorCode.PARTICIPANT_RESTAURANT_ALREADY_LIKED);
-        }
-
-        Participant participant = getParticipant(participantId);
-        Restaurant restaurant = getRestaurantById(restaurantId);
-        validateParticipantAccessToRestaurants(List.of(restaurant), participant);
-        restaurantLikeRepository.save(new RestaurantLike(participantId, restaurantId));
-        restaurant.like();
+    public void exclude(String pickeatCode, List<String> restaurantCodes) {
+        Pickeat pickeat = getPickeatByCode(pickeatCode);
+        excludeRestaurants(pickeatCode, restaurantCodes);
     }
 
-    @Transactional
-    public void cancelLike(Long restaurantId, Long participantId) {
-        if (!existsLike(restaurantId, participantId)) {
-            throw new BusinessException(ErrorCode.PARTICIPANT_RESTAURANT_NOT_LIKED);
-        }
-
-        restaurantLikeRepository.deleteByRestaurantIdAndParticipantId(restaurantId, participantId);
-
-        Restaurant restaurant = getRestaurantById(restaurantId);
-        restaurant.cancelLike();
+    public void like(String pickeatCode, String participantCode, String restaurantCode) {
+        Pickeat pickeat = getPickeatByCode(pickeatCode);
+        likeRestaurant(pickeatCode, participantCode, restaurantCode);
     }
 
-    private Participant getParticipant(Long participantId) {
-        return participantRepository.findById(participantId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PARTICIPANT_NOT_FOUND));
-    }
-
-
-    private Restaurant getRestaurantById(Long restaurantId) {
-        return restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
-
-    }
-
-    private boolean existsLike(Long restaurantId, Long participantId) {
-        return restaurantLikeRepository.existsByRestaurantIdAndParticipantId(restaurantId, participantId);
-    }
-
-    private void validateParticipantAccessToRestaurants(List<Restaurant> restaurants, Participant participant) {
-        if (restaurants.isEmpty()) {
-            return;
-        }
-
-        if (restaurants.stream().anyMatch(r -> !r.getPickeatId().equals(participant.getPickeatId()))) {
-            throw new BusinessException(ErrorCode.RESTAURANT_ELIMINATION_FORBIDDEN);
-        }
+    public void cancelLike(String pickeatCode, String participantCode, String restaurantCode) {
+        Pickeat pickeat = getPickeatByCode(pickeatCode);
+        cancelLikeRestaurant(pickeatCode, participantCode, restaurantCode);
     }
 
     private Pickeat getPickeatByCode(String pickeatCode) {
-        return pickeatRepository.findByCode(new PickeatCode(pickeatCode))
-                .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_NOT_FOUND));
+        return pickeatStorage.get(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
+    }
+
+    private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
+        return restaurantsStorage.getRestaurantMetaInPickeat(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+    }
+
+    private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
+        return restaurantsStorage.getRestaurantStateInPickeat(pickeatCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+    }
+
+    private void setupRestaurants(String pickeatCode, Restaurants restaurants) {
+        boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+        if (!isSuccess) {
+            throw new BusinessException(ErrorCode.RESTAURANT_ALREADY_EXISTS);
+        }
+    }
+
+    private void excludeRestaurants(String pickeatCode, List<String> restaurantCodes) {
+        restaurantsStorage.excludeRestaurants(pickeatCode, restaurantCodes);
+    }
+
+    private void likeRestaurant(String pickeatCode, String participantCode, String restaurantCode) {
+        boolean isSuccess = restaurantsStorage.like(pickeatCode, participantCode, restaurantCode);
+        if (!isSuccess) {
+            throw new BusinessException(ErrorCode.PARTICIPANT_RESTAURANT_ALREADY_LIKED);
+        }
+    }
+
+    private void cancelLikeRestaurant(String pickeatCode, String participantCode, String restaurantCode) {
+        boolean isSuccess = restaurantsStorage.cancelLike(pickeatCode, participantCode, restaurantCode);
+        if (!isSuccess) {
+            throw new BusinessException(ErrorCode.PARTICIPANT_RESTAURANT_NOT_LIKED);
+        }
+    }
+
+    private Restaurants convertToRestaurants(List<RestaurantRequest> restaurantRequests) {
+        List<Restaurant> restaurants = restaurantRequests.stream()
+                .map(RestaurantRequest::toRestaurant)
+                .toList();
+        return new Restaurants(restaurants);
     }
 }

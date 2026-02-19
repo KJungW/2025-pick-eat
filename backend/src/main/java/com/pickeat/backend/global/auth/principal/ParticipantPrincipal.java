@@ -1,4 +1,5 @@
 package com.pickeat.backend.global.auth.principal;
 
-public record ParticipantPrincipal(Long id, String pickeatCode) {
+public record ParticipantPrincipal(String participantCode, String pickeatCode) {
+
 }
