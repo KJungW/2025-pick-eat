@@ -12,6 +12,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickeat.backend.global.exception.ExternalApiException;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantSearchRequest;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,10 +26,22 @@ import org.springframework.web.client.RestClient;
 
 class KakaoRestaurantSearchClientTest {
 
-    private final RestClient.Builder testBuilder = RestClient.builder().baseUrl("https://dapi.kakao.com");
-    private final MockRestServiceServer mockServer = MockRestServiceServer.bindTo(testBuilder).build();
-    private final KakaoRestaurantSearchClient kakaoRestaurantSearchClient = new KakaoRestaurantSearchClient(
-            testBuilder.build(), new ObjectMapper());
+    private final MockRestServiceServer mockServer;
+    private final KakaoRestaurantSearchClient kakaoRestaurantSearchClient;
+
+    public KakaoRestaurantSearchClientTest() {
+        RestClient.Builder testBuilder = RestClient.builder().baseUrl("https://dapi.kakao.com");
+        Bucket testBucket = Bucket
+                .builder()
+                .addLimit(Bandwidth.builder()
+                        .capacity(1_000_000)
+                        .refillGreedy(1_000_000, Duration.ofSeconds(1))
+                        .build())
+                .build();
+        this.mockServer = MockRestServiceServer.bindTo(testBuilder).build();
+        this.kakaoRestaurantSearchClient =
+                new KakaoRestaurantSearchClient(testBuilder.build(), new ObjectMapper(), testBucket);
+    }
 
     @Nested
     class 카카오맵_식당_조회_API_호출_케이스 {
