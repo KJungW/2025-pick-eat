@@ -9,6 +9,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class LocationRestaurantSearchService {
     private static final List<String> CATEGORIES = List.of("한식", "양식", "중식", "일식", "아시안음식");
 
     private final RestaurantSearchClient restaurantSearchClient;
+    private final TaskExecutor virtualThreadExecutor;
 
     public List<RestaurantRequest> searchByLocation(LocationRestaurantRequest request) {
         List<CompletableFuture<List<RestaurantRequest>>> futures = makeGetRestaurantFuture(request);
@@ -47,8 +49,9 @@ public class LocationRestaurantSearchService {
     ) {
         return CATEGORIES.stream()
                 .map(category -> CompletableFuture
-                        .supplyAsync(() -> getRestaurants(category, request))
-                        .orTimeout(5, TimeUnit.SECONDS))
+                        .supplyAsync(() -> getRestaurants(category, request), virtualThreadExecutor)
+                        .orTimeout(5, TimeUnit.SECONDS)
+                )
                 .toList();
     }
 
