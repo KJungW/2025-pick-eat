@@ -1,7 +1,9 @@
 package com.pickeat.backend.template.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.TemplateFixture;
 import com.pickeat.backend.support.fixture.TemplateWishFixture;
@@ -53,6 +55,32 @@ class TemplateWishServiceTest extends DatabaseSliceTest {
             assertThat(response)
                     .extracting(TemplateWishResponse::id)
                     .containsExactlyElementsOf(templateWishIds);
+        }
+
+        @Test
+        void 존재하지_않는_템플릿일_경우_예외발생() {
+            // given
+            Long invalidId = 9999L;
+
+            // when & then
+            assertThatThrownBy(() -> templateWishService.getWishesFromTemplates(invalidId))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessageContaining("템플릿을 찾을 수 없습니다.");
+        }
+
+        @Test
+        void 비활성_상태의_템플릿일_경우_예외발생() {
+            // given
+            Template inactiveTemplate = TemplateFixture.create(false);
+            entityManager.persist(inactiveTemplate);
+
+            entityManager.flush();
+            entityManager.clear();
+
+            // when & then
+            assertThatThrownBy(() -> templateWishService.getWishesFromTemplates(inactiveTemplate.getId()))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessageContaining("템플릿을 찾을 수 없습니다.");
         }
     }
 }
