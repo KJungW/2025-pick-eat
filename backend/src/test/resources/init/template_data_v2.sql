@@ -1,8 +1,8 @@
 -- 템플릿 데이터
-INSERT INTO template (id, name, created_at, updated_at, deleted_at)
+INSERT INTO template (id, name, is_active, created_at, updated_at, deleted_at)
 VALUES
-(1, '데이트 추천 맛집', NOW(), NOW(), null),
-(2, '점심 회식 추천', NOW(), NOW(), null);
+(1, '데이트 추천 맛집', 1, NOW(), NOW(), null),
+(2, '점심 회식 추천', 1, NOW(), NOW(), null);
 
 -- 템플릿 1번의 위시 5개
 INSERT INTO template_wish (
