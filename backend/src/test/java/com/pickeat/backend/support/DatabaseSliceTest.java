@@ -1,5 +1,7 @@
 package com.pickeat.backend.support;
 
+import com.pickeat.backend.global.config.VirtualThreadExecutorConfig;
+import com.pickeat.backend.global.limiter.ExternalApiTrafficLimiterConfiguration;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.support.utility.DatabaseCleaner;
 import com.pickeat.backend.support.utility.StorageCleaner;
@@ -19,6 +21,8 @@ import org.testcontainers.utility.DockerImageName;
         DatabaseCleaner.class,
         StorageCleaner.class,
         RedisAutoConfiguration.class,
+        VirtualThreadExecutorConfig.class,
+        ExternalApiTrafficLimiterConfiguration.class,
         JsonParser.class})
 public class DatabaseSliceTest {
 
