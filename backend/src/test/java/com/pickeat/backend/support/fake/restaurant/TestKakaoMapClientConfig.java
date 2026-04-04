@@ -2,6 +2,7 @@ package com.pickeat.backend.support.fake.restaurant;
 
 import com.pickeat.backend.restaurant.application.RestaurantSearchClient;
 import io.github.bucket4j.Bucket;
+import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import java.time.Duration;
 import org.springframework.context.annotation.Bean;
@@ -19,9 +20,10 @@ public class TestKakaoMapClientConfig {
 
     @Bean
     public Bucket kakaoRestaurantSearchBucket(ProxyManager<String> proxyManager) {
-        return Bucket.builder()
+        BucketConfiguration configuration = BucketConfiguration.builder()
                 .addLimit(limit -> limit.capacity(1_000).refillGreedy(1_000, Duration.ofSeconds(1)))
                 .build();
+        return proxyManager.builder().build("test-kakao-api-limit", configuration);
     }
 }
 
