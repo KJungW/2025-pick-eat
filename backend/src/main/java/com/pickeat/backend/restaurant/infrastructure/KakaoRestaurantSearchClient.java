@@ -35,8 +35,12 @@ public class KakaoRestaurantSearchClient implements RestaurantSearchClient {
 
     public List<RestaurantRequest> getRestaurants(RestaurantSearchRequest request) {
         try {
-            restaurantSearchBucket.asBlocking().consumeUninterruptibly(1);
+            restaurantSearchBucket.asBlocking().consume(1);
             return callApi(request);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ExternalApiException(
+                    "요청 제한을 위한 토큰 대기에서 타임아웃 발생", PLATFORM_NAME, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (RestClientException e) {
             throw new ExternalApiException(e.getMessage(), PLATFORM_NAME, HttpStatus.INTERNAL_SERVER_ERROR);
         }
