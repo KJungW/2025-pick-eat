@@ -9,6 +9,7 @@ import com.pickeat.backend.restaurant.application.RestaurantSearchClient;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantSearchRequest;
 import com.pickeat.backend.restaurant.domain.FoodCategory;
+import io.github.bucket4j.Bucket;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +21,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-//TODO: size 따라서 api 요청 여러번 보내는 로직 구현하기  (2025-07-18, 금, 14:52)
 @RequiredArgsConstructor
 public class KakaoRestaurantSearchClient implements RestaurantSearchClient {
 
@@ -31,10 +31,16 @@ public class KakaoRestaurantSearchClient implements RestaurantSearchClient {
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
+    private final Bucket restaurantSearchBucket;
 
     public List<RestaurantRequest> getRestaurants(RestaurantSearchRequest request) {
         try {
+            restaurantSearchBucket.asBlocking().consume(1);
             return callApi(request);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ExternalApiException(
+                    "요청 제한을 위한 토큰 대기에서 타임아웃 발생", PLATFORM_NAME, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (RestClientException e) {
             throw new ExternalApiException(e.getMessage(), PLATFORM_NAME, HttpStatus.INTERNAL_SERVER_ERROR);
         }
