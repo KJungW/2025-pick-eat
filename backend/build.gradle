@@ -57,8 +57,8 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'com.bucket4j:bucket4j_jdk17-core:8.14.0'
-    implementation 'com.bucket4j:bucket4j_jdk17-lettuce:8.14.0'
+    implementation 'com.bucket4j:bucket4j_jdk17-core:8.17.0'
+    implementation 'com.bucket4j:bucket4j_jdk17-lettuce:8.17.0'
 }
 
 tasks.named('test') {
