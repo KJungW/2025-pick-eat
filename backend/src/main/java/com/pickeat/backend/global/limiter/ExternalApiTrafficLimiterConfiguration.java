@@ -20,14 +20,14 @@ public class ExternalApiTrafficLimiterConfiguration {
 
     private static final Duration DELETE_BUCKET_TIME = Duration.ofMinutes(10);
 
-    @Bean
-    public ProxyManager<String> bucket4jProxyManager(
+    @Bean(destroyMethod = "shutdown")
+    public RedisClient bucket4jRedisClient(
             @Value("${spring.data.redis.host}") String host,
             @Value("${spring.data.redis.port}") int port,
             @Value("${spring.data.redis.password}") String password,
             @Value("${spring.data.redis.timeout}") Duration timeout
     ) {
-        RedisClient redisClient = RedisClient.create(
+        return RedisClient.create(
                 RedisURI.builder()
                         .withHost(host)
                         .withPort(port)
@@ -35,14 +35,21 @@ public class ExternalApiTrafficLimiterConfiguration {
                         .withTimeout(timeout)
                         .build()
         );
+    }
 
-        StatefulRedisConnection<String, byte[]> connection =
-                redisClient.connect(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE));
+    @Bean(destroyMethod = "close")
+    public StatefulRedisConnection<String, byte[]> bucket4jRedisConnection(RedisClient bucket4jRedisClient) {
+        return bucket4jRedisClient.connect(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE));
+    }
 
+    @Bean
+    public ProxyManager<String> bucket4jProxyManager(
+            StatefulRedisConnection<String, byte[]> bucket4jRedisConnection
+    ) {
         ExpirationAfterWriteStrategy expirationStrategy =
                 new BasedOnTimeForRefillingBucketUpToMaxExpirationAfterWriteStrategy(DELETE_BUCKET_TIME);
 
-        return Bucket4jLettuce.casBasedBuilder(connection)
+        return Bucket4jLettuce.casBasedBuilder(bucket4jRedisConnection)
                 .expirationAfterWrite(expirationStrategy)
                 .build();
     }
