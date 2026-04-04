@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface TemplateRepository extends JpaRepository<Template, Long> {
 
-    Slice<Template> findByIdGreaterThan(
+    Slice<Template> findByIdGreaterThanAndIsActiveTrue(
             @Param("id") Long cursorId,
             Pageable pageable
     );
