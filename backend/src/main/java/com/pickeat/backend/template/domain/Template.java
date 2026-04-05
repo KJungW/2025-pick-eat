@@ -19,7 +19,11 @@ public class Template extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    public Template(String name) {
+    @Column(nullable = false)
+    private Boolean isActive;
+
+    public Template(String name, boolean isActive) {
         this.name = name;
+        this.isActive = isActive;
     }
 }

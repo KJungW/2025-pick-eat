@@ -23,6 +23,7 @@ public class TemplateRestaurantSearchService {
 
     public List<RestaurantRequest> searchByTemplate(TemplateRestaurantRequest request) {
         Template template = getTemplateById(request.templateId());
+        validateTemplateState(template);
         List<TemplateWish> templateWishes = getTemplateWishById(template);
         return templateWishes.stream()
                 .map(RestaurantRequest::fromTemplateWish)
@@ -36,5 +37,11 @@ public class TemplateRestaurantSearchService {
 
     public List<TemplateWish> getTemplateWishById(Template template) {
         return templateWishRepository.findAllByTemplateId(template.getId());
+    }
+
+    public void validateTemplateState(Template template) {
+        if (!template.getIsActive()) {
+            throw new BusinessException(ErrorCode.TEMPLATE_NOT_FOUND);
+        }
     }
 }

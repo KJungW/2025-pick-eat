@@ -1,6 +1,7 @@
 package com.pickeat.backend.template.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.TemplateFixture;
@@ -49,6 +50,31 @@ class TemplateServiceTest extends DatabaseSliceTest {
             assertThat(response)
                     .extracting(TemplateResponse::id)
                     .containsExactlyInAnyOrderElementsOf(templateIds);
+        }
+
+        @Test
+        void 비활성_상태인_템플릿은_조회되지_않는다() {
+            // given
+            Template activeTemplate = TemplateFixture.create(true);
+            entityManager.persist(activeTemplate);
+
+            Template inactiveTemplate = TemplateFixture.create(false);
+            entityManager.persist(inactiveTemplate);
+
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<TemplateResponse> response = templateService.getTemplates(0L, 10);
+
+            // then
+            assertAll(
+                    () -> assertThat(response)
+                            .extracting(TemplateResponse::id)
+                            .contains(activeTemplate.getId())
+                            .doesNotContain(inactiveTemplate.getId()),
+                    () -> assertThat(response).hasSize(1)
+            );
         }
     }
 }
