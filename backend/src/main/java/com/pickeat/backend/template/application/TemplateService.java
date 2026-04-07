@@ -5,6 +5,7 @@ import com.pickeat.backend.template.domain.Template;
 import com.pickeat.backend.template.domain.repository.TemplateRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -19,6 +20,7 @@ public class TemplateService {
 
     private final TemplateRepository templateRepository;
 
+    @Cacheable(value = "templateList", key = "#startId + '_' + #size")
     public List<TemplateResponse> getTemplates(Long startId, Integer size) {
         Pageable pageable = PageRequest.of(0, size, Sort.by("id").ascending());
         Slice<Template> templates = templateRepository.findByIdGreaterThanAndIsActiveTrue(startId, pageable);
