@@ -16,13 +16,13 @@ public class CacheConfiguration {
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
 
-        cacheManager.registerCustomCache("templateList", Caffeine.newBuilder()
+        cacheManager.registerCustomCache(CacheKey.TEMPLATE_LIST_CACHE_KEY.getValue(), Caffeine.newBuilder()
                 .maximumSize(100)
                 .expireAfterWrite(Duration.ofMinutes(60))
                 .recordStats()
                 .build());
 
-        cacheManager.registerCustomCache("templateWishes", Caffeine.newBuilder()
+        cacheManager.registerCustomCache(CacheKey.TEMPLATE_WISH_CACHE_KEY.getValue(), Caffeine.newBuilder()
                 .maximumSize(5000)
                 .expireAfterWrite(Duration.ofMinutes(60))
                 .recordStats()

@@ -17,7 +17,8 @@ public class CacheEventListenerConfiguration {
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(templateCacheEventListener, new ChannelTopic("template-topic"));
+        container.addMessageListener(templateCacheEventListener,
+                new ChannelTopic(CacheChannelTopic.TEMPLATE_TOPIC.getValue()));
         return container;
     }
 }
