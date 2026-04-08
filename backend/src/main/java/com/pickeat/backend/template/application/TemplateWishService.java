@@ -1,5 +1,6 @@
 package com.pickeat.backend.template.application;
 
+import com.pickeat.backend.global.cache.CacheKey.Holder;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.template.application.dto.response.TemplateWishResponse;
@@ -10,6 +11,7 @@ import com.pickeat.backend.template.domain.repository.TemplateWishRepository;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ public class TemplateWishService {
     private final TemplateRepository templateRepository;
     private final TemplateWishRepository templateWishRepository;
 
+    @Cacheable(value = Holder.TEMPLATE_WISH_CACHE_KEY, key = "#templateId")
     public List<TemplateWishResponse> getWishesFromTemplates(Long templateId) {
         Template template = getTemplate(templateId);
         validateTemplateState(template);
@@ -30,12 +33,12 @@ public class TemplateWishService {
         return TemplateWishResponse.from(wishes);
     }
 
-    public Template getTemplate(Long templateId) {
+    private Template getTemplate(Long templateId) {
         return templateRepository.findById(templateId).orElseThrow(
                 () -> new BusinessException(ErrorCode.TEMPLATE_NOT_FOUND));
     }
 
-    public void validateTemplateState(Template template) {
+    private void validateTemplateState(Template template) {
         if (!template.getIsActive()) {
             throw new BusinessException(ErrorCode.TEMPLATE_NOT_FOUND);
         }

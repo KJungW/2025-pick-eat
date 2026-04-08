@@ -1,0 +1,33 @@
+package com.pickeat.backend.global.cache;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.time.Duration;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@EnableCaching
+public class CacheConfiguration {
+
+    @Bean
+    public CacheManager cacheManager() {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+
+        cacheManager.registerCustomCache(CacheKey.TEMPLATE_LIST_CACHE_KEY.getValue(), Caffeine.newBuilder()
+                .maximumSize(100)
+                .expireAfterWrite(Duration.ofMinutes(60))
+                .recordStats()
+                .build());
+
+        cacheManager.registerCustomCache(CacheKey.TEMPLATE_WISH_CACHE_KEY.getValue(), Caffeine.newBuilder()
+                .maximumSize(5000)
+                .expireAfterWrite(Duration.ofMinutes(60))
+                .recordStats()
+                .build());
+
+        return cacheManager;
+    }
+}

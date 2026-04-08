@@ -3,6 +3,7 @@ package com.pickeat.backend.template.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import com.pickeat.backend.global.cache.CacheKey;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.TemplateFixture;
 import com.pickeat.backend.template.application.dto.response.TemplateResponse;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
 
 @Import(value = {TemplateService.class})
@@ -20,6 +23,9 @@ class TemplateServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private TestEntityManager entityManager;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @Autowired
     private TemplateRepository templateRepository;
@@ -74,6 +80,28 @@ class TemplateServiceTest extends DatabaseSliceTest {
                             .contains(activeTemplate.getId())
                             .doesNotContain(inactiveTemplate.getId()),
                     () -> assertThat(response).hasSize(1)
+            );
+        }
+
+        @Test
+        void 템플릿_목록_조회_시_캐시가_적용된다() {
+            // given
+            entityManager.persist(TemplateFixture.create());
+            entityManager.flush();
+
+            Long startId = 0L;
+            Integer size = 10;
+            String expectedCacheKey = startId + "_" + size;
+
+            // when
+            List<TemplateResponse> templates = templateService.getTemplates(startId, size);
+
+            // then
+            Cache cache = cacheManager.getCache(CacheKey.Holder.TEMPLATE_LIST_CACHE_KEY);
+            assertAll(
+                    () -> assertThat(cache).isNotNull(),
+                    () -> assertThat(cache.get(expectedCacheKey)).isNotNull(),
+                    () -> assertThat(cache.get(expectedCacheKey).get()).isEqualTo(templates)
             );
         }
     }
