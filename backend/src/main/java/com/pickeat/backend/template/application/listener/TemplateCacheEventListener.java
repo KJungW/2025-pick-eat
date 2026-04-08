@@ -25,7 +25,6 @@ public class TemplateCacheEventListener implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         String body = new String(message.getBody(), StandardCharsets.UTF_8);
-
         virtualThreadExecutor.execute(() -> {
             try {
                 long jitterDelay = ThreadLocalRandom.current().nextLong(500);
@@ -33,6 +32,8 @@ public class TemplateCacheEventListener implements MessageListener {
                 processTemplateCacheInvalidationEvent(body);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                log.error("템플릿 캐시 무효화 중 예상치 못한 오류 발생: message={}", body, e);
             }
         });
     }
