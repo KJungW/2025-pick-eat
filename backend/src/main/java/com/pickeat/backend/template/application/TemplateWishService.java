@@ -1,5 +1,6 @@
 package com.pickeat.backend.template.application;
 
+import com.pickeat.backend.global.cache.CacheKey.Holder;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.template.application.dto.response.TemplateWishResponse;
@@ -22,7 +23,7 @@ public class TemplateWishService {
     private final TemplateRepository templateRepository;
     private final TemplateWishRepository templateWishRepository;
 
-    @Cacheable(value = "templateWishes", key = "#templateId")
+    @Cacheable(value = Holder.TEMPLATE_WISH_CACHE_KEY, key = "#templateId")
     public List<TemplateWishResponse> getWishesFromTemplates(Long templateId) {
         Template template = getTemplate(templateId);
         validateTemplateState(template);

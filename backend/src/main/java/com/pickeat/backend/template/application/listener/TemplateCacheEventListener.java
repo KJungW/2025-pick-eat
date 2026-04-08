@@ -1,5 +1,6 @@
 package com.pickeat.backend.template.application.listener;
 
+import com.pickeat.backend.global.cache.CacheKey;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
@@ -22,12 +23,12 @@ public class TemplateCacheEventListener {
             return;
         }
 
-        Cache templateListCache = cacheManager.getCache("templateList");
+        Cache templateListCache = cacheManager.getCache(CacheKey.TEMPLATE_LIST_CACHE_KEY.name());
         if (templateListCache != null) {
             templateListCache.clear();
         }
 
-        Cache templateWishCache = cacheManager.getCache("templateWishes");
+        Cache templateWishCache = cacheManager.getCache(CacheKey.TEMPLATE_WISH_CACHE_KEY.getValue());
         if (templateWishCache != null) {
             templateWishCache.evict(templateId.get());
         }
