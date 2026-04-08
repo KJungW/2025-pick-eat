@@ -2,34 +2,39 @@ package com.pickeat.backend.template.application.listener;
 
 import com.pickeat.backend.global.cache.CacheKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TemplateCacheEventListener implements MessageListener {
 
     private final CacheManager cacheManager;
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-    public TemplateCacheEventListener(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
-    }
+    private final TaskExecutor virtualThreadExecutor;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         String body = new String(message.getBody(), StandardCharsets.UTF_8);
-        long jitterDelay = ThreadLocalRandom.current().nextLong(500);
-        scheduler.schedule(() -> processTemplateCacheInvalidationEvent(body), jitterDelay, TimeUnit.MILLISECONDS);
+
+        virtualThreadExecutor.execute(() -> {
+            try {
+                long jitterDelay = ThreadLocalRandom.current().nextLong(500);
+                Thread.sleep(Duration.ofMillis(jitterDelay));
+                processTemplateCacheInvalidationEvent(body);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
     }
 
     private void processTemplateCacheInvalidationEvent(String message) {
@@ -53,7 +58,7 @@ public class TemplateCacheEventListener implements MessageListener {
         try {
             return Optional.of(Long.parseLong(message));
         } catch (NumberFormatException e) {
-            log.error("적절하지 않는 템플릿 위시 캐시 무효화 이벤트를 전달받았습니다 : {}", message);
+            log.error("적절하지 않은 템플릿 캐시 무효화 이벤트를 전달받았습니다 : {}", message);
         }
         return Optional.empty();
     }
