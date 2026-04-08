@@ -1,15 +1,18 @@
 package com.pickeat.backend.template.application.listener;
 
 import com.pickeat.backend.global.cache.CacheKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class TemplateCacheEventListener {
+public class TemplateCacheEventListener implements MessageListener {
 
     private final CacheManager cacheManager;
 
@@ -17,8 +20,11 @@ public class TemplateCacheEventListener {
         this.cacheManager = cacheManager;
     }
 
-    public void processTemplateCacheInvalidationEvent(String message) {
-        Optional<Long> templateId = parseTemplateCacheInvalidationMessage(message);
+    @Override
+    public void onMessage(Message message, byte[] pattern) {
+        String body = new String(message.getBody(), StandardCharsets.UTF_8);
+
+        Optional<Long> templateId = parseTemplateCacheInvalidationMessage(body);
         if (templateId.isEmpty()) {
             return;
         }
