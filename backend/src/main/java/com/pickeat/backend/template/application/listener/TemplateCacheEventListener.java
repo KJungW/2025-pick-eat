@@ -23,7 +23,7 @@ public class TemplateCacheEventListener {
             return;
         }
 
-        Cache templateListCache = cacheManager.getCache(CacheKey.TEMPLATE_LIST_CACHE_KEY.name());
+        Cache templateListCache = cacheManager.getCache(CacheKey.TEMPLATE_LIST_CACHE_KEY.getValue());
         if (templateListCache != null) {
             templateListCache.clear();
         }
