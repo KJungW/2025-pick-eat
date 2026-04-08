@@ -1,8 +1,10 @@
 package com.pickeat.backend.support;
 
+import com.pickeat.backend.global.cache.CacheConfiguration;
 import com.pickeat.backend.global.config.VirtualThreadExecutorConfig;
 import com.pickeat.backend.global.limiter.ExternalApiTrafficLimiterConfiguration;
 import com.pickeat.backend.global.utility.JsonParser;
+import com.pickeat.backend.support.utility.CacheCleaner;
 import com.pickeat.backend.support.utility.DatabaseCleaner;
 import com.pickeat.backend.support.utility.StorageCleaner;
 import org.junit.jupiter.api.AfterEach;
@@ -20,7 +22,9 @@ import org.testcontainers.utility.DockerImageName;
 @Import({
         DatabaseCleaner.class,
         StorageCleaner.class,
+        CacheCleaner.class,
         RedisAutoConfiguration.class,
+        CacheConfiguration.class,
         VirtualThreadExecutorConfig.class,
         ExternalApiTrafficLimiterConfiguration.class,
         JsonParser.class})
@@ -35,10 +39,14 @@ public class DatabaseSliceTest {
     @Autowired
     private StorageCleaner storageCleaner;
 
+    @Autowired
+    private CacheCleaner cacheCleaner;
+
     @AfterEach
     void clear() {
         databaseCleaner.execute();
         storageCleaner.execute();
+        cacheCleaner.execute();
     }
 
     static {
