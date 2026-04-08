@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.cache.CacheKey;
 import com.pickeat.backend.support.DatabaseSliceTest;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.connection.DefaultMessage;
 
 @Import(value = {TemplateCacheEventListener.class})
 class TemplateCacheEventListenerTest extends DatabaseSliceTest {
@@ -32,15 +34,17 @@ class TemplateCacheEventListenerTest extends DatabaseSliceTest {
         wishCache.put(2L, "wish-data-2");
 
         // when
-        eventListener.processTemplateCacheInvalidationEvent(String.valueOf(1L));
+        eventListener.onMessage(new DefaultMessage("template-topic".getBytes(), "1".getBytes()), null);
 
-        // then
-        assertAll(
-                () -> assertThat(listCache.get("0_10")).isNull(),
-                () -> assertThat(listCache.get("10_10")).isNull(),
-                () -> assertThat(wishCache.get(1L)).isNull(),
-                () -> assertThat(wishCache.get(2L).get()).isEqualTo("wish-data-2")
-        );
+        // then (최대 1초 동안 기다리며 캐시가 제대로 무효화되는지 확인)
+        org.awaitility.Awaitility.await()
+                .atMost(1, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    assertThat(listCache.get("0_10")).isNull();
+                    assertThat(listCache.get("10_10")).isNull();
+                    assertThat(wishCache.get(1L)).isNull();
+                    assertThat(wishCache.get(2L).get()).isEqualTo("wish-data-2");
+                });
     }
 
     @Test
@@ -55,14 +59,18 @@ class TemplateCacheEventListenerTest extends DatabaseSliceTest {
         wishCache.put(2L, "wish-data-2");
 
         // when
-        eventListener.processTemplateCacheInvalidationEvent("invalid_id");
+        eventListener.onMessage(new DefaultMessage("template-topic".getBytes(), "invalid_id".getBytes()), null);
 
-        // then
-        assertAll(
-                () -> assertThat(listCache.get("0_10").get()).isEqualTo("list-data-1"),
-                () -> assertThat(listCache.get("10_10").get()).isEqualTo("list-data-2"),
-                () -> assertThat(wishCache.get(1L).get()).isEqualTo("wish-data-1"),
-                () -> assertThat(wishCache.get(2L).get()).isEqualTo("wish-data-2")
-        );
+        // then (최대 1초 동안 기다리며 캐시가 무효화되지 않는 것을 확인)
+        org.awaitility.Awaitility.await()
+                .during(1, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    assertAll(
+                            () -> assertThat(listCache.get("0_10").get()).isEqualTo("list-data-1"),
+                            () -> assertThat(listCache.get("10_10").get()).isEqualTo("list-data-2"),
+                            () -> assertThat(wishCache.get(1L).get()).isEqualTo("wish-data-1"),
+                            () -> assertThat(wishCache.get(2L).get()).isEqualTo("wish-data-2")
+                    );
+                });
     }
 }

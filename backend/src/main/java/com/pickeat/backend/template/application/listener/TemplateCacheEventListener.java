@@ -3,6 +3,10 @@ package com.pickeat.backend.template.application.listener;
 import com.pickeat.backend.global.cache.CacheKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class TemplateCacheEventListener implements MessageListener {
 
     private final CacheManager cacheManager;
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public TemplateCacheEventListener(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
@@ -23,8 +28,12 @@ public class TemplateCacheEventListener implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         String body = new String(message.getBody(), StandardCharsets.UTF_8);
+        long jitterDelay = ThreadLocalRandom.current().nextLong(500);
+        scheduler.schedule(() -> processTemplateCacheInvalidationEvent(body), jitterDelay, TimeUnit.MILLISECONDS);
+    }
 
-        Optional<Long> templateId = parseTemplateCacheInvalidationMessage(body);
+    private void processTemplateCacheInvalidationEvent(String message) {
+        Optional<Long> templateId = parseTemplateCacheInvalidationMessage(message);
         if (templateId.isEmpty()) {
             return;
         }
