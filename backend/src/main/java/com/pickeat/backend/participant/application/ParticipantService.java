@@ -3,7 +3,7 @@ package com.pickeat.backend.participant.application;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
-import com.pickeat.backend.participant.application.dto.ParticipantStateWithSequenceDto;
+import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
 import com.pickeat.backend.participant.application.dto.event.ParticipantUpdateEventRequest;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
 import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
@@ -44,7 +44,7 @@ public class ParticipantService {
 
     public ParticipantStateResponse getStateInPickeat(String pickeatCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
-        ParticipantStateWithSequenceDto state = getParticipantsStateInPickeat(pickeatCode);
+        ParticipantStateDto state = getParticipantsStateInPickeat(pickeatCode);
         return ParticipantStateResponse.from(state);
     }
 
@@ -69,7 +69,7 @@ public class ParticipantService {
         return participantStorage.getParticipantsMeta(pickeatCode);
     }
 
-    private ParticipantStateWithSequenceDto getParticipantsStateInPickeat(String pickeatCode) {
+    private ParticipantStateDto getParticipantsStateInPickeat(String pickeatCode) {
         return participantStorage.getParticipantsState(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PARTICIPANT_NOT_FOUND));
     }

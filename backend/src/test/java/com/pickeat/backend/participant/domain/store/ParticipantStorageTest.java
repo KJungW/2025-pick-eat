@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.setting.StorageKey;
-import com.pickeat.backend.participant.application.dto.ParticipantStateWithSequenceDto;
+import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
 import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
@@ -39,7 +39,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
 
             // then
             List<Participant> allParticipants = participantStorage.getParticipantsMeta(pickeatCode);
-            ParticipantStateWithSequenceDto participantsState = participantStorage.getParticipantsState(pickeatCode)
+            ParticipantStateDto participantsState = participantStorage.getParticipantsState(pickeatCode)
                     .get();
             assertAll(
                     () -> assertThat(allParticipants).hasSize(1),
@@ -128,7 +128,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // when
-            Optional<ParticipantStateWithSequenceDto> result = participantStorage.getParticipantsState(pickeatCode);
+            Optional<ParticipantStateDto> result = participantStorage.getParticipantsState(pickeatCode);
 
             // then
             assertAll(
@@ -144,7 +144,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             String invalidPickeatCode = "not-exist-code";
 
             // when
-            Optional<ParticipantStateWithSequenceDto> result =
+            Optional<ParticipantStateDto> result =
                     participantStorage.getParticipantsState(invalidPickeatCode);
 
             // then
@@ -164,7 +164,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // when
-            Optional<ParticipantStateWithSequenceDto> result =
+            Optional<ParticipantStateDto> result =
                     participantStorage.getParticipantsStateWithSequence(pickeatCode);
 
             // then
@@ -184,7 +184,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             // when
             participantStorage.getParticipantsStateWithSequence(pickeatCode); // seq: 1
             participantStorage.getParticipantsStateWithSequence(pickeatCode); // seq: 2
-            Optional<ParticipantStateWithSequenceDto> result =
+            Optional<ParticipantStateDto> result =
                     participantStorage.getParticipantsStateWithSequence(pickeatCode); // seq: 3
 
             // then
@@ -215,7 +215,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             String invalidPickeatCode = "not-exist-code";
 
             // when
-            Optional<ParticipantStateWithSequenceDto> result =
+            Optional<ParticipantStateDto> result =
                     participantStorage.getParticipantsStateWithSequence(invalidPickeatCode);
 
             // then
@@ -237,7 +237,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // then
-            ParticipantStateWithSequenceDto result = participantStorage.getParticipantsState(pickeatCode).get();
+            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode).get();
             assertThat(result.completionState().get(participant.getCode())).isTrue();
         }
     }
@@ -257,7 +257,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.cancelCompletion(pickeatCode, participant.getCode());
 
             // then
-            ParticipantStateWithSequenceDto result = participantStorage.getParticipantsState(pickeatCode).get();
+            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode).get();
             assertThat(result.completionState().get(participant.getCode())).isFalse();
         }
     }

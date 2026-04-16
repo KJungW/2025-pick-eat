@@ -2,7 +2,7 @@ package com.pickeat.backend.participant.domain.storage;
 
 import com.pickeat.backend.global.setting.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
-import com.pickeat.backend.participant.application.dto.ParticipantStateWithSequenceDto;
+import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
 import com.pickeat.backend.participant.domain.Participant;
 import java.time.Duration;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class ParticipantStorage {
                 .toList();
     }
 
-    public Optional<ParticipantStateWithSequenceDto> getParticipantsState(String pickeatCode) {
+    public Optional<ParticipantStateDto> getParticipantsState(String pickeatCode) {
         String dataKey = StorageKey.PARTICIPANT_COMPLETION.generateKey(pickeatCode);
         String seqKey = StorageKey.PARTICIPANT_SEQUENCE.generateKey(pickeatCode);
 
@@ -60,7 +60,7 @@ public class ParticipantStorage {
         return parseParticipantState(results);
     }
 
-    public Optional<ParticipantStateWithSequenceDto> getParticipantsStateWithSequence(String pickeatCode) {
+    public Optional<ParticipantStateDto> getParticipantsStateWithSequence(String pickeatCode) {
         String dataKey = StorageKey.PARTICIPANT_COMPLETION.generateKey(pickeatCode);
         String seqKey = StorageKey.PARTICIPANT_SEQUENCE.generateKey(pickeatCode);
 
@@ -90,7 +90,7 @@ public class ParticipantStorage {
         redisTemplate.delete(allKey);
     }
 
-    private Optional<ParticipantStateWithSequenceDto> parseParticipantState(List<Object> results) {
+    private Optional<ParticipantStateDto> parseParticipantState(List<Object> results) {
         if (results == null || results.size() < 2) {
             return Optional.empty();
         }
@@ -106,6 +106,6 @@ public class ParticipantStorage {
 
         Long sequence = Long.parseLong((String) results.get(0));
 
-        return Optional.of(new ParticipantStateWithSequenceDto(sequence, dataMap));
+        return Optional.of(new ParticipantStateDto(sequence, dataMap));
     }
 }
