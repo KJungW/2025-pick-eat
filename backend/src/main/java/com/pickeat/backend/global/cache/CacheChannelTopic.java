@@ -5,8 +5,7 @@ import lombok.Getter;
 @Getter
 public enum CacheChannelTopic {
 
-    TEMPLATE_TOPIC("template-topic"),
-    PICKEAT_EVENT_TOPIC("pickeat-event-topic");
+    TEMPLATE_TOPIC("template-topic");
 
     private final String value;
 
