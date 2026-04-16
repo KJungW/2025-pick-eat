@@ -16,7 +16,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-public class ParticipantUpdateEventHandler {
+public class ParticipantEventHandler {
 
     private final ParticipantStorage participantStorage;
     private final StringRedisTemplate stringRedisTemplate;
