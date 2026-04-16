@@ -13,6 +13,8 @@ import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class RestaurantEventHandler {
     private final StringRedisTemplate stringRedisTemplate;
     private final JsonParser jsonParser;
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRestaurantExclude(RestaurantExcludeEventRequest request) {
         String pickeatCode = request.pickeatCode();
         RestaurantStateDto pickeatState = getRestaurantStateWithSequence(pickeatCode);
@@ -30,6 +33,7 @@ public class RestaurantEventHandler {
         stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
     }
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRestaurantLike(RestaurantLikeEventRequest request) {
         String pickeatCode = request.pickeatCode();
         RestaurantStateDto pickeatState = getRestaurantStateWithSequence(pickeatCode);
