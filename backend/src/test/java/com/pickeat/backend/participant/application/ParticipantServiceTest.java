@@ -8,6 +8,7 @@ import com.pickeat.backend.global.auth.JwtProvider;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
+import com.pickeat.backend.participant.application.dto.event.ParticipantUpdateEventRequest;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
 import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
 import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.event.ApplicationEvents;
 
 @Import({
         ParticipantService.class,
@@ -42,6 +44,9 @@ class ParticipantServiceTest extends DatabaseSliceTest {
     @Autowired
     private ParticipantTokenProvider tokenProvider;
 
+    @Autowired
+    private ApplicationEvents events;
+
     @Nested
     class 참가자_저장 {
 
@@ -62,6 +67,23 @@ class ParticipantServiceTest extends DatabaseSliceTest {
                     () -> assertThat(tokenProvider.getParticipantCode(token)).isNotBlank(),
                     () -> assertThat(tokenProvider.getPickeatCode(token)).isEqualTo(pickeat.getCode())
             );
+        }
+
+        @Test
+        void 참가자_업데이트_이벤트를_발행한다() {
+            // given
+            Pickeat pickeat = Pickeat.createWithoutRoom("이벤트 발행 테스트");
+            pickeatStorage.save(pickeat);
+            ParticipantRequest request = new ParticipantRequest("참가자1", pickeat.getCode());
+
+            // when
+            participantService.createParticipant(request);
+
+            // then
+            Long count = events.stream(ParticipantUpdateEventRequest.class)
+                    .filter(event -> event.pickeatCode().equals(pickeat.getCode()))
+                    .count();
+            assertThat(count).isEqualTo(1);
         }
 
         @Test
@@ -140,6 +162,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
 
             // then
             assertAll(
+                    () -> assertThat(result.sequence()).isEqualTo(0),
                     () -> assertThat(result.completion()).hasSize(2),
                     () -> assertThat(result.completion().get(participantACode)).isTrue(),
                     () -> assertThat(result.completion().get(participantBCode)).isFalse()
@@ -183,6 +206,23 @@ class ParticipantServiceTest extends DatabaseSliceTest {
         }
 
         @Test
+        void 참가자_업데이트_이벤트를_발행한다() {
+            // given
+            Pickeat pickeat = Pickeat.createWithoutRoom("이벤트 발행 테스트");
+            pickeatStorage.save(pickeat);
+            ParticipantRequest request = new ParticipantRequest("참가자1", pickeat.getCode());
+
+            // when
+            participantService.createParticipant(request);
+
+            // then
+            Long count = events.stream(ParticipantUpdateEventRequest.class)
+                    .filter(event -> event.pickeatCode().equals(pickeat.getCode()))
+                    .count();
+            assertThat(count).isEqualTo(1);
+        }
+
+        @Test
         void 픽잇이_존재하지_않는다면_예외를_발생시킨다() {
             // given
             String invalidPickeatCode = "INVALID_CODE";
@@ -219,6 +259,25 @@ class ParticipantServiceTest extends DatabaseSliceTest {
                     .completionState()
                     .get(participantCode);
             assertThat(isCompleted).isFalse();
+        }
+
+        @Test
+        void 참가자_업데이트_이벤트를_발행한다() {
+            // given
+            Pickeat pickeat = Pickeat.createWithoutRoom("취소 테스트");
+            pickeatStorage.save(pickeat);
+            Participant participant = new Participant("참가자");
+            participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
+            participantService.markCompletion(pickeat.getCode(), participant.getCode());
+
+            // when
+            participantService.cancelCompletion(pickeat.getCode(), participant.getCode());
+
+            // then
+            Long count = events.stream(ParticipantUpdateEventRequest.class)
+                    .filter(event -> event.pickeatCode().equals(pickeat.getCode()))
+                    .count();
+            assertThat(count).isEqualTo(2);
         }
 
         @Test

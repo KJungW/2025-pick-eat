@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.setting.StorageKey;
-import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
+import com.pickeat.backend.participant.application.dto.ParticipantStateWithSequenceDto;
 import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
@@ -39,7 +39,8 @@ class ParticipantStorageTest extends DatabaseSliceTest {
 
             // then
             List<Participant> allParticipants = participantStorage.getParticipantsMeta(pickeatCode);
-            ParticipantStateDto participantsState = participantStorage.getParticipantsState(pickeatCode).get();
+            ParticipantStateWithSequenceDto participantsState = participantStorage.getParticipantsState(pickeatCode)
+                    .get();
             assertAll(
                     () -> assertThat(allParticipants).hasSize(1),
                     () -> assertThat(allParticipants)
@@ -127,11 +128,12 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // when
-            Optional<ParticipantStateDto> result = participantStorage.getParticipantsState(pickeatCode);
+            Optional<ParticipantStateWithSequenceDto> result = participantStorage.getParticipantsState(pickeatCode);
 
             // then
             assertAll(
                     () -> assertThat(result).isPresent(),
+                    () -> assertThat(result.get().sequence()).isEqualTo(0),
                     () -> assertThat(result.get().completionState().get(participant.getCode())).isTrue()
             );
         }
@@ -142,7 +144,79 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             String invalidPickeatCode = "not-exist-code";
 
             // when
-            Optional<ParticipantStateDto> result = participantStorage.getParticipantsState(invalidPickeatCode);
+            Optional<ParticipantStateWithSequenceDto> result =
+                    participantStorage.getParticipantsState(invalidPickeatCode);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    class 참가자_상태_조회하고_시퀀스_번호_증가 {
+
+        @Test
+        void 참가자_상태를_성공적으로_조회한다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            Participant participant = new Participant("참가자");
+            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.markCompletion(pickeatCode, participant.getCode());
+
+            // when
+            Optional<ParticipantStateWithSequenceDto> result =
+                    participantStorage.getParticipantsStateWithSequence(pickeatCode);
+
+            // then
+            assertAll(
+                    () -> assertThat(result).isPresent(),
+                    () -> assertThat(result.get().sequence()).isEqualTo(1L),
+                    () -> assertThat(result.get().completionState().get(participant.getCode())).isTrue()
+            );
+        }
+
+        @Test
+        void 참가자_상태_시퀀스_번호를_성공적으로_증가시킨다() {
+            // given
+            String pickeatCode = "pickeat-code";
+            participantStorage.setupAboutParticipant(pickeatCode, new Participant("참가자"));
+
+            // when
+            participantStorage.getParticipantsStateWithSequence(pickeatCode); // seq: 1
+            participantStorage.getParticipantsStateWithSequence(pickeatCode); // seq: 2
+            Optional<ParticipantStateWithSequenceDto> result =
+                    participantStorage.getParticipantsStateWithSequence(pickeatCode); // seq: 3
+
+            // then
+            assertAll(
+                    () -> assertThat(result).isPresent(),
+                    () -> assertThat(result.get().sequence()).isEqualTo(3L)
+            );
+        }
+
+        @Test
+        void 시퀀스_번호를_처음_생성할때_TTL을_설정한다() {
+            // given
+            String pickeatCode = "seq-ttl-test";
+            String seqKey = StorageKey.PARTICIPANT_SEQUENCE.generateKey(pickeatCode);
+            Long configTtl = StorageKey.PICKEAT_TTL.toSeconds();
+
+            // when: 시퀀스가 처음 생성됨 (1로 증가)
+            participantStorage.getParticipantsStateWithSequence(pickeatCode);
+            Long ttl = redisTemplate.getExpire(seqKey);
+
+            // then
+            assertThat(ttl).isGreaterThan(0).isLessThanOrEqualTo(configTtl);
+        }
+
+        @Test
+        void 존재하지_않는_픽잇코드의_상태_조회_시_Empty_Optional을_반환한다() {
+            // given
+            String invalidPickeatCode = "not-exist-code";
+
+            // when
+            Optional<ParticipantStateWithSequenceDto> result =
+                    participantStorage.getParticipantsStateWithSequence(invalidPickeatCode);
 
             // then
             assertThat(result).isEmpty();
@@ -163,7 +237,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // then
-            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode).get();
+            ParticipantStateWithSequenceDto result = participantStorage.getParticipantsState(pickeatCode).get();
             assertThat(result.completionState().get(participant.getCode())).isTrue();
         }
     }
@@ -183,7 +257,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             participantStorage.cancelCompletion(pickeatCode, participant.getCode());
 
             // then
-            ParticipantStateDto result = participantStorage.getParticipantsState(pickeatCode).get();
+            ParticipantStateWithSequenceDto result = participantStorage.getParticipantsState(pickeatCode).get();
             assertThat(result.completionState().get(participant.getCode())).isFalse();
         }
     }
