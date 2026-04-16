@@ -62,7 +62,7 @@ public class PickeatService {
         PickeatRecord pickeatRecord = savePickeatRecord(pickeat);
         PickeatResult pickeatResult = savePickeatResult(pickeatRecord, selectedRestaurant);
         removeAllAboutPickeatAtStorage(pickeatCode);
-        
+
         publishPickeatCompletionEvent(pickeatCode, pickeatResult);
     }
 
@@ -96,12 +96,12 @@ public class PickeatService {
     }
 
     private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
-        return restaurantsStorage.getRestaurantMetaInPickeat(pickeatCode)
+        return restaurantsStorage.getRestaurantMeta(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
-        return restaurantsStorage.getRestaurantStateInPickeat(pickeatCode)
+        return restaurantsStorage.getRestaurantState(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 

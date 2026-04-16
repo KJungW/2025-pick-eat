@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 public record RestaurantStateDto(
+        Long sequence,
         Set<String> aliveRestaurantCode,
         Map<String, Integer> likeCountByRestaurant
 ) {
