@@ -2,12 +2,16 @@ package com.pickeat.backend.restaurant.application.publisher;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.sse.EventAction;
+import com.pickeat.backend.global.sse.EventGroup;
+import com.pickeat.backend.global.sse.EventMeta;
+import com.pickeat.backend.global.sse.PickeatEvent;
 import com.pickeat.backend.global.sse.SseChannelTopic;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantExcludeEvent;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantExcludeEventContent;
 import com.pickeat.backend.restaurant.application.dto.event.RestaurantExcludeEventRequest;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEvent;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEventContent;
 import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEventRequest;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +32,15 @@ public class RestaurantEventHandler {
     public void handleRestaurantExclude(RestaurantExcludeEventRequest request) {
         String pickeatCode = request.pickeatCode();
         RestaurantStateDto state = getRestaurantStateWithSequence(pickeatCode);
-        RestaurantExcludeEvent event = new RestaurantExcludeEvent(
-                pickeatCode, state.aliveRestaurantCode(), state.sequence());
+
+        EventMeta eventMeta = new EventMeta(
+                EventGroup.RESTAURANT,
+                state.sequence(),
+                EventAction.RESTAURANT_EXCLUDE_EVENT,
+                pickeatCode);
+        RestaurantExcludeEventContent content = new RestaurantExcludeEventContent(state.aliveRestaurantCode());
+        PickeatEvent<RestaurantExcludeEventContent> event = PickeatEvent.of(eventMeta, content);
+
         String topicName = SseChannelTopic.RESTAURANT_EVENT_TOPIC.getValue();
         stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
     }
@@ -38,8 +49,15 @@ public class RestaurantEventHandler {
     public void handleRestaurantLike(RestaurantLikeEventRequest request) {
         String pickeatCode = request.pickeatCode();
         RestaurantStateDto state = getRestaurantStateWithSequence(pickeatCode);
-        RestaurantLikeEvent event = new RestaurantLikeEvent(
-                pickeatCode, state.likeCountByRestaurant(), state.sequence());
+
+        EventMeta eventMeta = new EventMeta(
+                EventGroup.RESTAURANT,
+                state.sequence(),
+                EventAction.RESTAURANT_LIKE_EVENT,
+                pickeatCode);
+        RestaurantLikeEventContent content = new RestaurantLikeEventContent(state.likeCountByRestaurant());
+        PickeatEvent<RestaurantLikeEventContent> event = PickeatEvent.of(eventMeta, content);
+
         String topicName = SseChannelTopic.RESTAURANT_EVENT_TOPIC.getValue();
         stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
     }

@@ -2,10 +2,14 @@ package com.pickeat.backend.participant.application.publisher;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.sse.EventAction;
+import com.pickeat.backend.global.sse.EventGroup;
+import com.pickeat.backend.global.sse.EventMeta;
+import com.pickeat.backend.global.sse.PickeatEvent;
 import com.pickeat.backend.global.sse.SseChannelTopic;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
-import com.pickeat.backend.participant.application.dto.event.ParticipantUpdateEvent;
+import com.pickeat.backend.participant.application.dto.event.ParticipantUpdateEventContent;
 import com.pickeat.backend.participant.application.dto.event.ParticipantUpdateEventRequest;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +30,15 @@ public class ParticipantEventHandler {
     public void handleParticipantUpdate(ParticipantUpdateEventRequest request) {
         String pickeatCode = request.pickeatCode();
         ParticipantStateDto state = getParticipantsStateInPickeat(pickeatCode);
-        ParticipantUpdateEvent event = new ParticipantUpdateEvent(
-                pickeatCode, state.completionState(), state.sequence());
+
+        EventMeta eventMeta = new EventMeta(
+                EventGroup.PARTICIPANT,
+                state.sequence(),
+                EventAction.PARTICIPANT_UPDATE_EVENT,
+                pickeatCode);
+        ParticipantUpdateEventContent content = new ParticipantUpdateEventContent(state.completionState());
+        PickeatEvent<ParticipantUpdateEventContent> event = PickeatEvent.of(eventMeta, content);
+
         String topicName = SseChannelTopic.PARTICIPANT_EVENT_TOPIC.getValue();
         stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
     }
