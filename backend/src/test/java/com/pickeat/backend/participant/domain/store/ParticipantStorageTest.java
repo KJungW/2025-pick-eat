@@ -268,19 +268,35 @@ class ParticipantStorageTest extends DatabaseSliceTest {
         @Test
         void 픽잇과_관련된_모든_참가자_데이터를_제거할_수_있다() {
             // given
-            String pickeatCode = "remove-test-code";
-            Participant participant1 = new Participant("참가자1");
-            Participant participant2 = new Participant("참가자2");
+            String pickeatCode = "remove-participant-code";
+            Participant participant = new Participant("참가자");
 
-            participantStorage.setupAboutParticipant(pickeatCode, participant1);
-            participantStorage.setupAboutParticipant(pickeatCode, participant2);
+            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.markCompletion(pickeatCode, participant.getCode());
+            participantStorage.getParticipantsStateWithSequence(pickeatCode);
+
+            String participantKey = StorageKey.PARTICIPANT.generateKey(pickeatCode);
+            String completionKey = StorageKey.PARTICIPANT_COMPLETION.generateKey(pickeatCode);
+            String sequenceKey = StorageKey.PARTICIPANT_SEQUENCE.generateKey(pickeatCode);
+
+            // 각 키가 존재하는지 사전 검증
+            assertAll(
+                    () -> assertThat(redisTemplate.hasKey(participantKey)).isTrue(),
+                    () -> assertThat(redisTemplate.hasKey(completionKey)).isTrue(),
+                    () -> assertThat(redisTemplate.hasKey(sequenceKey)).isTrue()
+            );
 
             // when
             participantStorage.remove(pickeatCode);
 
             // then
-            List<Participant> remainingParticipants = participantStorage.getParticipantsMeta(pickeatCode);
-            assertThat(remainingParticipants).isEmpty();
+            assertAll(
+                    () -> assertThat(redisTemplate.hasKey(participantKey)).isFalse(),
+                    () -> assertThat(redisTemplate.hasKey(completionKey)).isFalse(),
+                    () -> assertThat(redisTemplate.hasKey(sequenceKey)).isFalse(),
+                    () -> assertThat(participantStorage.getParticipantsMeta(pickeatCode)).isEmpty(),
+                    () -> assertThat(participantStorage.getParticipantsState(pickeatCode)).isEmpty()
+            );
         }
     }
 }

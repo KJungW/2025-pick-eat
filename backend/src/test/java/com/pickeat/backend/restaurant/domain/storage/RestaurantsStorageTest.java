@@ -411,20 +411,35 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
 
             restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
             restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+            restaurantsStorage.getRestaurantStateWithSequence(pickeatCode);
+
+            String metaKey = StorageKey.RESTAURANT_META.generateKey(pickeatCode);
+            String aliveKey = StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode);
+            String likeCountKey = StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode);
+            String likeRecordKey = StorageKey.RESTAURANT_LIKE_RECORD.generateKey(pickeatCode, restaurant.getCode());
+            String sequenceKey = StorageKey.RESTAURANT_SEQUENCE.generateKey(pickeatCode);
+
+            // 각 키가 존재하는지 사전 검증
+            assertAll(
+                    () -> assertThat(redisTemplate.hasKey(metaKey)).isTrue(),
+                    () -> assertThat(redisTemplate.hasKey(aliveKey)).isTrue(),
+                    () -> assertThat(redisTemplate.hasKey(likeCountKey)).isTrue(),
+                    () -> assertThat(redisTemplate.hasKey(likeRecordKey)).isTrue(),
+                    () -> assertThat(redisTemplate.hasKey(sequenceKey)).isTrue()
+            );
 
             // when
             restaurantsStorage.remove(pickeatCode);
 
             // then
-            Optional<Restaurants> meta = restaurantsStorage.getRestaurantMeta(pickeatCode);
-            Optional<RestaurantStateDto> state = restaurantsStorage.getRestaurantState(pickeatCode);
-            Boolean hasParticipantLikeRecordKey = redisTemplate.hasKey(
-                    StorageKey.RESTAURANT_LIKE_RECORD.generateKey(participantCode, restaurant.getCode()));
-
             assertAll(
-                    () -> assertThat(meta).isEmpty(),
-                    () -> assertThat(state).isEmpty(),
-                    () -> assertThat(hasParticipantLikeRecordKey).isFalse()
+                    () -> assertThat(redisTemplate.hasKey(metaKey)).isFalse(),
+                    () -> assertThat(redisTemplate.hasKey(aliveKey)).isFalse(),
+                    () -> assertThat(redisTemplate.hasKey(likeCountKey)).isFalse(),
+                    () -> assertThat(redisTemplate.hasKey(likeRecordKey)).isFalse(),
+                    () -> assertThat(redisTemplate.hasKey(sequenceKey)).isFalse(),
+                    () -> assertThat(restaurantsStorage.getRestaurantMeta(pickeatCode)).isEmpty(),
+                    () -> assertThat(restaurantsStorage.getRestaurantState(pickeatCode)).isEmpty()
             );
         }
     }
