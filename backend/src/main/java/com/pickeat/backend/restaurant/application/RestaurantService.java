@@ -11,7 +11,7 @@ import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEvent;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
-import com.pickeat.backend.restaurant.application.publisher.RestaurantEventInPickeatPublisher;
+import com.pickeat.backend.restaurant.application.publisher.RestaurantEventPublisher;
 import com.pickeat.backend.restaurant.domain.Restaurant;
 import com.pickeat.backend.restaurant.domain.Restaurants;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
@@ -27,7 +27,7 @@ public class RestaurantService {
 
     private final PickeatStorage pickeatStorage;
     private final RestaurantsStorage restaurantsStorage;
-    private final RestaurantEventInPickeatPublisher restaurantEventPublisher;
+    private final RestaurantEventPublisher restaurantEventPublisher;
 
     public void create(String pickeatCode, List<RestaurantRequest> restaurantRequests) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);

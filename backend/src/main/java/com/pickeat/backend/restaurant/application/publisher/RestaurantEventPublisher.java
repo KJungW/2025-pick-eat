@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class RestaurantEventInPickeatPublisher {
+public class RestaurantEventPublisher {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final JsonParser jsonParser;
