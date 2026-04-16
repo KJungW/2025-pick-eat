@@ -1,7 +1,6 @@
 package com.pickeat.backend.pickeat.application.dto.event;
 
-import com.pickeat.backend.pickeat.domain.PickeatResult;
-import java.util.Arrays;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponse;
 import java.util.List;
 import lombok.Getter;
 
@@ -10,7 +9,7 @@ public class PickeatCompletionEvent {
 
     private final PickeatEventType type;
     private final String pickeatCode;
-    private final String code;
+    private final String restaurantCode;
     private final String name;
     private final String category;
     private final String roadAddressName;
@@ -18,25 +17,15 @@ public class PickeatCompletionEvent {
     private final List<String> tags;
     private final String pictureUrl;
 
-    public PickeatCompletionEvent(String pickeatCode, PickeatResult pickeatResult) {
+    public PickeatCompletionEvent(String pickeatCode, PickeatResultResponse pickeatResultResponse) {
         this.type = PickeatEventType.PICKEAT_COMPLETION_EVENT;
         this.pickeatCode = pickeatCode;
-        this.code = pickeatResult.getCode();
-        this.name = pickeatResult.getName();
-        this.category = pickeatResult.getFoodCategory().getName();
-        this.roadAddressName = pickeatResult.getRoadAddressName();
-        this.placeUrl = pickeatResult.getPlaceUrl();
-        this.tags = parseTags(pickeatResult.getTags());
-        this.pictureUrl = pickeatResult.getPictureUrl();
-    }
-
-    private static List<String> parseTags(String tags) {
-        if (tags == null || tags.isBlank()) {
-            return List.of();
-        }
-        return Arrays.stream(tags.split(","))
-                .map(String::trim)
-                .filter(tag -> !tag.isEmpty())
-                .toList();
+        this.restaurantCode = pickeatResultResponse.code();
+        this.name = pickeatResultResponse.name();
+        this.category = pickeatResultResponse.category();
+        this.roadAddressName = pickeatResultResponse.roadAddressName();
+        this.placeUrl = pickeatResultResponse.placeUrl();
+        this.tags = pickeatResultResponse.tags();
+        this.pictureUrl = pickeatResultResponse.pictureUrl();
     }
 }

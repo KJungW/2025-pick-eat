@@ -98,8 +98,13 @@ public class RestaurantsStorage {
     }
 
     public void remove(String pickeatCode) {
-        List<String> allRestaurantKeyInPickeat = getAllRestaurantKeyInPickeat(pickeatCode);
-        redisTemplate.delete(allRestaurantKeyInPickeat);
+        List<String> allKey = new java.util.ArrayList<>();
+        allKey.add(StorageKey.RESTAURANT_META.generateKey(pickeatCode));
+        allKey.add(StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode));
+        allKey.add(StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode));
+        allKey.addAll(getAllRestaurantLikeRecordKey(pickeatCode));
+        allKey.add(StorageKey.RESTAURANT_SEQUENCE.generateKey(pickeatCode));
+        redisTemplate.delete(allKey);
     }
 
     private Object[] makeSetupRestaurantsArgs(Duration ttl, Restaurants restaurants) {
@@ -137,15 +142,6 @@ public class RestaurantsStorage {
         }
 
         return Optional.of(new RestaurantStateDto(sequence, aliveCodes, likeCountMap));
-    }
-
-    private List<String> getAllRestaurantKeyInPickeat(String pickeatCode) {
-        List<String> allKey = new java.util.ArrayList<>();
-        allKey.add(StorageKey.RESTAURANT_META.generateKey(pickeatCode));
-        allKey.add(StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode));
-        allKey.add(StorageKey.RESTAURANT_LIKE_COUNT.generateKey(pickeatCode));
-        allKey.addAll(getAllRestaurantLikeRecordKey(pickeatCode));
-        return allKey;
     }
 
     private List<String> getAllRestaurantLikeRecordKey(String pickeatCode) {

@@ -83,8 +83,11 @@ public class ParticipantStorage {
     }
 
     public void remove(String pickeatCode) {
-        String key = StorageKey.PARTICIPANT.generateKey(pickeatCode);
-        redisTemplate.delete(key);
+        List<String> allKey = new java.util.ArrayList<>();
+        allKey.add(StorageKey.PARTICIPANT.generateKey(pickeatCode));
+        allKey.add(StorageKey.PARTICIPANT_COMPLETION.generateKey(pickeatCode));
+        allKey.add(StorageKey.PARTICIPANT_SEQUENCE.generateKey(pickeatCode));
+        redisTemplate.delete(allKey);
     }
 
     private Optional<ParticipantStateWithSequenceDto> parseParticipantState(List<Object> results) {
