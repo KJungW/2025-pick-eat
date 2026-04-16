@@ -6,6 +6,8 @@ import com.pickeat.backend.global.utility.TransactionUtility;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantExcludeEvent;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEvent;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
@@ -113,14 +115,16 @@ public class RestaurantService {
     private void publishRestaurantExcludeEvent(String pickeatCode) {
         TransactionUtility.doAfterCommit(() -> {
             RestaurantStateResponse pickeatState = getStateInPickeat(pickeatCode);
-            restaurantEventPublisher.publishRestaurantExcludeEvent(pickeatState.aliveRestaurantCode());
+            RestaurantExcludeEvent event = new RestaurantExcludeEvent(pickeatCode, pickeatState.aliveRestaurantCode());
+            restaurantEventPublisher.publishRestaurantExcludeEvent(event);
         });
     }
 
     private void publishRestaurantLikeEvent(String pickeatCode) {
         TransactionUtility.doAfterCommit(() -> {
             RestaurantStateResponse pickeatState = getStateInPickeat(pickeatCode);
-            restaurantEventPublisher.publishRestaurantLikeEvent(pickeatState.likeCountByRestaurant());
+            RestaurantLikeEvent event = new RestaurantLikeEvent(pickeatCode, pickeatState.likeCountByRestaurant());
+            restaurantEventPublisher.publishRestaurantLikeEvent(event);
         });
     }
 }
