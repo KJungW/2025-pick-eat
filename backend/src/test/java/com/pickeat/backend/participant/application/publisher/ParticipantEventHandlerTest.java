@@ -56,10 +56,11 @@ class ParticipantEventHandlerTest extends DatabaseSliceTest {
             // Redis의 이벤트 발행은 비동기이므로 최대 5초 대기하며 메시지 추출
             String publishedMessage = messageQueue.poll(5, TimeUnit.SECONDS);
             assertAll(
-                    () -> assertThat(publishedMessage).isNotNull(),
-                    () -> assertThat(publishedMessage).contains("\"type\":\"PARTICIPANT_UPDATE_EVENT\""),
-                    () -> assertThat(publishedMessage).contains("\"sequence\":1"),
+                    () -> assertThat(publishedMessage).contains("\"group\":\"PARTICIPANT\""),
+                    () -> assertThat(publishedMessage).contains("\"groupSequence\":1"),
+                    () -> assertThat(publishedMessage).contains("\"action\":\"PARTICIPANT_UPDATE_EVENT\""),
                     () -> assertThat(publishedMessage).contains("\"pickeatCode\":\"" + pickeatCode + "\""),
+                    () -> assertThat(publishedMessage).contains("\"completionState\""),
                     () -> assertThat(publishedMessage).contains("\"" + participant.getCode() + "\":false")
             );
         }

@@ -59,13 +59,11 @@ class PickeatEventHandlerTest extends DatabaseSliceTest {
             // Redis의 이벤트 발행은 비동기이므로 최대 5초 대기하며 메시지 추출
             String publishedMessage = messageQueue.poll(5, TimeUnit.SECONDS);
             assertAll(
-                    () -> assertThat(publishedMessage).isNotNull(),
-                    () -> assertThat(publishedMessage).contains("\"type\":\"PICKEAT_COMPLETION_EVENT\""),
+                    () -> assertThat(publishedMessage).contains("\"group\":\"PICKEAT\""),
+                    () -> assertThat(publishedMessage).contains("\"groupSequence\":0"),
+                    () -> assertThat(publishedMessage).contains("\"action\":\"PICKEAT_COMPLETION_EVENT\""),
                     () -> assertThat(publishedMessage).contains("\"pickeatCode\":\"" + pickeatCode + "\""),
-                    () -> assertThat(publishedMessage).contains("\"restaurantCode\":\"res-123\""),
-                    () -> assertThat(publishedMessage).contains("\"name\":\"매화양꼬치\""),
-                    () -> assertThat(publishedMessage).contains("\"category\":\"중식\""),
-                    () -> assertThat(publishedMessage).contains("\"tags\":[\"양꼬치\",\"맛집\"]")
+                    () -> assertThat(publishedMessage).contains("\"pickeatResult\"")
             );
         }
     }

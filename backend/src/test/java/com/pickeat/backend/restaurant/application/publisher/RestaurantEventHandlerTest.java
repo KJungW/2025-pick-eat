@@ -60,13 +60,13 @@ class RestaurantEventHandlerTest extends DatabaseSliceTest {
 
             // then
             String publishedMessage = messageQueue.poll(5, TimeUnit.SECONDS);
-
             assertAll(
                     () -> assertThat(publishedMessage).isNotNull(),
-                    () -> assertThat(publishedMessage).contains("\"type\":\"RESTAURANT_EXCLUDE_EVENT\""),
+                    () -> assertThat(publishedMessage).contains("\"group\":\"RESTAURANT\""),
+                    () -> assertThat(publishedMessage).contains("\"groupSequence\":1"),
+                    () -> assertThat(publishedMessage).contains("\"action\":\"RESTAURANT_EXCLUDE_EVENT\""),
                     () -> assertThat(publishedMessage).contains("\"pickeatCode\":\"" + pickeatCode + "\""),
-                    () -> assertThat(publishedMessage).contains("\"aliveRestaurantIds\""),
-                    () -> assertThat(publishedMessage).contains("\"sequence\":1")
+                    () -> assertThat(publishedMessage).contains("\"aliveRestaurantIds\"")
             );
         }
     }
@@ -94,13 +94,13 @@ class RestaurantEventHandlerTest extends DatabaseSliceTest {
 
             // then
             String publishedMessage = messageQueue.poll(5, TimeUnit.SECONDS);
-
-            assertAll("식당 좋아요 이벤트 검증",
+            assertAll(
                     () -> assertThat(publishedMessage).isNotNull(),
-                    () -> assertThat(publishedMessage).contains("\"type\":\"RESTAURANT_LIKE_EVENT\""),
+                    () -> assertThat(publishedMessage).contains("\"group\":\"RESTAURANT\""),
+                    () -> assertThat(publishedMessage).contains("\"groupSequence\":1"),
+                    () -> assertThat(publishedMessage).contains("\"action\":\"RESTAURANT_LIKE_EVENT\""),
                     () -> assertThat(publishedMessage).contains("\"pickeatCode\":\"" + pickeatCode + "\""),
-                    () -> assertThat(publishedMessage).contains("\"likeCountByRestaurant\""),
-                    () -> assertThat(publishedMessage).contains("\"sequence\":1")
+                    () -> assertThat(publishedMessage).contains("\"likeCountByRestaurant\"")
             );
         }
     }
