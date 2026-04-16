@@ -7,7 +7,9 @@ import lombok.Getter;
 @Getter
 public class PickeatCompletionEvent {
 
-    private final PickeatEventType type;
+    private static final String PICKEAT_COMPLETION_EVENT = "PICKEAT_COMPLETION_EVENT";
+
+    private final String type;
     private final String pickeatCode;
     private final String restaurantCode;
     private final String name;
@@ -18,7 +20,7 @@ public class PickeatCompletionEvent {
     private final String pictureUrl;
 
     public PickeatCompletionEvent(String pickeatCode, PickeatResultResponse pickeatResultResponse) {
-        this.type = PickeatEventType.PICKEAT_COMPLETION_EVENT;
+        this.type = PICKEAT_COMPLETION_EVENT;
         this.pickeatCode = pickeatCode;
         this.restaurantCode = pickeatResultResponse.code();
         this.name = pickeatResultResponse.name();

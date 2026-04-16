@@ -27,7 +27,7 @@ public class ParticipantEventHandler {
         String pickeatCode = request.pickeatCode();
         ParticipantStateWithSequenceDto state = getParticipantsStateInPickeat(pickeatCode);
         ParticipantUpdateEvent event = new ParticipantUpdateEvent(
-                pickeatCode, state.sequence(), state.completionState());
+                pickeatCode, state.completionState(), state.sequence());
         String topicName = SseChannelTopic.PARTICIPANT_EVENT_TOPIC.getValue();
         stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
     }

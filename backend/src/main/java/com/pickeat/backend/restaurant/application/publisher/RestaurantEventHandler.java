@@ -27,8 +27,9 @@ public class RestaurantEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRestaurantExclude(RestaurantExcludeEventRequest request) {
         String pickeatCode = request.pickeatCode();
-        RestaurantStateDto pickeatState = getRestaurantStateWithSequence(pickeatCode);
-        RestaurantExcludeEvent event = new RestaurantExcludeEvent(pickeatCode, pickeatState.aliveRestaurantCode());
+        RestaurantStateDto state = getRestaurantStateWithSequence(pickeatCode);
+        RestaurantExcludeEvent event = new RestaurantExcludeEvent(
+                pickeatCode, state.aliveRestaurantCode(), state.sequence());
         String topicName = SseChannelTopic.RESTAURANT_EVENT_TOPIC.getValue();
         stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
     }
@@ -36,8 +37,9 @@ public class RestaurantEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRestaurantLike(RestaurantLikeEventRequest request) {
         String pickeatCode = request.pickeatCode();
-        RestaurantStateDto pickeatState = getRestaurantStateWithSequence(pickeatCode);
-        RestaurantLikeEvent event = new RestaurantLikeEvent(pickeatCode, pickeatState.likeCountByRestaurant());
+        RestaurantStateDto state = getRestaurantStateWithSequence(pickeatCode);
+        RestaurantLikeEvent event = new RestaurantLikeEvent(
+                pickeatCode, state.likeCountByRestaurant(), state.sequence());
         String topicName = SseChannelTopic.RESTAURANT_EVENT_TOPIC.getValue();
         stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
     }

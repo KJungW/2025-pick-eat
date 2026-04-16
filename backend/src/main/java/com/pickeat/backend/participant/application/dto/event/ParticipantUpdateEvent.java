@@ -6,18 +6,20 @@ import lombok.Getter;
 @Getter
 public class ParticipantUpdateEvent {
 
-    private final ParticipantEventType type;
+    private static final String PARTICIPANT_UPDATE_EVENT = "PARTICIPANT_UPDATE_EVENT";
+
+    private final String type;
     private final Long sequence;
     private final String pickeatCode;
     private final Map<String, Boolean> completion;
 
     public ParticipantUpdateEvent(
             String pickeatCode,
-            Long sequence,
-            Map<String, Boolean> completion
+            Map<String, Boolean> completion,
+            Long sequence
     ) {
+        this.type = PARTICIPANT_UPDATE_EVENT;
         this.sequence = sequence;
-        this.type = ParticipantEventType.PARTICIPANT_UPDATE_EVENT;
         this.pickeatCode = pickeatCode;
         this.completion = completion;
     }
