@@ -2,12 +2,14 @@ package com.pickeat.backend.restaurant.application;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.utility.TransactionUtility;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
+import com.pickeat.backend.restaurant.application.publisher.RestaurantEventInPickeatPublisher;
 import com.pickeat.backend.restaurant.domain.Restaurant;
 import com.pickeat.backend.restaurant.domain.Restaurants;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
@@ -23,6 +25,7 @@ public class RestaurantService {
 
     private final PickeatStorage pickeatStorage;
     private final RestaurantsStorage restaurantsStorage;
+    private final RestaurantEventInPickeatPublisher restaurantEventPublisher;
 
     public void create(String pickeatCode, List<RestaurantRequest> restaurantRequests) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
@@ -45,16 +48,19 @@ public class RestaurantService {
     public void exclude(String pickeatCode, List<String> restaurantCodes) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         excludeRestaurants(pickeatCode, restaurantCodes);
+        publishRestaurantExcludeEvent(pickeatCode);
     }
 
     public void like(String pickeatCode, String participantCode, String restaurantCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         likeRestaurant(pickeatCode, participantCode, restaurantCode);
+        publishRestaurantLikeEvent(pickeatCode);
     }
 
     public void cancelLike(String pickeatCode, String participantCode, String restaurantCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         cancelLikeRestaurant(pickeatCode, participantCode, restaurantCode);
+        publishRestaurantLikeEvent(pickeatCode);
     }
 
     private Pickeat getPickeatByCode(String pickeatCode) {
@@ -102,5 +108,19 @@ public class RestaurantService {
                 .map(RestaurantRequest::toRestaurant)
                 .toList();
         return new Restaurants(restaurants);
+    }
+
+    private void publishRestaurantExcludeEvent(String pickeatCode) {
+        TransactionUtility.doAfterCommit(() -> {
+            RestaurantStateResponse pickeatState = getStateInPickeat(pickeatCode);
+            restaurantEventPublisher.publishRestaurantExcludeEvent(pickeatState.aliveRestaurantCode());
+        });
+    }
+
+    private void publishRestaurantLikeEvent(String pickeatCode) {
+        TransactionUtility.doAfterCommit(() -> {
+            RestaurantStateResponse pickeatState = getStateInPickeat(pickeatCode);
+            restaurantEventPublisher.publishRestaurantLikeEvent(pickeatState.likeCountByRestaurant());
+        });
     }
 }
