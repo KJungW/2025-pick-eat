@@ -6,8 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import com.pickeat.backend.global.sse.SseChannelTopic;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.RestaurantService;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantExcludeEventRequest;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEventRequest;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventRequest;
 import com.pickeat.backend.restaurant.domain.Restaurants;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
@@ -53,10 +52,10 @@ class RestaurantEventHandlerTest extends DatabaseSliceTest {
                         messageQueue.add(new String(message.getBody()));
                     }, topicName.getBytes());
 
-            RestaurantExcludeEventRequest request = new RestaurantExcludeEventRequest(pickeatCode);
+            RestaurantUpdateEventRequest request = new RestaurantUpdateEventRequest(pickeatCode);
 
             // when
-            restaurantEventHandler.handleRestaurantExclude(request);
+            restaurantEventHandler.handleRestaurantUpdate(request);
 
             // then
             String publishedMessage = messageQueue.poll(5, TimeUnit.SECONDS);
@@ -66,40 +65,7 @@ class RestaurantEventHandlerTest extends DatabaseSliceTest {
                     () -> assertThat(publishedMessage).contains("\"groupSequence\":1"),
                     () -> assertThat(publishedMessage).contains("\"action\":\"RESTAURANT_EXCLUDE_EVENT\""),
                     () -> assertThat(publishedMessage).contains("\"pickeatCode\":\"" + pickeatCode + "\""),
-                    () -> assertThat(publishedMessage).contains("\"aliveRestaurantIds\"")
-            );
-        }
-    }
-
-    @Nested
-    class 참가자_업데이트_이벤트_발행 {
-
-        @Test
-        void 참가자_업데이트_이벤트를_발행한다() throws InterruptedException {
-            // given
-            String pickeatCode = "like-test-code";
-            setupInitialRestaurants(pickeatCode);
-
-            BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
-            String topicName = SseChannelTopic.RESTAURANT_EVENT_TOPIC.getValue();
-            redisTemplate.getConnectionFactory().getConnection()
-                    .subscribe((message, pattern) -> {
-                        messageQueue.add(new String(message.getBody()));
-                    }, topicName.getBytes());
-
-            RestaurantLikeEventRequest request = new RestaurantLikeEventRequest(pickeatCode);
-
-            // when
-            restaurantEventHandler.handleRestaurantLike(request);
-
-            // then
-            String publishedMessage = messageQueue.poll(5, TimeUnit.SECONDS);
-            assertAll(
-                    () -> assertThat(publishedMessage).isNotNull(),
-                    () -> assertThat(publishedMessage).contains("\"group\":\"RESTAURANT\""),
-                    () -> assertThat(publishedMessage).contains("\"groupSequence\":1"),
-                    () -> assertThat(publishedMessage).contains("\"action\":\"RESTAURANT_LIKE_EVENT\""),
-                    () -> assertThat(publishedMessage).contains("\"pickeatCode\":\"" + pickeatCode + "\""),
+                    () -> assertThat(publishedMessage).contains("\"aliveRestaurantIds\""),
                     () -> assertThat(publishedMessage).contains("\"likeCountByRestaurant\"")
             );
         }

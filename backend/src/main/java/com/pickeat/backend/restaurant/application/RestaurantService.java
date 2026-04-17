@@ -5,8 +5,7 @@ import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantExcludeEventRequest;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEventRequest;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
@@ -49,19 +48,19 @@ public class RestaurantService {
     public void exclude(String pickeatCode, List<String> restaurantCodes) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         excludeRestaurants(pickeatCode, restaurantCodes);
-        eventPublisher.publishEvent(new RestaurantExcludeEventRequest(pickeatCode));
+        eventPublisher.publishEvent(new RestaurantUpdateEventRequest(pickeatCode));
     }
 
     public void like(String pickeatCode, String participantCode, String restaurantCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         likeRestaurant(pickeatCode, participantCode, restaurantCode);
-        eventPublisher.publishEvent(new RestaurantLikeEventRequest(pickeatCode));
+        eventPublisher.publishEvent(new RestaurantUpdateEventRequest(pickeatCode));
     }
 
     public void cancelLike(String pickeatCode, String participantCode, String restaurantCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         cancelLikeRestaurant(pickeatCode, participantCode, restaurantCode);
-        eventPublisher.publishEvent(new RestaurantLikeEventRequest(pickeatCode));
+        eventPublisher.publishEvent(new RestaurantUpdateEventRequest(pickeatCode));
     }
 
     private Pickeat getPickeatByCode(String pickeatCode) {

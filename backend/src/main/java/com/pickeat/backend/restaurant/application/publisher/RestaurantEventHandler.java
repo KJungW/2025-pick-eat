@@ -9,10 +9,8 @@ import com.pickeat.backend.global.sse.PickeatEvent;
 import com.pickeat.backend.global.sse.SseChannelTopic;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantExcludeEventContent;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantExcludeEventRequest;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEventContent;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEventRequest;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventContent;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventRequest;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -29,7 +27,7 @@ public class RestaurantEventHandler {
     private final JsonParser jsonParser;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleRestaurantExclude(RestaurantExcludeEventRequest request) {
+    public void handleRestaurantUpdate(RestaurantUpdateEventRequest request) {
         String pickeatCode = request.pickeatCode();
         RestaurantStateDto state = getRestaurantStateWithSequence(pickeatCode);
 
@@ -38,25 +36,8 @@ public class RestaurantEventHandler {
                 state.sequence(),
                 EventAction.RESTAURANT_EXCLUDE_EVENT,
                 pickeatCode);
-        RestaurantExcludeEventContent content = new RestaurantExcludeEventContent(state.aliveRestaurantCode());
-        PickeatEvent<RestaurantExcludeEventContent> event = PickeatEvent.of(eventMeta, content);
-
-        String topicName = SseChannelTopic.RESTAURANT_EVENT_TOPIC.getValue();
-        stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
-    }
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleRestaurantLike(RestaurantLikeEventRequest request) {
-        String pickeatCode = request.pickeatCode();
-        RestaurantStateDto state = getRestaurantStateWithSequence(pickeatCode);
-
-        EventMeta eventMeta = new EventMeta(
-                EventGroup.RESTAURANT,
-                state.sequence(),
-                EventAction.RESTAURANT_LIKE_EVENT,
-                pickeatCode);
-        RestaurantLikeEventContent content = new RestaurantLikeEventContent(state.likeCountByRestaurant());
-        PickeatEvent<RestaurantLikeEventContent> event = PickeatEvent.of(eventMeta, content);
+        RestaurantUpdateEventContent content = RestaurantUpdateEventContent.of(state);
+        PickeatEvent<RestaurantUpdateEventContent> event = PickeatEvent.of(eventMeta, content);
 
         String topicName = SseChannelTopic.RESTAURANT_EVENT_TOPIC.getValue();
         stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));

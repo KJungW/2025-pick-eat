@@ -9,8 +9,7 @@ import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantExcludeEventRequest;
-import com.pickeat.backend.restaurant.application.dto.event.RestaurantLikeEventRequest;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
@@ -249,7 +248,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
             restaurantService.exclude(pickeat.getCode(), restaurantCodes);
 
             // then
-            Long eventCount = events.stream(RestaurantExcludeEventRequest.class)
+            Long eventCount = events.stream(RestaurantUpdateEventRequest.class)
                     .filter(event -> event.pickeatCode().equals(pickeat.getCode()))
                     .count();
             assertThat(eventCount).isEqualTo(1);
@@ -329,7 +328,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
             restaurantService.like(pickeat.getCode(), "user-1", restaurantCode);
 
             // then
-            Long eventCount = events.stream(RestaurantLikeEventRequest.class)
+            Long eventCount = events.stream(RestaurantUpdateEventRequest.class)
                     .filter(event -> event.pickeatCode().equals(pickeat.getCode()))
                     .count();
             assertThat(eventCount).isEqualTo(1);
@@ -399,7 +398,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
             restaurantService.cancelLike(pickeat.getCode(), participantCode, restaurantCode);
 
             // then
-            long eventCount = events.stream(RestaurantLikeEventRequest.class)
+            Long eventCount = events.stream(RestaurantUpdateEventRequest.class)
                     .filter(event -> event.pickeatCode().equals(pickeat.getCode()))
                     .count();
             assertThat(eventCount).isEqualTo(2); // 좋아요 시 1번, 취소 시 1번 총 2번의 이벤트가 발행됨
