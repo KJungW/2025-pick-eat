@@ -77,11 +77,7 @@ public class MetricsConfig {
                             log.warn("Failed to normalize URI: {}, error: {}", uri, e.getMessage());
                             return uri;
                         }
-                    }))
-
-                    .commonTags(
-                            "application", "pickeats-api"
-                    );
+                    }));
         };
     }
 }
