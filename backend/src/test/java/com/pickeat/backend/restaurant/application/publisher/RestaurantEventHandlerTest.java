@@ -63,7 +63,7 @@ class RestaurantEventHandlerTest extends DatabaseSliceTest {
                     () -> assertThat(publishedMessage).isNotNull(),
                     () -> assertThat(publishedMessage).contains("\"group\":\"RESTAURANT\""),
                     () -> assertThat(publishedMessage).contains("\"groupSequence\":1"),
-                    () -> assertThat(publishedMessage).contains("\"action\":\"RESTAURANT_EXCLUDE_EVENT\""),
+                    () -> assertThat(publishedMessage).contains("\"action\":\"RESTAURANT_UPDATE_EVENT\""),
                     () -> assertThat(publishedMessage).contains("\"pickeatCode\":\"" + pickeatCode + "\""),
                     () -> assertThat(publishedMessage).contains("\"aliveRestaurantIds\""),
                     () -> assertThat(publishedMessage).contains("\"likeCountByRestaurant\"")

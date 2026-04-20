@@ -34,7 +34,7 @@ public class RestaurantEventHandler {
         EventMeta eventMeta = new EventMeta(
                 EventGroup.RESTAURANT,
                 state.sequence(),
-                EventAction.RESTAURANT_EXCLUDE_EVENT,
+                EventAction.RESTAURANT_UPDATE_EVENT,
                 pickeatCode);
         RestaurantUpdateEventContent content = RestaurantUpdateEventContent.of(state);
         PickeatEvent<RestaurantUpdateEventContent> event = PickeatEvent.of(eventMeta, content);
