@@ -5,6 +5,7 @@ import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
+import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
@@ -13,6 +14,7 @@ import com.pickeat.backend.restaurant.domain.Restaurants;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class RestaurantService {
 
     private final PickeatStorage pickeatStorage;
     private final RestaurantsStorage restaurantsStorage;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void create(String pickeatCode, List<RestaurantRequest> restaurantRequests) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
@@ -45,16 +48,19 @@ public class RestaurantService {
     public void exclude(String pickeatCode, List<String> restaurantCodes) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         excludeRestaurants(pickeatCode, restaurantCodes);
+        eventPublisher.publishEvent(new RestaurantUpdateEventRequest(pickeatCode));
     }
 
     public void like(String pickeatCode, String participantCode, String restaurantCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         likeRestaurant(pickeatCode, participantCode, restaurantCode);
+        eventPublisher.publishEvent(new RestaurantUpdateEventRequest(pickeatCode));
     }
 
     public void cancelLike(String pickeatCode, String participantCode, String restaurantCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         cancelLikeRestaurant(pickeatCode, participantCode, restaurantCode);
+        eventPublisher.publishEvent(new RestaurantUpdateEventRequest(pickeatCode));
     }
 
     private Pickeat getPickeatByCode(String pickeatCode) {
@@ -63,12 +69,12 @@ public class RestaurantService {
     }
 
     private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
-        return restaurantsStorage.getRestaurantMetaInPickeat(pickeatCode)
+        return restaurantsStorage.getRestaurantMeta(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
-        return restaurantsStorage.getRestaurantStateInPickeat(pickeatCode)
+        return restaurantsStorage.getRestaurantState(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 

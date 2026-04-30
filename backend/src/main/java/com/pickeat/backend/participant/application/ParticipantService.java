@@ -4,6 +4,7 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
+import com.pickeat.backend.participant.application.dto.event.ParticipantUpdateEventRequest;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
 import com.pickeat.backend.participant.application.dto.response.ParticipantResponse;
 import com.pickeat.backend.participant.application.dto.response.ParticipantStateResponse;
@@ -12,8 +13,8 @@ import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +26,13 @@ public class ParticipantService {
     private final PickeatStorage pickeatStorage;
     private final ParticipantStorage participantStorage;
     private final ParticipantTokenProvider participantTokenProvider;
+    private final ApplicationEventPublisher eventPublisher;
 
     public TokenResponse createParticipant(ParticipantRequest request) {
         Pickeat pickeat = getPickeatByCode(request.pickeatCode());
         Participant participant = new Participant(request.nickname());
         setupAboutParticipant(pickeat, participant);
+        eventPublisher.publishEvent(new ParticipantUpdateEventRequest(request.pickeatCode()));
         return participantTokenProvider.createToken(participant, pickeat);
     }
 
@@ -48,11 +51,13 @@ public class ParticipantService {
     public void markCompletion(String pickeatCode, String participantCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         participantStorage.markCompletion(pickeatCode, participantCode);
+        eventPublisher.publishEvent(new ParticipantUpdateEventRequest(pickeatCode));
     }
 
     public void cancelCompletion(String pickeatCode, String participantCode) {
         Pickeat pickeat = getPickeatByCode(pickeatCode);
         participantStorage.cancelCompletion(pickeatCode, participantCode);
+        eventPublisher.publishEvent(new ParticipantUpdateEventRequest(pickeatCode));
     }
 
     private Pickeat getPickeatByCode(String pickeatCode) {
@@ -66,7 +71,7 @@ public class ParticipantService {
 
     private ParticipantStateDto getParticipantsStateInPickeat(String pickeatCode) {
         return participantStorage.getParticipantsState(pickeatCode)
-                .orElse(new ParticipantStateDto(Map.of()));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PARTICIPANT_NOT_FOUND));
     }
 
     private void setupAboutParticipant(Pickeat pickeat, Participant participant) {

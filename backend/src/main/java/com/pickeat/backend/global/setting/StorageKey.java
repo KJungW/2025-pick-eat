@@ -11,13 +11,18 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum StorageKey {
+
     PICKEAT("pickeat:%s", 1),
+
     PARTICIPANT("pickeat:%s:participant", 1),
     PARTICIPANT_COMPLETION("pickeat:%s:participant:completion", 1),
+    PARTICIPANT_SEQUENCE("pickeat:sequence:participant:%s", 1),
+
     RESTAURANT_META("pickeat:%s:restaurants", 1),
     RESTAURANT_ALIVE("pickeat:%s:restaurants:alives", 1),
     RESTAURANT_LIKE_COUNT("pickeat:%s:likes:count", 1),
-    RESTAURANT_LIKE_RECORD("pickeat:%s:restaurants:%s:likes", 2);
+    RESTAURANT_LIKE_RECORD("pickeat:%s:restaurants:%s:likes", 2),
+    RESTAURANT_SEQUENCE("pickeat:sequence:restaurant:%s", 1);
 
     public static final Duration PICKEAT_TTL = Duration.ofMinutes(30);
 

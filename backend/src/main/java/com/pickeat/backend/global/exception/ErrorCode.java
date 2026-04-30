@@ -14,7 +14,7 @@ public enum ErrorCode {
 
     // Participant 관련 에러
     PARTICIPANT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 픽잇에 동일한 참가자가 생성되었습니다."),
-    PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 참가자가 존재하지 않습니다."),
+    PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "참가지 기록이 존재하지 않습니다."),
     PARTICIPANT_RESTAURANT_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요를 눌렀거나 올바르지 않은 식당입니다."),
     PARTICIPANT_RESTAURANT_NOT_LIKED(HttpStatus.BAD_REQUEST, "좋아요 기록이 없거나 올바르지 않은 식당입니다."),
 

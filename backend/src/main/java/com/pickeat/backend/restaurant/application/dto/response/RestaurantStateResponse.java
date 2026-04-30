@@ -7,6 +7,8 @@ import java.util.Set;
 
 @Schema(description = "식당 상태 응답")
 public record RestaurantStateResponse(
+        @Schema(description = "식당 상태 시퀀스 번호")
+        Long sequence,
         @Schema(description = "소거되지 않은 식당 코드")
         Set<String> aliveRestaurantCode,
         @Schema(description = "식당 별 좋아요 합계 (식당코드:좋아요합계)")
@@ -14,6 +16,6 @@ public record RestaurantStateResponse(
 ) {
 
     public static RestaurantStateResponse of(RestaurantStateDto dto) {
-        return new RestaurantStateResponse(dto.aliveRestaurantCode(), dto.likeCountByRestaurant());
+        return new RestaurantStateResponse(dto.sequence(), dto.aliveRestaurantCode(), dto.likeCountByRestaurant());
     }
 }

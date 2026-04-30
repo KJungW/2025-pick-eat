@@ -4,8 +4,10 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
+import com.pickeat.backend.pickeat.application.dto.event.PickeatCompletionEventRequest;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
+import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
@@ -21,6 +23,7 @@ import com.pickeat.backend.room.domain.repository.RoomUserRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +38,7 @@ public class PickeatService {
     private final RoomUserRepository roomUserRepository;
     private final PickeatRecordRepository pickeatRecordRepository;
     private final PickeatResultRepository pickeatResultRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PickeatResponse createPickeatWithoutRoom(PickeatRequest request) {
         Pickeat pickeat = Pickeat.createWithoutRoom(request.name());
@@ -57,8 +61,10 @@ public class PickeatService {
 
         PickeatRecord pickeatRecord = savePickeatRecord(pickeat);
         PickeatResult pickeatResult = savePickeatResult(pickeatRecord, selectedRestaurant);
-
         removeAllAboutPickeatAtStorage(pickeatCode);
+
+        eventPublisher.publishEvent(
+                new PickeatCompletionEventRequest(pickeatCode, PickeatResultResponse.of(pickeatResult)));
     }
 
     public PickeatResponse getPickeatMeta(String pickeatCode) {
@@ -91,12 +97,12 @@ public class PickeatService {
     }
 
     private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
-        return restaurantsStorage.getRestaurantMetaInPickeat(pickeatCode)
+        return restaurantsStorage.getRestaurantMeta(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
-        return restaurantsStorage.getRestaurantStateInPickeat(pickeatCode)
+        return restaurantsStorage.getRestaurantState(pickeatCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 

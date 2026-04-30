@@ -8,6 +8,7 @@ import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
+import com.pickeat.backend.pickeat.application.dto.event.PickeatCompletionEventRequest;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatStateResponse;
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.event.ApplicationEvents;
 
 @Import({PickeatService.class, PickeatStorage.class, RestaurantsStorage.class, ParticipantStorage.class})
 class PickeatServiceTest extends DatabaseSliceTest {
@@ -58,6 +60,9 @@ class PickeatServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private PickeatService pickeatService;
+
+    @Autowired
+    private ApplicationEvents events;
 
     @Nested
     class 픽잇_생성 {
@@ -134,6 +139,37 @@ class PickeatServiceTest extends DatabaseSliceTest {
         }
 
         @Test
+        void 픽잇_완료_이벤트를_발행할_수_있다() {
+            // given
+            Pickeat pickeat = Pickeat.createWithoutRoom("이벤트 테스트 픽잇");
+            String code = pickeat.getCode();
+            pickeatStorage.save(pickeat);
+
+            Restaurant selectedRestaurant = RestaurantFixture.create("선택될 식당");
+            restaurantsStorage.setupRestaurants(code, new Restaurants(List.of(selectedRestaurant)));
+            participantStorage.setupAboutParticipant(code, new Participant("참가자"));
+
+            // when
+            pickeatService.completePickeat(code);
+
+            // then
+            Long eventCount = events.stream(PickeatCompletionEventRequest.class)
+                    .filter(event -> event.pickeatCode().equals(code))
+                    .count();
+
+            PickeatCompletionEventRequest capturedEvent = events.stream(PickeatCompletionEventRequest.class)
+                    .filter(event -> event.pickeatCode().equals(code))
+                    .findFirst()
+                    .orElseThrow();
+
+            assertAll(
+                    () -> assertThat(eventCount).isEqualTo(1),
+                    () -> assertThat(capturedEvent.pickeatCode()).isEqualTo(code),
+                    () -> assertThat(capturedEvent.pickeatResult().code()).isEqualTo(selectedRestaurant.getCode())
+            );
+        }
+
+        @Test
         void 픽잇_관련_스토리지_데이터를_제거할_수_있다() {
             // given
             Pickeat pickeat = Pickeat.createWithoutRoom("테스트 픽잇");
@@ -152,8 +188,10 @@ class PickeatServiceTest extends DatabaseSliceTest {
             // then
             assertAll(
                     () -> assertThat(pickeatStorage.get(code).isEmpty()).isTrue(),
-                    () -> assertThat(restaurantsStorage.getRestaurantMetaInPickeat(code).isEmpty()).isTrue(),
-                    () -> assertThat(participantStorage.getParticipantsMeta(code).isEmpty()).isTrue()
+                    () -> assertThat(restaurantsStorage.getRestaurantMeta(code).isEmpty()).isTrue(),
+                    () -> assertThat(restaurantsStorage.getRestaurantState(code).isEmpty()).isTrue(),
+                    () -> assertThat(participantStorage.getParticipantsMeta(code).isEmpty()).isTrue(),
+                    () -> assertThat(participantStorage.getParticipantsState(code).isEmpty()).isTrue()
             );
         }
     }
