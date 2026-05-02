@@ -52,4 +52,6 @@ PickEat은 이 문제를 해결하는 실시간 식당 투표 서비스입니다
 
 ### ERD
 
+<img src="./image/erd.png" width="600">
+
 ### 인메모리 데이터 구조도
