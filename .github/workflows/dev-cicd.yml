@@ -4,9 +4,10 @@ name: Back-Dev Build and Deploy
 #  push:
 #    branches: [ "develop" ]
 
-on: [workflow_dispatch]
+on: [ workflow_dispatch ]
 
 jobs:
+
   ci:
     runs-on: ubuntu-24.04
     environment: dev
@@ -56,8 +57,38 @@ jobs:
           build-args: |
             SPRING_ACTIVE_PROFILE=dev
 
-  cd:
+  migrate:
     needs: ci
+    runs-on: [ self-hosted, migrator ]
+    environment: dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SUBMODULE_KEY }}
+          submodules: true
+
+      - name: Run Storage Migration
+        run: |
+          SCRIPT_DIR="./backend/src/main/resources/storage/migration"
+          
+          for script in $(ls $SCRIPT_DIR/*.lua 2>/dev/null | sort -t'V' -k2 -n); do
+            echo "🛠️ 실행: $script"
+            redis-cli -h ${{ secrets.REDIS_HOST }} -p ${{ secrets.REDIS_PORT }} \
+              --eval "$script"
+          
+            if [ $? -ne 0 ]; then
+              echo "❌ 마이그레이션 실패: $script"
+              exit 1
+            fi
+          
+            echo "✅ 완료: $script"
+          done
+          
+          echo "✅ 전체 마이그레이션 완료"
+
+  cd:
+    needs: migrate
     runs-on: [ self-hosted, dev ]
     environment: dev
     steps:

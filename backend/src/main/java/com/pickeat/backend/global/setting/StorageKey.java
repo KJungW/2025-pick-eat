@@ -16,13 +16,13 @@ public enum StorageKey {
 
     PARTICIPANT("pickeat:%s:participant", 1),
     PARTICIPANT_COMPLETION("pickeat:%s:participant:completion", 1),
-    PARTICIPANT_SEQUENCE("pickeat:sequence:participant:%s", 1),
+    PARTICIPANT_SEQUENCE("pickeat:%s:participant:state:sequence", 1),
 
-    RESTAURANT_META("pickeat:%s:restaurants", 1),
-    RESTAURANT_ALIVE("pickeat:%s:restaurants:alives", 1),
-    RESTAURANT_LIKE_COUNT("pickeat:%s:likes:count", 1),
-    RESTAURANT_LIKE_RECORD("pickeat:%s:restaurants:%s:likes", 2),
-    RESTAURANT_SEQUENCE("pickeat:sequence:restaurant:%s", 1);
+    RESTAURANT_META("pickeat:%s:restaurant", 1),
+    RESTAURANT_ALIVE("pickeat:%s:restaurant:alive", 1),
+    RESTAURANT_LIKE_COUNT("pickeat:%s:restaurant:like:count", 1),
+    RESTAURANT_LIKE_RECORD("pickeat:%s:restaurant:%s:like:record", 2),
+    RESTAURANT_SEQUENCE("pickeat:%s:restaurant:state:sequence", 1);
 
     public static final Duration PICKEAT_TTL = Duration.ofMinutes(30);
 
