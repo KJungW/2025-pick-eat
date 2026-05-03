@@ -2,49 +2,49 @@ package com.pickeat.backend.restaurant.domain;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import java.util.ArrayList;
-import java.util.Collections;
+import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import java.util.List;
-import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
+import java.util.concurrent.ThreadLocalRandom;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@RequiredArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class Restaurants {
 
     private final List<Restaurant> restaurants;
 
-    public Restaurant getRandomTopRatedRestaurant() {
-        if (restaurants.isEmpty()) {
-            throw new BusinessException(ErrorCode.RESTAURANTS_IS_EMPTY);
-        }
-
-        List<Restaurant> topRestaurants = getTopRestaurants();
-        Collections.shuffle(topRestaurants);
-        return topRestaurants.getFirst();
+    public Restaurants(List<Restaurant> restaurants) {
+        this.restaurants = List.copyOf(restaurants);
     }
 
-    public boolean hasEqualLike() {
-        if (restaurants.isEmpty()) {
-            return false;
-        }
-        return getTopRestaurants().size() > 1;
+    public List<String> extrudeRestaurantCodes() {
+        return restaurants.stream().map(Restaurant::getCode).toList();
     }
 
-    private List<Restaurant> getTopRestaurants() {
-        int maxLikeCount = getMaxLikeCount();
-        if (maxLikeCount == 0) {
-            return new ArrayList<>(restaurants);
+    public Restaurant selectRestaurant(RestaurantStateDto restaurantState) {
+        if (restaurantState.hasNoAliveRestaurants()) {
+            return randomSelectRestaurant();
         }
+        List<String> topRatedRestaurantCodes = restaurantState.extrudeMaxLikeRestaurantCode();
+        return randomSelectTopRatedRestaurant(topRatedRestaurantCodes);
+    }
 
+    private Restaurant randomSelectRestaurant() {
+        return restaurants.get(ThreadLocalRandom.current().nextInt(restaurants.size()));
+    }
+
+    private Restaurant randomSelectTopRatedRestaurant(List<String> topRatedRestaurantCodes) {
+        String randomSelectedCode = topRatedRestaurantCodes
+                .get(ThreadLocalRandom.current().nextInt(topRatedRestaurantCodes.size()));
+        return findBySelectedCode(randomSelectedCode);
+    }
+
+    private Restaurant findBySelectedCode(String selectedCode) {
         return restaurants.stream()
-                .filter(r -> r.getLikeCount() == maxLikeCount)
-                .collect(Collectors.toList());
-    }
-
-    private int getMaxLikeCount() {
-        return restaurants.stream()
-                .map(Restaurant::getLikeCount)
-                .max(Integer::compareTo)
-                .orElse(0);
+                .filter(restaurant -> restaurant.getCode().equals(selectedCode))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }

@@ -6,13 +6,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.fixture.RoomFixture;
-import com.pickeat.backend.fixture.UserFixture;
 import com.pickeat.backend.global.auth.principal.ProviderPrincipal;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
+import com.pickeat.backend.support.DatabaseSliceTest;
+import com.pickeat.backend.support.fixture.RoomFixture;
+import com.pickeat.backend.support.fixture.UserFixture;
 import com.pickeat.backend.user.application.dto.UserResponse;
 import com.pickeat.backend.user.domain.User;
 import java.util.List;
@@ -20,13 +21,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-@DataJpaTest
 @Import(value = {UserService.class})
-class UserServiceTest {
+class UserServiceTest extends DatabaseSliceTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -231,5 +230,29 @@ class UserServiceTest {
             // then
             assertThat(results).hasSize(2);
         }
+    }
+
+    @Nested
+    @DisplayName("유저 삭제 케이스")
+    class 유저_삭제_케이스 {
+
+        @Test
+        @DisplayName("유저 삭제 성공")
+        void findUsersByRoomIdSuccess() {
+            // given
+            User user = new User("유저1", 1L, "kakao");
+            entityManager.persist(user);
+
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            userService.deleteUser(user.getId());
+
+            // then
+            assertThat(entityManager.find(User.class, user.getId())).isNull();
+        }
+
+        //TODO: 테스트컨테이너 도입후 유저 삭제 후 동일 닉네임으로 재가입하는 테스트 추가 (현재는 직접 실행해서 확인한 상태)  (2026-02-5, 목, 17:54)
     }
 }

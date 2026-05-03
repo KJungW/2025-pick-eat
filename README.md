@@ -2,14 +2,15 @@
 
 <br>
 
-> **매번 반복되는 메뉴 고민, 이제는 팀원들의 취향을 기억하는 PickEat이 해결합니다.**
+> **매번 반복되는 팀 식사 고민, 팀원들의 취향을 모두 담은 PickEat으로 결정하세요!**
 
-같이 식사할 때마다 “아무거나”라는 말 뒤에 숨겨진 기피 음식들, 다이어트 중이라 먹기 힘든 메뉴, 최근에 먹은 음식까지… 다양한 제약이 얽히다 보면 결국 소극적인 사람이 참고
-말거나, 모두가 찜찜한 결정을 하게 됩니다.
+"아무거나"라는 말 뒤에는 기피 음식, 식단 제한, 최근 먹은 메뉴 등 저마다의 조건이 숨어 있습니다. 이런 조건들이 맞물리면 소극적인 사람은 참고 넘어가고,
+결국 모두가 아쉬운 선택으로 이어지곤 합니다.
 
-저희는 이러한 고민을 줄이기 위해,
-**팀원 각자의 기피/선호 음식 정보를 미리 저장해두고, 모든 제약을 반영해 최적의 메뉴를 추천하는 서비스**를 만들고자 했습니다. 회식이나 미팅처럼 반복되는 상황에서도 매번
-정보를 새로 입력하지 않아도 되고, 소모적인 논의 없이 빠르게 결정할 수 있습니다.
+PickEat은 이 문제를 해결하는 실시간 식당 투표 서비스입니다. 싫어하는 식당은 제거하고, 가고 싶은 식당에 좋아요를 누르는 간단한 투표 과정으로 구성원 모두가 만족하는
+식당을 빠르고 합리적으로 결정할 수 있습니다.
+
+반복되는 식사 고민, 이제 PickEat으로 해결하세요.
 
 <br>
 
@@ -29,72 +30,49 @@
 | <img src="https://github.com/user-attachments/assets/ead4bda5-6354-450f-9c48-31dfe336d919" width="120" height="120"> | <img src="https://github.com/user-attachments/assets/b9ce3e53-4b2a-4f43-93ad-d729c7b0a96c" width="120" height="120"> | <img src="https://github.com/user-attachments/assets/cee0b677-dcf7-41ce-ab98-5a344ed07adf" width="120" height="120"> | <img src="https://github.com/user-attachments/assets/7d93584e-1cbc-4f38-8eca-992fe981cf85" width="120" height="120"> |
 |                                        [GitHub](https://github.com/wodnd0131)                                        |                                       [GitHub](https://github.com/supernovaMK)                                       |                                        [GitHub](https://github.com/jinu0328)                                         |                                         [GitHub](https://github.com/KJungW)                                          |
 
-## 💬 PickEat만의 팀 문화: 같이 일하자, 웃으면서.
+<br>
 
----
+## 📚 기술 스택
 
-### 💼 “10시 출근”보다 “10시 소통 시작!”
+### 백엔드
 
-- **10시 전에 소통할 준비를 모두 마쳐주세요**
+- Backend : Java, Spring Boot, JPA
+- Database : MySQL, Redis, H2
+- DevOps : AWS, GitHub Actions, Docker
+- Monitoring & Logging : Prometheus, Alloy, Loki, Grafana
+- Testing : JUnit, RestAssured, k6, Gatling
 
----
+<br>
 
-### 🕙 고정 연락 시간: 오후 10시, 슬랙 집결!
+## ⚙️️ 아키텍쳐
 
-- **공지방에 모여 대기시간 줄이자. 질문은 빠르게, 소통은 자주!**
-- **동료의 시간도 나의 시간이다!**
-- **할 말 없어도 읽었으면 체크 표시**
+### 운영 인프라 구조
 
----
+<img src="./image/prod.png" width="600">
 
-### ⏰ 일할 땐 열심히, 쉴 땐 확실히: 50분 집중 + 10분 리프레시
+### 모니터링 구조
 
-- **50분간 몰입, 10분은 과열 방지타임!**
-- **시간은 정각 기준, 타이머 돌려요 ⏱️**
-- **눈치는 일할 때만 보세요~ 😏**
+<img src="./image/monitoring.png" width="600">
 
----
+### CICD 파이프라인
 
-### 🧠 트러블슈팅은 모두의 자산
+<img src="./image/cicd.png" width="600">
 
-- **에러는 공유하고, 해결도 공유!**
-- **나만 알고 있으면 팀이 삐끗.**
-- **"이건 내가 해결했어요" 👉🏻 “우리가 안 겪게 해줘서 고마워요!”**
+<br>
 
----
+## 📋 데이터베이스 구조
 
-### 💬 회의는 존댓말
+### ERD
 
-- **존중이 기본, 편안함은 옵션**
-- **뾰족한 말보단 둥근 태도. 서로의 아이디어를 부드럽게 다뤄요**
+<img src="./image/erd.png" width="600">
 
----
+### 인메모리 데이터 구조도
 
-### 🐲 과열 방지 매뉴얼: "용용체" 발동!
+<img src="./image/in_memory.png" width="600">
 
-- **논의가 뜨거워졌다면? "용용체~ 🐉"**
-- **분위기 식히는 마법의 언어. 웃고 다시 집중!**
+## 🔗 관련 레파지토리
 
----
-
-### 📌 오늘의 할 일 공유 → 오후 6시 진척도 체크
-
-- **아침엔 “오늘 뭐할지”, 저녁엔 “뭐했는지”**
-- **안 물어봐도 다 보여요. 투명한 협업의 시작!**
-
----
-
-### 🧀 수요일 = 치즈 데이 (보드게임 타임!)
-
-- **분위기 환기, 주중 리프레쉬, 아이스브레이킹, 전투력 회복!**
-- **규칙: 이 날 아침은 즐거울 것**
-
----
-
-### 🧩 우리만의 도메인 언어
-
-- **같은 말을 써야 같은 마음이 된다!**
-- **팀 안의 소통은 우리만의 단어로 유쾌하게**
-- _오늘 돈까스는 좀 AF한데? → (대충 돈까스 먹기 싫다는 말)_
-
----
+- 애플리케이션 : https://github.com/KJungW/2025-pick-eat
+- SSE 서버 : https://github.com/KJungW/2025-pick-eat-sse
+- 환경 변수 관리 : (private repository)
+- 인프라 관리 : (private repository)

@@ -15,7 +15,7 @@ public class StressRestaurantSearchClientConfiguration {
 
     @Bean
     public RestaurantSearchClient kakaoRestaurantSearchClient() {
-        log.warn("stress - StressLoginConfiguration 활성화");
+        log.warn("stress - StressRestaurantSearchClient 활성화");
         return new StressRestaurantSearchClient();
     }
 }

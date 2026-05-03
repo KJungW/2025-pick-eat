@@ -1,0 +1,23 @@
+ALTER TABLE participant       ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE pickeat           ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE pickeat_result    ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE restaurant        ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE restaurant_like   ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE room              ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE room_user         ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE template          ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE template_wish     ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE users             ADD COLUMN deleted_at DATETIME NULL;
+ALTER TABLE wish              ADD COLUMN deleted_at DATETIME NULL;
+
+UPDATE participant       SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE pickeat           SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE pickeat_result    SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE restaurant        SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE restaurant_like   SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE room              SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE room_user         SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE template          SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE template_wish     SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE users             SET deleted_at = NOW() WHERE deleted = 1;
+UPDATE wish              SET deleted_at = NOW() WHERE deleted = 1;

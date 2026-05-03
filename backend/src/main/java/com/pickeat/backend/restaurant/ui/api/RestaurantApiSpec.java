@@ -6,6 +6,7 @@ import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeR
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
+import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,419 +21,139 @@ import java.util.List;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "식당 관리", description = "식당 선택 및 관리 API")
+@Tag(name = "식당 관리", description = "식당 검색 생성, 조회, 좋아요 및 제외 API")
 public interface RestaurantApiSpec {
 
-    String 픽잇_코드_UUID_형식 = "픽잇 코드 (UUID 형식)";
-
     @Operation(
-            summary = "위치 기반 식당 목록 생성",
-            description = "사용자의 현재 위치를 기반으로 주변 식당 목록을 생성하여 픽잇에 추가합니다.",
+            summary = "위치 기반 식당 생성",
+            description = "특정 위치 정보를 바탕으로 식당 목록을 검색하여 생성합니다.",
             operationId = "createRestaurantsByLocation",
             requestBody = @RequestBody(
-                    description = "위치 정보 및 카테고리",
                     required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = LocationRestaurantRequest.class)
-                    )
+                    content = @Content(schema = @Schema(implementation = LocationRestaurantRequest.class))
             )
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "식당 목록 생성 성공"),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 픽잇",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "픽잇 없음",
-                                    value = """
-                                            {
-                                              "type": "about:blank",
-                                              "title": "PICKEAT_NOT_FOUND",
-                                              "status": 404,
-                                              "detail": "픽잇을 찾을 수 없습니다.",
-                                              "instance": "/api/v1/pickeats/ABC123/restaurants/location"
-                                            }
-                                            """
-                            )
-                    )
-            )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "식당 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 위치 정보",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     ResponseEntity<Void> createRestaurantsByLocation(
-            @Parameter(description = 픽잇_코드_UUID_형식) @PathVariable("pickeatCode") String pickeatCode,
-            @Valid @org.springframework.web.bind.annotation.RequestBody LocationRestaurantRequest request);
+            @Parameter(description = "픽잇 코드") @PathVariable("pickeatCode") String pickeatCode,
+            @Valid @org.springframework.web.bind.annotation.RequestBody LocationRestaurantRequest request
+    );
 
     @Operation(
-            summary = "위시 목록 기반 식당 목록 생성",
-            description = "사용자의 위 목록에 있는 식당들을 기반으로 식당 목록을 생성하여 픽잇에 추가합니다.",
-            operationId = "createRestaurantsByWish",
-            requestBody = @RequestBody(
-                    description = "위시 목록 정보",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = WishRestaurantRequest.class)
-                    )
-            )
+            summary = "위시리스트 기반 식당 생성",
+            description = "사용자의 위시리스트 정보를 바탕으로 식당 목록을 생성합니다.",
+            operationId = "createRestaurantsByWish"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "식당 목록 생성 성공"),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 픽잇 또는 위시 목록",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "픽잇 없음",
-                                            value = """
-                                                    {
-                                                      "type": "about:blank",
-                                                      "title": "PICKEAT_NOT_FOUND",
-                                                      "status": 404,
-                                                      "detail": "픽잇을 찾을 수 없습니다.",
-                                                      "instance": "/api/v1/pickeats/ABC123/restaurants/wish"
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "위시 없음",
-                                            value = """
-                                                    {
-                                                      "type": "about:blank",
-                                                      "title": "WISH_NOT_FOUND",
-                                                      "status": 404,
-                                                      "detail": "위시를 찾을 수 없습니다.",
-                                                      "instance": "/api/v1/pickeats/ABC123/restaurants/wish"
-                                                    }
-                                                    """
-                                    )
-                            }
-                    )
-            )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "식당 생성 성공")
     })
     ResponseEntity<Void> createRestaurantsByWish(
-            @Parameter(description = 픽잇_코드_UUID_형식) @PathVariable("pickeatCode") String pickeatCode,
-            @Valid @RequestBody WishRestaurantRequest request);
+            @Parameter(description = "픽잇 코드") @PathVariable("pickeatCode") String pickeatCode,
+            @Valid @org.springframework.web.bind.annotation.RequestBody WishRestaurantRequest request
+    );
 
     @Operation(
-            summary = "템플릿 기반 식당 목록 생성",
-            description = "템플릿을 기반으로 식당 목록을 생성하여 픽잇에 추가합니다.",
-            operationId = "createRestaurantsByTemplate",
-            requestBody = @RequestBody(
-                    description = "템플릿으로 식당 목록을 생성하기 위한 요청 정보",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = TemplateRestaurantRequest.class)
-                    )
-            )
+            summary = "템플릿 기반 식당 생성",
+            description = "사전 정의된 템플릿을 바탕으로 식당 목록을 생성합니다.",
+            operationId = "createRestaurantsByTemplate"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "식당 목록 생성 성공"),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 픽잇",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "픽잇 없음",
-                                    value = """
-                                            {
-                                              "type": "about:blank",
-                                              "title": "PICKEAT_NOT_FOUND",
-                                              "status": 404,
-                                              "detail": "픽잇을 찾을 수 없습니다.",
-                                              "instance": "/api/v1/pickeats/ABC123/restaurants/template"
-                                            }
-                                            """
-                            )
-                    )
-            )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "식당 생성 성공")
     })
     ResponseEntity<Void> createRestaurantsByTemplate(
-            @Parameter(description = 픽잇_코드_UUID_형식) @PathVariable("pickeatCode") String pickeatCode,
-            @Valid @org.springframework.web.bind.annotation.RequestBody TemplateRestaurantRequest request);
+            @Parameter(description = "픽잇 코드") @PathVariable("pickeatCode") String pickeatCode,
+            @Valid @org.springframework.web.bind.annotation.RequestBody TemplateRestaurantRequest request
+    );
 
     @Operation(
-            summary = "식당 소거",
-            operationId = "excludeRestaurants",
-            security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "ParticipantAuth"),
-            requestBody = @RequestBody(
-                    description = "소거할 식당 ID 목록",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = RestaurantExcludeRequest.class)
-                    )
-            )
+            summary = "픽잇 내 식당 메타 정보 조회",
+            description = "현재 참여 중인 픽잇의 모든 식당 정보를 조회합니다.",
+            operationId = "getRestaurantMetaInPickeat",
+            security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "ParticipantAuth")
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "식당 소거 성공"),
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = RestaurantResponse[].class))
+            )
+    })
+    ResponseEntity<List<RestaurantResponse>> getRestaurantMetaInPickeat(
+            @Parameter(hidden = true) ParticipantPrincipal principal
+    );
+
+    @Operation(
+            summary = "픽잇 내 식당 상태 조회",
+            description = "현재 픽잇의 전반적인 식당 선택 상태를 조회합니다.",
+            operationId = "getRestaurantStateInPickeat",
+            security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "ParticipantAuth")
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = RestaurantStateResponse.class))
+            )
+    })
+    ResponseEntity<RestaurantStateResponse> getRestaurantStateInPickeat(
+            @Parameter(hidden = true) ParticipantPrincipal principal
+    );
+
+    @Operation(
+            summary = "식당 제외 처리",
+            description = "선택된 식당들을 후보군에서 제외합니다.",
+            operationId = "excludeRestaurants",
+            security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "ParticipantAuth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "제외 성공"),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 요청 데이터 (검증 실패)",
+                    description = "잘못된 식당 코드 포함",
                     content = @Content(
-                            mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(
-                                    name = "검증 실패",
-                                    value = """
-                                            {
-                                              "type": "about:blank",
-                                              "title": "VALIDATION_FAILED",
-                                              "status": 400,
-                                              "detail": "입력 데이터 검증에 실패했습니다.",
-                                              "instance": "/api/v1/restaurants/exclude",
-                                              "fieldErrors": {
-                                                "restaurantIds": "소거할 식당 ID 목록은 없을 수 없습니다."
-                                              }
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "인증되지 않은 참여자",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "UNAUTHORIZED",
-                                    value = """
-                                            {
-                                                "type": "about:blank",
-                                                "title": "UNAUTHORIZED",
-                                                "status": 401,
-                                                "detail": "인증 정보가 유효하지 않습니다.",
-                                                "instance": "/api/v1/restaurants/exclude"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 식당",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "식당 없음",
-                                    value = """
-                                            {
-                                              "type": "about:blank",
-                                              "title": "RESTAURANT_NOT_FOUND",
-                                              "status": 404,
-                                              "detail": "식당을 찾을 수 없습니다.",
-                                              "instance": "/api/v1/restaurants/exclude"
-                                            }
-                                            """
+                                    value = "{\"title\": \"BAD_REQUEST\", \"detail\": \"존재하지 않는 식당 코드가 포함되어 있습니다.\"}"
                             )
                     )
             )
     })
     ResponseEntity<Void> excludeRestaurants(
             @org.springframework.web.bind.annotation.RequestBody RestaurantExcludeRequest request,
-            @Parameter(hidden = true) ParticipantPrincipal participantPrincipal);
+            @Parameter(hidden = true) ParticipantPrincipal principal
+    );
 
     @Operation(
             summary = "식당 좋아요",
+            description = "특정 식당에 대해 좋아요를 표시합니다.",
             operationId = "likeRestaurant",
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "ParticipantAuth")
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "좋아요 추가 성공"),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "인증되지 않은 참여자",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "UNAUTHORIZED",
-                                    value = """
-                                            {
-                                                "type": "about:blank",
-                                                "title": "UNAUTHORIZED",
-                                                "status": 401,
-                                                "detail": "인증 정보가 유효하지 않습니다.",
-                                                "instance": "/api/v1/restaurants/1/like"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 식당",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "식당 없음",
-                                    value = """
-                                            {
-                                              "type": "about:blank",
-                                              "title": "RESTAURANT_NOT_FOUND",
-                                              "status": 404,
-                                              "detail": "식당을 찾을 수 없습니다.",
-                                              "instance": "/api/v1/restaurants/1/like"
-                                            }
-                                            """
-                            )
-                    )
-            )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "좋아요 성공"),
+            @ApiResponse(responseCode = "404", description = "식당을 찾을 수 없음")
     })
     ResponseEntity<Void> likeRestaurant(
-            @Parameter(description = "식당 ID")
-            @PathVariable("restaurantId") Long restaurantId,
-            @Parameter(hidden = true) ParticipantPrincipal participantPrincipal
+            @Parameter(description = "식당 코드") @PathVariable("restaurantCode") String restaurantCode,
+            @Parameter(hidden = true) ParticipantPrincipal principal
     );
 
     @Operation(
             summary = "식당 좋아요 취소",
+            description = "표시했던 식당 좋아요를 취소합니다.",
             operationId = "cancelLikeRestaurant",
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "ParticipantAuth")
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "좋아요 취소 성공"),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "이미 좋아요를 취소한 상태",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "이미 취소됨",
-                                    value = """
-                                            {
-                                              "type": "about:blank",
-                                              "title": "LIKE_ALREADY_CANCELED",
-                                              "status": 400,
-                                              "detail": "이미 좋아요를 취소한 상태입니다.",
-                                              "instance": "/api/v1/restaurants/1/unlike"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "인증되지 않은 참여자",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "UNAUTHORIZED",
-                                    value = """
-                                            {
-                                                "type": "about:blank",
-                                                "title": "UNAUTHORIZED",
-                                                "status": 401,
-                                                "detail": "인증 정보가 유효하지 않습니다.",
-                                                "instance": "/api/v1/restaurants/1/unlike"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 식당",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "식당 없음",
-                                    value = """
-                                            {
-                                              "type": "about:blank",
-                                              "title": "RESTAURANT_NOT_FOUND",
-                                              "status": 404,
-                                              "detail": "식당을 찾을 수 없습니다.",
-                                              "instance": "/api/v1/restaurants/1/unlike"
-                                            }
-                                            """
-                            )
-                    )
-            )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "좋아요 취소 성공")
     })
     ResponseEntity<Void> cancelLikeRestaurant(
-            @Parameter(description = "식당 ID")
-            @PathVariable("restaurantId") Long restaurantId,
-            @Parameter(hidden = true) ParticipantPrincipal participantPrincipal
-    );
-
-    @Operation(
-            summary = "픽잇 식당 목록 조회",
-            operationId = "getPickeatRestaurants",
-            security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "ParticipantAuth")
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "식당 목록 조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = RestaurantResponse[].class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "인증되지 않은 참여자",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "UNAUTHORIZED",
-                                    value = """
-                                            {
-                                                "type": "about:blank",
-                                                "title": "UNAUTHORIZED",
-                                                "status": 401,
-                                                "detail": "인증 정보가 유효하지 않습니다.",
-                                                "instance": "/api/v1/pickeats/ABC123/restaurants"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 픽잇",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class),
-                            examples = @ExampleObject(
-                                    name = "픽잇 없음",
-                                    value = """
-                                            {
-                                              "type": "about:blank",
-                                              "title": "PICKEAT_NOT_FOUND",
-                                              "status": 404,
-                                              "detail": "픽잇을 찾을 수 없습니다.",
-                                              "instance": "/api/v1/pickeats/ABC123/restaurants"
-                                            }
-                                            """
-                            )
-                    )
-            )
-    })
-    ResponseEntity<List<RestaurantResponse>> getPickeatRestaurants(
-            @Parameter(description = 픽잇_코드_UUID_형식)
-            @PathVariable("pickeatCode") String pickeatCode,
-
-            @Parameter(description = "소거 여부 필터 ( --: 전체 식당 조회, true: 소거된 식당만, false: 소거되지 않은 식당만)")
-            @RequestParam(required = false) Boolean isExcluded,
-            @Parameter(hidden = true) ParticipantPrincipal participantPrincipal
+            @Parameter(description = "식당 코드") @PathVariable("restaurantCode") String restaurantCode,
+            @Parameter(hidden = true) ParticipantPrincipal principal
     );
 }

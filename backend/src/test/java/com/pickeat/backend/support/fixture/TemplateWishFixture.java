@@ -1,0 +1,25 @@
+package com.pickeat.backend.support.fixture;
+
+import com.pickeat.backend.restaurant.domain.FoodCategory;
+import com.pickeat.backend.restaurant.domain.Picture;
+import com.pickeat.backend.restaurant.domain.RestaurantInfo;
+import com.pickeat.backend.template.domain.TemplateWish;
+
+public class TemplateWishFixture {
+
+    public static TemplateWish create(Long templateId) {
+        RestaurantInfo restaurantInfo = new RestaurantInfo(
+                "식당",
+                FoodCategory.KOREAN,
+                10,
+                "도로명 주소",
+                "URL",
+                "태그1,태그2",
+                new Picture("key", "https://place.map.kakao.com/505348601")
+        );
+        return new TemplateWish(
+                restaurantInfo,
+                templateId
+        );
+    }
+}

@@ -2,7 +2,9 @@ package com.pickeat.backend.restaurant.infrastructure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
@@ -12,7 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickeat.backend.global.exception.ExternalApiException;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantSearchRequest;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import java.time.Duration;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -20,13 +26,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClient.Builder;
 
 class KakaoRestaurantSearchClientTest {
 
-    private final RestClient.Builder testBuilder = RestClient.builder().baseUrl("https://dapi.kakao.com");
-    private final MockRestServiceServer mockServer = MockRestServiceServer.bindTo(testBuilder).build();
-    private final KakaoRestaurantSearchClient kakaoRestaurantSearchClient = new KakaoRestaurantSearchClient(
-            testBuilder.build(), new ObjectMapper());
+    private MockRestServiceServer mockServer;
+    private KakaoRestaurantSearchClient kakaoRestaurantSearchClient;
+
+    @BeforeEach
+    void setup() {
+        Builder restClientBuilder = makeRestClientBuilder("https://dapi.kakao.com");
+        this.mockServer = makeMockServer(restClientBuilder);
+
+        Bucket bucket = makeTestBucket(1000000);
+        this.kakaoRestaurantSearchClient = new KakaoRestaurantSearchClient(
+                restClientBuilder.build(), new ObjectMapper(), bucket);
+    }
 
     @Nested
     class 카카오맵_식당_조회_API_호출_케이스 {
@@ -137,5 +152,51 @@ class KakaoRestaurantSearchClientTest {
             )
                     .isInstanceOf(ExternalApiException.class);
         }
+    }
+
+    @Test
+    void 초당_요청_횟수_제한() {
+        // given
+        Builder restClientBuilder = makeRestClientBuilder("https://dapi.kakao.com");
+        this.mockServer = makeMockServer(restClientBuilder);
+
+        Bucket bucket = makeTestBucket(1);
+        this.kakaoRestaurantSearchClient = new KakaoRestaurantSearchClient(
+                restClientBuilder.build(), new ObjectMapper(), bucket);
+
+        String responseJson = "[]";
+        for (int i = 0; i < 2; i++) {
+            mockServer.expect(requestTo(containsString("/v2/local/search/keyword.json")))
+                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+        }
+
+        RestaurantSearchRequest request = new RestaurantSearchRequest("패스트푸드", 127.1234874512, 26.1395871235, 200, 2);
+
+        // when
+        long startTime = System.currentTimeMillis();
+        kakaoRestaurantSearchClient.getRestaurants(request); // 첫 번째 호출 (즉시 실행)
+        kakaoRestaurantSearchClient.getRestaurants(request); // 두 번째 호출 (토큰 충전까지 대기)
+        long endTime = System.currentTimeMillis();
+
+        // then
+        assertTrue((endTime - startTime) >= 1000, "Rate Limit에 의해 실행이 1초 이상 지연되어야 합니다.");
+        mockServer.verify();
+    }
+
+    private RestClient.Builder makeRestClientBuilder(String baseUrl) {
+        return RestClient.builder().baseUrl(baseUrl);
+    }
+
+    private MockRestServiceServer makeMockServer(RestClient.Builder builder) {
+        return MockRestServiceServer.bindTo(builder).build();
+    }
+
+    private Bucket makeTestBucket(int requestLimitPerSecond) {
+        return Bucket.builder()
+                .addLimit(Bandwidth.builder()
+                        .capacity(requestLimitPerSecond)
+                        .refillGreedy(requestLimitPerSecond, Duration.ofSeconds(1))
+                        .build())
+                .build();
     }
 }

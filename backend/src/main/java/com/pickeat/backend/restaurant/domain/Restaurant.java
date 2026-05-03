@@ -1,94 +1,39 @@
 package com.pickeat.backend.restaurant.domain;
 
-
-import com.pickeat.backend.global.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Restaurant extends BaseEntity {
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+public class Restaurant {
 
-    @Embedded
-    private RestaurantInfo restaurantInfo;
-
-    @Column(nullable = false)
-    private Boolean isExcluded = false;
-
-    @Column(nullable = false)
-    private Integer likeCount = 0;
-
-    @Column(nullable = false)
-    private Long pickeatId;
+    private final String code;
+    private final String name;
+    private final FoodCategory foodCategory;
+    private final String roadAddressName;
+    private final String placeUrl;
+    private final String tags;
+    private final String pictureKey;
+    private final String pictureUrl;
 
     public Restaurant(
             String name,
             FoodCategory foodCategory,
-            Integer distance,
             String roadAddressName,
             String placeUrl,
             String tags,
             String pictureKey,
-            String pictureUrls,
-            Long pickeatId
+            String pictureUrl
     ) {
-        Picture picture = new Picture(pictureKey, pictureUrls);
-        this.restaurantInfo = new RestaurantInfo(
-                name,
-                foodCategory,
-                distance,
-                roadAddressName,
-                placeUrl,
-                tags,
-                picture);
-        this.pickeatId = pickeatId;
-    }
-
-    public void exclude() {
-        this.isExcluded = true;
-    }
-
-    public void like() {
-        this.likeCount++;
-    }
-
-    public void cancelLike() {
-        this.likeCount--;
-    }
-
-    public String getName() {
-        return restaurantInfo.getName();
-    }
-
-    public FoodCategory getFoodCategory() {
-        return restaurantInfo.getFoodCategory();
-    }
-
-    public Integer getDistance() {
-        return restaurantInfo.getDistance();
-    }
-
-    public String getRoadAddressName() {
-        return restaurantInfo.getRoadAddressName();
-    }
-
-    public String getPlaceUrl() {
-        return restaurantInfo.getPlaceUrl();
-    }
-
-    public String getTags() {
-        return restaurantInfo.getTags();
-    }
-
-    public String getPictureUrls() {
-        if (restaurantInfo.getPicture() == null) {
-            return null;
-        }
-        return restaurantInfo.getPicture().getPictureUrl();
+        this.code = UUID.randomUUID().toString();
+        this.name = name;
+        this.foodCategory = foodCategory;
+        this.roadAddressName = roadAddressName;
+        this.placeUrl = placeUrl;
+        this.tags = tags;
+        this.pictureKey = pictureKey;
+        this.pictureUrl = pictureUrl;
     }
 }

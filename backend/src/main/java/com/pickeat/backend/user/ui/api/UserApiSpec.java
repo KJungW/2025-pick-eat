@@ -130,4 +130,58 @@ public interface UserApiSpec {
             )
     })
     ResponseEntity<List<UserResponse>> getUsers(@Parameter(description = "검색할 닉네임") @RequestParam String nickname);
+
+    @Operation(
+            summary = "사용자 삭제",
+            description = "로그인된 사용자의 계정을 삭제합니다. (로그인 필요)",
+            operationId = "deleteUser",
+            security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "UserAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "사용자 삭제 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "인증되지 않은 사용자",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(
+                                    name = "UNAUTHORIZED",
+                                    value = """
+                                            {
+                                                "type": "about:blank",
+                                                "title": "UNAUTHORIZED",
+                                                "status": 401,
+                                                "detail": "인증 정보가 유효하지 않습니다.",
+                                                "instance": "/api/v1/users/me"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 사용자",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(
+                                    name = "USER_NOT_FOUND",
+                                    value = """
+                                            {
+                                                "type": "about:blank",
+                                                "title": "USER_NOT_FOUND",
+                                                "status": 404,
+                                                "detail": "사용자를 찾을 수 없습니다.",
+                                                "instance": "/api/v1/users/me"
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<Void> deleteUser(@Parameter(hidden = true) Long userId);
 }

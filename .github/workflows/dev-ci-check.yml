@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.SUBMODULE_KEY }}
+          token: ${{ secrets.SUBMODULE_ACCESS_TOKEN }}
           submodules: true
 
       - name: Update Submodule

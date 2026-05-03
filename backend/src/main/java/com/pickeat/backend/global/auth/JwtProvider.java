@@ -28,7 +28,7 @@ public class JwtProvider {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public TokenResponse createToken(Long id, long expirationMillis) {
+    public TokenResponse createToken(Object id, long expirationMillis) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMillis);
 
@@ -42,7 +42,7 @@ public class JwtProvider {
         );
     }
 
-    public TokenResponse createTokenWithClaims(Long id, long expirationMillis, Map<String, Object> extraClaims) {
+    public TokenResponse createTokenWithClaims(Object id, long expirationMillis, Map<String, Object> extraClaims) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMillis);
 
