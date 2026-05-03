@@ -32,7 +32,19 @@ PickEat은 이 문제를 해결하는 실시간 식당 투표 서비스입니다
 
 <br>
 
-## 🏗️ 아키텍쳐
+## 📚 기술 스택
+
+### 백엔드
+
+- Backend : Java, Spring Boot, JPA
+- Database : MySQL, Redis, H2
+- DevOps : AWS, GitHub Actions, Docker
+- Monitoring & Logging : Prometheus, Alloy, Loki, Grafana
+- Testing : JUnit, RestAssured, k6, Gatling
+
+<br>
+
+## ⚙️️ 아키텍쳐
 
 ### 운영 인프라 구조
 
@@ -48,7 +60,7 @@ PickEat은 이 문제를 해결하는 실시간 식당 투표 서비스입니다
 
 <br>
 
-## 🗄️ 데이터베이스 구조
+## 📋 데이터베이스 구조
 
 ### ERD
 
@@ -57,3 +69,10 @@ PickEat은 이 문제를 해결하는 실시간 식당 투표 서비스입니다
 ### 인메모리 데이터 구조도
 
 <img src="./image/in_memory.png" width="600">
+
+## 🔗 관련 레파지토리
+
+- 애플리케이션 : https://github.com/KJungW/2025-pick-eat
+- SSE 서버 : https://github.com/KJungW/2025-pick-eat-sse
+- 환경 변수 관리 : (private repository)
+- 인프라 관리 : (private repository)
