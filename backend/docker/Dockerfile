@@ -8,9 +8,9 @@ COPY ../build/libs/*.jar ./app.jar
 
 EXPOSE 8080
 
-ENV JAVA_OPTS="-XX:InitialRAMPercentage=70.0 \
-           -XX:MaxRAMPercentage=70.0 \
-           -XX:MetaspaceSize=128M \
+ENV JAVA_OPTS="-XX:InitialRAMPercentage=50.0 \
+           -XX:MaxRAMPercentage=50.0 \
+           -XX:MetaspaceSize=256M \
            -XX:MaxMetaspaceSize=256M \
            -XX:+UseG1GC \
            -XX:+UseContainerSupport \
