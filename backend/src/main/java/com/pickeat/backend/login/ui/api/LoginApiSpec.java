@@ -1,6 +1,6 @@
 package com.pickeat.backend.login.ui.api;
 
-import com.pickeat.backend.global.auth.principal.ProviderPrincipal;
+import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
 import com.pickeat.backend.login.application.dto.request.AuthCodeRequest;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
@@ -100,7 +100,7 @@ public interface LoginApiSpec {
                     )
             )
     })
-    ResponseEntity<TokenResponse> login(@Parameter(hidden = true) ProviderPrincipal providerPrincipal);
+    ResponseEntity<TokenResponse> login(@Parameter(hidden = true) OAuthProviderPrincipal OAuthProviderPrincipal);
 
     @Operation(
             summary = "회원가입",
@@ -157,5 +157,5 @@ public interface LoginApiSpec {
             )
     })
     ResponseEntity<TokenResponse> signup(SignupRequest request,
-                                         @Parameter(hidden = true) ProviderPrincipal providerPrincipal);
+            @Parameter(hidden = true) OAuthProviderPrincipal OAuthProviderPrincipal);
 }

@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.pickeat.backend.global.auth.JwtProvider;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.utility.JwtProvider;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class UserTokenProviderTest {
+class UserProviderTest {
 
     private final String secret = "my-super-secret-key-that-is-very-long-and-secure";
     private final long expirationMillis = 1000 * 60 * 60; // 1시간

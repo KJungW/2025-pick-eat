@@ -1,6 +1,6 @@
 package com.pickeat.backend.login.application;
 
-import com.pickeat.backend.global.auth.principal.ProviderPrincipal;
+import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.request.AuthCodeRequest;
@@ -26,9 +26,9 @@ public class LoginService {
         return providerId;
     }
 
-    public TokenResponse login(ProviderPrincipal providerPrincipal) {
-        User user = userRepository.findByProviderIdAndProvider(providerPrincipal.providerId(),
-                        providerPrincipal.provider())
+    public TokenResponse login(OAuthProviderPrincipal OAuthProviderPrincipal) {
+        User user = userRepository.findByProviderIdAndProvider(OAuthProviderPrincipal.providerId(),
+                        OAuthProviderPrincipal.provider())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         TokenResponse response = userTokenProvider.createToken(user.getId());
 

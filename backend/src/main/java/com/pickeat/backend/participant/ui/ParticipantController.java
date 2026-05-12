@@ -1,7 +1,7 @@
 package com.pickeat.backend.participant.ui;
 
-import com.pickeat.backend.global.auth.annotation.ParticipantInPickeat;
-import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
+import com.pickeat.backend.global.argument.annotation.Participant;
+import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.ParticipantService;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
@@ -40,7 +40,7 @@ public class ParticipantController implements ParticipantApiSpec {
     @Override
     @GetMapping("/participants/me")
     public ResponseEntity<MyParticipantCodeResponse> getMyParticipantCode(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         return ResponseEntity.ok(new MyParticipantCodeResponse(principal.participantCode()));
     }
@@ -48,7 +48,7 @@ public class ParticipantController implements ParticipantApiSpec {
     @Override
     @PatchMapping("/participants/me/completion/complete")
     public ResponseEntity<Void> markCompletion(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         participantService.markCompletion(principal.pickeatCode(), principal.participantCode());
         return ResponseEntity.noContent().build();
@@ -57,7 +57,7 @@ public class ParticipantController implements ParticipantApiSpec {
     @Override
     @PatchMapping("/participants/me/completion/cancel")
     public ResponseEntity<Void> cancelCompletion(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         participantService.cancelCompletion(principal.pickeatCode(), principal.participantCode());
         return ResponseEntity.noContent().build();
@@ -66,7 +66,7 @@ public class ParticipantController implements ParticipantApiSpec {
     @Override
     @GetMapping("/participants/meta")
     public ResponseEntity<List<ParticipantResponse>> getAllParticipantMeta(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         List<ParticipantResponse> response = participantService.getMetaInPickeat(principal.pickeatCode());
         return ResponseEntity.ok(response);
@@ -75,7 +75,7 @@ public class ParticipantController implements ParticipantApiSpec {
     @Override
     @GetMapping("/participants/state")
     public ResponseEntity<ParticipantStateResponse> getAllParticipantState(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         ParticipantStateResponse response = participantService.getStateInPickeat(principal.pickeatCode());
         return ResponseEntity.ok(response);

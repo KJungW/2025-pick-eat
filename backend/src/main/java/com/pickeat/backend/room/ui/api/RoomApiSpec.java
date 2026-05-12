@@ -1,5 +1,6 @@
 package com.pickeat.backend.room.ui.api;
 
+import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
 import com.pickeat.backend.room.application.dto.request.RoomRequest;
 import com.pickeat.backend.room.application.dto.response.RoomResponse;
@@ -89,7 +90,7 @@ public interface RoomApiSpec {
     })
     ResponseEntity<RoomResponse> create(
             @Valid @org.springframework.web.bind.annotation.RequestBody RoomRequest request,
-            @Parameter(hidden = true) Long userId);
+            @Parameter(hidden = true) UserPrincipal userPrincipal);
 
     @Operation(
             summary = "방 정보 조회",
@@ -149,7 +150,7 @@ public interface RoomApiSpec {
     ResponseEntity<RoomResponse> get(
             @Parameter(description = "방 ID")
             @PathVariable("roomId") Long roomId,
-            @Parameter(hidden = true) Long userId
+            @Parameter(hidden = true) UserPrincipal userPrincipal
     );
 
     @Operation(
@@ -187,7 +188,7 @@ public interface RoomApiSpec {
                     )
             )
     })
-    ResponseEntity<List<RoomResponse>> getAll(@Parameter(hidden = true) Long userId);
+    ResponseEntity<List<RoomResponse>> getAll(@Parameter(hidden = true) UserPrincipal userPrincipal);
 
     @Operation(
             summary = "방에 사용자 초대",
@@ -284,7 +285,7 @@ public interface RoomApiSpec {
     ResponseEntity<Void> invite(
             @Parameter(description = "방 ID")
             @PathVariable("roomId") Long roomId,
-            @Parameter(hidden = true) Long userId,
+            @Parameter(hidden = true) UserPrincipal userPrincipal,
             @Valid @org.springframework.web.bind.annotation.RequestBody RoomInvitationRequest request
     );
 
@@ -362,6 +363,6 @@ public interface RoomApiSpec {
     ResponseEntity<Void> exit(
             @Parameter(description = "방 ID")
             @PathVariable("roomId") Long roomId,
-            @Parameter(hidden = true) Long userId
+            @Parameter(hidden = true) UserPrincipal userPrincipal
     );
 }

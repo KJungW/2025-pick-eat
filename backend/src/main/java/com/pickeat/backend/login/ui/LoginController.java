@@ -1,9 +1,9 @@
 package com.pickeat.backend.login.ui;
 
-import com.pickeat.backend.global.auth.annotation.Provider;
-import com.pickeat.backend.global.auth.principal.ProviderPrincipal;
+import com.pickeat.backend.global.argument.annotation.OAuthProvider;
+import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
 import com.pickeat.backend.login.application.LoginService;
-import com.pickeat.backend.login.application.ProviderTokenProvider;
+import com.pickeat.backend.login.application.OAuthProviderTokenProvider;
 import com.pickeat.backend.login.application.dto.request.AuthCodeRequest;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
@@ -25,14 +25,14 @@ public class LoginController implements LoginApiSpec {
 
     private final LoginService loginService;
     private final UserService userService;
-    private final ProviderTokenProvider providerTokenProvider;
+    private final OAuthProviderTokenProvider OAuthProviderTokenProvider;
 
     @Override
     @PostMapping("/code")
     public ResponseEntity<TokenResponse> processCode(@Valid @RequestBody AuthCodeRequest request) {
         Long providerId = loginService.getProviderIdFromIdToken(request);
 
-        TokenResponse response = providerTokenProvider.createToken(providerId, request.provider());
+        TokenResponse response = OAuthProviderTokenProvider.createToken(providerId, request.provider());
 
         if (!userService.isUserExist(providerId, request.provider())) {
             return ResponseEntity
@@ -44,8 +44,8 @@ public class LoginController implements LoginApiSpec {
 
     @Override
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Provider ProviderPrincipal providerPrincipal) {
-        TokenResponse response = loginService.login(providerPrincipal);
+    public ResponseEntity<TokenResponse> login(@OAuthProvider OAuthProviderPrincipal OAuthProviderPrincipal) {
+        TokenResponse response = loginService.login(OAuthProviderPrincipal);
 
         return ResponseEntity.ok().body(response);
     }
@@ -53,10 +53,10 @@ public class LoginController implements LoginApiSpec {
     @Override
     @PostMapping("/signup")
     public ResponseEntity<TokenResponse> signup(@Valid @RequestBody SignupRequest request,
-                                                @Provider ProviderPrincipal providerPrincipal) {
-        userService.createUser(request, providerPrincipal);
+            @OAuthProvider OAuthProviderPrincipal OAuthProviderPrincipal) {
+        userService.createUser(request, OAuthProviderPrincipal);
 
-        TokenResponse response = loginService.login(providerPrincipal);
+        TokenResponse response = loginService.login(OAuthProviderPrincipal);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

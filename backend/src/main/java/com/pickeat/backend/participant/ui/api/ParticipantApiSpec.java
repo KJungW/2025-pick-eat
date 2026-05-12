@@ -1,6 +1,6 @@
 package com.pickeat.backend.participant.ui.api;
 
-import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
+import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.request.ParticipantRequest;
 import com.pickeat.backend.participant.application.dto.response.MyParticipantCodeResponse;

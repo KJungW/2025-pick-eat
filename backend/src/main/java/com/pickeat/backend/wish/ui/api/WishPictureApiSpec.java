@@ -1,6 +1,7 @@
 package com.pickeat.backend.wish.ui.api;
 
-import com.pickeat.backend.global.auth.annotation.LoginUserId;
+import com.pickeat.backend.global.argument.annotation.User;
+import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.wish.application.dto.response.WishPictureResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -102,7 +103,7 @@ public interface WishPictureApiSpec {
     ResponseEntity<WishPictureResponse> createWishPictures(
             @Parameter(description = "위시 ID", example = "1") @PathVariable("wishId") Long wishId,
             @Parameter(description = "위시 사진 목록") @RequestPart("wishPictures") @NotNull MultipartFile wishPictures,
-            @Parameter(hidden = true) @LoginUserId Long userId
+            @Parameter(hidden = true) @User UserPrincipal userPrincipal
     );
 
     @Operation(
@@ -156,7 +157,7 @@ public interface WishPictureApiSpec {
     @DeleteMapping("/wish/{wishId}/wishpictures")
     ResponseEntity<Void> deleteWishPictures(
             @Parameter(description = "위시 ID", example = "1") @PathVariable("wishId") Long wishId,
-            @Parameter(hidden = true) @LoginUserId Long userId
+            @Parameter(hidden = true) @User UserPrincipal userPrincipal
     );
 }
 

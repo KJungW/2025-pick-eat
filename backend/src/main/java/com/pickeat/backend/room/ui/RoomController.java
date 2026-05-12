@@ -1,6 +1,7 @@
 package com.pickeat.backend.room.ui;
 
-import com.pickeat.backend.global.auth.annotation.LoginUserId;
+import com.pickeat.backend.global.argument.annotation.User;
+import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.global.log.BusinessLogging;
 import com.pickeat.backend.room.application.RoomService;
 import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
@@ -32,9 +33,9 @@ public class RoomController implements RoomApiSpec {
     @BusinessLogging("방 생성")
     public ResponseEntity<RoomResponse> create(
             @Valid @RequestBody RoomRequest request,
-            @LoginUserId Long userId
+            @User UserPrincipal userPrincipal
     ) {
-        RoomResponse response = roomService.createRoom(request, userId);
+        RoomResponse response = roomService.createRoom(request, userPrincipal.userId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -42,16 +43,18 @@ public class RoomController implements RoomApiSpec {
     @GetMapping("/{roomId}")
     public ResponseEntity<RoomResponse> get(
             @PathVariable("roomId") Long roomId,
-            @LoginUserId Long userId
+            @User UserPrincipal userPrincipal
     ) {
-        RoomResponse response = roomService.getRoom(roomId, userId);
+        RoomResponse response = roomService.getRoom(roomId, userPrincipal.userId());
         return ResponseEntity.ok(response);
     }
 
     @Override
     @GetMapping
-    public ResponseEntity<List<RoomResponse>> getAll(@LoginUserId Long userId) {
-        List<RoomResponse> response = roomService.getAllRoom(userId);
+    public ResponseEntity<List<RoomResponse>> getAll(
+            @User UserPrincipal userPrincipal
+    ) {
+        List<RoomResponse> response = roomService.getAllRoom(userPrincipal.userId());
         return ResponseEntity.ok(response);
     }
 
@@ -60,18 +63,21 @@ public class RoomController implements RoomApiSpec {
     @PostMapping("/{roomId}/invite")
     public ResponseEntity<Void> invite(
             @PathVariable("roomId") Long roomId,
-            @LoginUserId Long userId,
+            @User UserPrincipal userPrincipal,
             @Valid @RequestBody RoomInvitationRequest request
     ) {
-        roomService.inviteUsers(roomId, userId, request);
+        roomService.inviteUsers(roomId, userPrincipal.userId(), request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
     @DeleteMapping("/{roomId}/exit")
-    public ResponseEntity<Void> exit(@PathVariable("roomId") Long roomId, @LoginUserId Long userId) {
-        roomService.exitRoom(roomId, userId);
+    public ResponseEntity<Void> exit(
+            @PathVariable("roomId") Long roomId,
+            @User UserPrincipal userPrincipal
+    ) {
+        roomService.exitRoom(roomId, userPrincipal.userId());
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

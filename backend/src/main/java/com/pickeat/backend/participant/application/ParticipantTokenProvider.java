@@ -1,6 +1,6 @@
 package com.pickeat.backend.participant.application;
 
-import com.pickeat.backend.global.auth.JwtProvider;
+import com.pickeat.backend.global.utility.JwtProvider;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.pickeat.domain.Pickeat;

@@ -1,5 +1,6 @@
 package com.pickeat.backend.user.ui.api;
 
+import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.user.application.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -74,7 +75,7 @@ public interface UserApiSpec {
                     )
             )
     })
-    ResponseEntity<UserResponse> getUser(@Parameter(hidden = true) Long userId);
+    ResponseEntity<UserResponse> getUser(@Parameter(hidden = true) UserPrincipal userPrincipal);
 
     @Operation(
             summary = "방 참여 사용자 목록 조회",
@@ -183,5 +184,5 @@ public interface UserApiSpec {
                     )
             )
     })
-    ResponseEntity<Void> deleteUser(@Parameter(hidden = true) Long userId);
+    ResponseEntity<Void> deleteUser(@Parameter(hidden = true) UserPrincipal userPrincipal);
 }

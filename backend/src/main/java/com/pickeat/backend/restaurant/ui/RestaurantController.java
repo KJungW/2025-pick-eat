@@ -1,7 +1,7 @@
 package com.pickeat.backend.restaurant.ui;
 
-import com.pickeat.backend.global.auth.annotation.ParticipantInPickeat;
-import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
+import com.pickeat.backend.global.argument.annotation.Participant;
+import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
 import com.pickeat.backend.restaurant.application.RestaurantSearchFacade;
 import com.pickeat.backend.restaurant.application.RestaurantService;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
@@ -68,7 +68,7 @@ public class RestaurantController implements RestaurantApiSpec {
     @Override
     @GetMapping("/pickeats/restaurants")
     public ResponseEntity<List<RestaurantResponse>> getRestaurantMetaInPickeat(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         List<RestaurantResponse> response = restaurantService.getMetaInPickeat(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
@@ -77,7 +77,7 @@ public class RestaurantController implements RestaurantApiSpec {
     @Override
     @GetMapping("/pickeats/restaurants/state")
     public ResponseEntity<RestaurantStateResponse> getRestaurantStateInPickeat(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         RestaurantStateResponse response = restaurantService.getStateInPickeat(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
@@ -87,7 +87,7 @@ public class RestaurantController implements RestaurantApiSpec {
     @PatchMapping("/restaurants/exclude")
     public ResponseEntity<Void> excludeRestaurants(
             @RequestBody RestaurantExcludeRequest request,
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         restaurantService.exclude(principal.pickeatCode(), request.restaurantCodes());
         return ResponseEntity.noContent().build();
@@ -97,7 +97,7 @@ public class RestaurantController implements RestaurantApiSpec {
     @PatchMapping("/restaurants/{restaurantCode}/like")
     public ResponseEntity<Void> likeRestaurant(
             @PathVariable("restaurantCode") String restaurantCode,
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         restaurantService.like(principal.pickeatCode(), principal.participantCode(), restaurantCode);
         return ResponseEntity.noContent().build();
@@ -107,7 +107,7 @@ public class RestaurantController implements RestaurantApiSpec {
     @PatchMapping("/restaurants/{restaurantCode}/unlike")
     public ResponseEntity<Void> cancelLikeRestaurant(
             @PathVariable("restaurantCode") String restaurantCode,
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         restaurantService.cancelLike(principal.pickeatCode(), principal.participantCode(), restaurantCode);
         return ResponseEntity.noContent().build();

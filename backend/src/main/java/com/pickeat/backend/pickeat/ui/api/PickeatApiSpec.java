@@ -1,6 +1,7 @@
 package com.pickeat.backend.pickeat.ui.api;
 
-import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
+import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
+import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResponse;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponse;
@@ -73,7 +74,7 @@ public interface PickeatApiSpec {
     })
     ResponseEntity<PickeatResponse> createPickeatWithRoom(
             @Parameter(description = "방 ID") @PathVariable("roomId") Long roomId,
-            @Parameter(hidden = true) Long userId,
+            @Parameter(hidden = true) UserPrincipal userId,
             @Valid @org.springframework.web.bind.annotation.RequestBody PickeatRequest request
     );
 

@@ -1,6 +1,7 @@
 package com.pickeat.backend.wish.ui;
 
-import com.pickeat.backend.global.auth.annotation.LoginUserId;
+import com.pickeat.backend.global.argument.annotation.User;
+import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.global.log.BusinessLogging;
 import com.pickeat.backend.wish.application.WishPictureService;
 import com.pickeat.backend.wish.application.dto.response.WishPictureResponse;
@@ -30,10 +31,10 @@ public class WishPictureController implements WishPictureApiSpec {
     public ResponseEntity<WishPictureResponse> createWishPictures(
             @PathVariable("wishId") Long wishId,
             @RequestPart("wishPictures") MultipartFile wishPicture,
-            @LoginUserId Long userId
+            @User UserPrincipal userPrincipal
     ) {
         WishPictureResponse wishPictureResponse =
-                wishPictureService.createWishPicture(wishId, userId, wishPicture);
+                wishPictureService.createWishPicture(wishId, userPrincipal.userId(), wishPicture);
         return ResponseEntity.status(HttpStatus.CREATED).body(wishPictureResponse);
     }
 
@@ -42,9 +43,9 @@ public class WishPictureController implements WishPictureApiSpec {
     @DeleteMapping("/wish/{wishId}/wishpictures")
     public ResponseEntity<Void> deleteWishPictures(
             @PathVariable("wishId") Long wishId,
-            @LoginUserId Long userId
+            @User UserPrincipal userPrincipal
     ) {
-        wishPictureService.deleteWishPictures(wishId, userId);
+        wishPictureService.deleteWishPictures(wishId, userPrincipal.userId());
         return ResponseEntity.noContent().build();
     }
 }

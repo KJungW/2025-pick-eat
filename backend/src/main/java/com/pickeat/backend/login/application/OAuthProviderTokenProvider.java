@@ -1,7 +1,7 @@
 package com.pickeat.backend.login.application;
 
 
-import com.pickeat.backend.global.auth.JwtProvider;
+import com.pickeat.backend.global.utility.JwtProvider;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import io.jsonwebtoken.Claims;
 import java.util.HashMap;
@@ -10,14 +10,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProviderTokenProvider {
+public class OAuthProviderTokenProvider {
+
     private static final String PROVIDER_CLAIM_KEY = "provider";
 
     private final JwtProvider jwtProvider;
     private final long expirationMillis;
 
-    public ProviderTokenProvider(JwtProvider jwtProvider,
-                                 @Value("${provider.jwt.expiration}") long expirationMillis) {
+    public OAuthProviderTokenProvider(JwtProvider jwtProvider,
+            @Value("${provider.jwt.expiration}") long expirationMillis) {
         this.jwtProvider = jwtProvider;
         this.expirationMillis = expirationMillis;
     }

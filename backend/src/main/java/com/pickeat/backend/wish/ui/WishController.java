@@ -1,6 +1,7 @@
 package com.pickeat.backend.wish.ui;
 
-import com.pickeat.backend.global.auth.annotation.LoginUserId;
+import com.pickeat.backend.global.argument.annotation.User;
+import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.global.log.BusinessLogging;
 import com.pickeat.backend.wish.application.WishService;
 import com.pickeat.backend.wish.application.dto.request.WishRequest;
@@ -32,9 +33,9 @@ public class WishController implements WishApiSpec {
     public ResponseEntity<WishResponse> createWish(
             @PathVariable("roomId") Long roomId,
             @Valid @RequestBody WishRequest request,
-            @LoginUserId Long userId
+            @User UserPrincipal userPrincipal
     ) {
-        WishResponse wishResponse = wishService.createWish(roomId, request, userId);
+        WishResponse wishResponse = wishService.createWish(roomId, request, userPrincipal.userId());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(wishResponse);
@@ -43,8 +44,11 @@ public class WishController implements WishApiSpec {
     @Override
     @BusinessLogging("위시 삭제")
     @DeleteMapping("/wishes/{wishId}")
-    public ResponseEntity<Void> deleteWish(@PathVariable("wishId") Long wishId, @LoginUserId Long userId) {
-        wishService.deleteWish(wishId, userId);
+    public ResponseEntity<Void> deleteWish(
+            @PathVariable("wishId") Long wishId,
+            @User UserPrincipal userPrincipal
+    ) {
+        wishService.deleteWish(wishId, userPrincipal.userId());
         return ResponseEntity.noContent().build();
     }
 
@@ -52,9 +56,9 @@ public class WishController implements WishApiSpec {
     @GetMapping("/rooms/{roomId}/wishes")
     public ResponseEntity<List<WishResponse>> getWishesInRoom(
             @PathVariable("roomId") Long roomId,
-            @LoginUserId Long loginUserId
+            @User UserPrincipal userPrincipal
     ) {
-        List<WishResponse> wishes = wishService.getWishes(roomId, loginUserId);
+        List<WishResponse> wishes = wishService.getWishes(roomId, userPrincipal.userId());
         return ResponseEntity.ok(wishes);
     }
 }

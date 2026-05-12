@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.auth;
+package com.pickeat.backend.global.utility;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;

@@ -1,8 +1,9 @@
 package com.pickeat.backend.pickeat.ui;
 
-import com.pickeat.backend.global.auth.annotation.LoginUserId;
-import com.pickeat.backend.global.auth.annotation.ParticipantInPickeat;
-import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
+import com.pickeat.backend.global.argument.annotation.Participant;
+import com.pickeat.backend.global.argument.annotation.User;
+import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
+import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.global.log.BusinessLogging;
 import com.pickeat.backend.pickeat.application.PickeatResultService;
 import com.pickeat.backend.pickeat.application.PickeatService;
@@ -42,17 +43,17 @@ public class PickeatController implements PickeatApiSpec {
     @PostMapping("/rooms/{roomId}/pickeats")
     public ResponseEntity<PickeatResponse> createPickeatWithRoom(
             @PathVariable("roomId") Long roomId,
-            @LoginUserId Long userId,
+            @User UserPrincipal userPrincipal,
             @Valid @RequestBody PickeatRequest request
     ) {
-        PickeatResponse response = pickeatService.createPickeatWithRoom(roomId, userId, request);
+        PickeatResponse response = pickeatService.createPickeatWithRoom(roomId, userPrincipal.userId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
     @PostMapping("/pickeats/complete")
     public ResponseEntity<Void> completePickeat(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         pickeatService.completePickeat(principal.pickeatCode());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -61,7 +62,7 @@ public class PickeatController implements PickeatApiSpec {
     @Override
     @GetMapping("/pickeats/meta")
     public ResponseEntity<PickeatResponse> getPickeatMeta(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         PickeatResponse response = pickeatService.getPickeatMeta(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
@@ -70,7 +71,7 @@ public class PickeatController implements PickeatApiSpec {
 
     @GetMapping("/pickeats/state")
     public ResponseEntity<PickeatStateResponse> getPickeatState(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         PickeatStateResponse response = pickeatService.getPickeatState(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
@@ -79,7 +80,7 @@ public class PickeatController implements PickeatApiSpec {
     @Override
     @GetMapping("/pickeats/result")
     public ResponseEntity<PickeatResultResponse> getPickeatResult(
-            @ParticipantInPickeat ParticipantPrincipal principal
+            @Participant ParticipantPrincipal principal
     ) {
         PickeatResultResponse response = pickeatResultService.getByPickeatCode(principal.pickeatCode());
         return ResponseEntity.ok().body(response);

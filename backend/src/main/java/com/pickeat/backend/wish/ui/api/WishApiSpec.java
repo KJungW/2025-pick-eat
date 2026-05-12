@@ -1,6 +1,7 @@
 package com.pickeat.backend.wish.ui.api;
 
-import com.pickeat.backend.global.auth.annotation.LoginUserId;
+import com.pickeat.backend.global.argument.annotation.User;
+import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.wish.application.dto.request.WishRequest;
 import com.pickeat.backend.wish.application.dto.response.WishResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -80,7 +81,7 @@ public interface WishApiSpec {
     ResponseEntity<WishResponse> createWish(
             @Parameter(description = "룸 ID") @PathVariable("roomId") Long roomId,
             @Valid @RequestBody WishRequest request,
-            @Parameter(hidden = true) @LoginUserId Long userId);
+            @Parameter(hidden = true) @User UserPrincipal userPrincipal);
 
     @Operation(
             summary = "위시 삭제",
@@ -119,7 +120,7 @@ public interface WishApiSpec {
     @DeleteMapping("/wishes/{wishId}")
     ResponseEntity<Void> deleteWish(
             @Parameter(description = "삭제할 위시 ID") @PathVariable("wishId") Long wishId,
-            @Parameter(hidden = true) @LoginUserId Long userId);
+            @Parameter(hidden = true) @User UserPrincipal userPrincipal);
 
     @Operation(
             summary = "룸의 위시 목록 조회",
@@ -160,5 +161,5 @@ public interface WishApiSpec {
     @GetMapping("/rooms/{roomId}/wishes")
     ResponseEntity<List<WishResponse>> getWishesInRoom(
             @Parameter(description = "룸 ID") @PathVariable("roomId") Long roomId,
-            @Parameter(hidden = true) @LoginUserId Long loginUserId);
+            @Parameter(hidden = true) @User UserPrincipal userPrincipal);
 }

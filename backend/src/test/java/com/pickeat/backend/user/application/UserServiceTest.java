@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.global.auth.principal.ProviderPrincipal;
+import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
 import com.pickeat.backend.room.domain.Room;
@@ -66,10 +66,10 @@ class UserServiceTest extends DatabaseSliceTest {
             SignupRequest request = new SignupRequest("nickname");
             Long providerId = 2L;
             String provider = "kakao";
-            ProviderPrincipal providerPrincipal = new ProviderPrincipal(providerId, provider);
+            OAuthProviderPrincipal OAuthProviderPrincipal = new OAuthProviderPrincipal(providerId, provider);
 
             // when
-            UserResponse savedUser = userService.createUser(request, providerPrincipal);
+            UserResponse savedUser = userService.createUser(request, OAuthProviderPrincipal);
 
             // then
             assertAll(() -> assertThat(savedUser.id()).isNotNull(),
@@ -83,10 +83,10 @@ class UserServiceTest extends DatabaseSliceTest {
             // given
             entityManager.persist(new User("nickname", 1L, "kakao"));
             SignupRequest request = new SignupRequest("nickname");
-            ProviderPrincipal providerPrincipal = new ProviderPrincipal(2L, "google");
+            OAuthProviderPrincipal OAuthProviderPrincipal = new OAuthProviderPrincipal(2L, "google");
 
             // when & then
-            assertThatThrownBy(() -> userService.createUser(request, providerPrincipal)).isInstanceOf(
+            assertThatThrownBy(() -> userService.createUser(request, OAuthProviderPrincipal)).isInstanceOf(
                     BusinessException.class).hasMessage(ALREADY_NICKNAME_EXISTS.getMessage());
         }
     }

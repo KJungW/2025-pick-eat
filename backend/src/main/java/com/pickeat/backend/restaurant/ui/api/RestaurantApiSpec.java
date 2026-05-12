@@ -1,6 +1,6 @@
 package com.pickeat.backend.restaurant.ui.api;
 
-import com.pickeat.backend.global.auth.principal.ParticipantPrincipal;
+import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequest;
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;

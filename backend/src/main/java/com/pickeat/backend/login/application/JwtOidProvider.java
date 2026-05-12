@@ -47,7 +47,7 @@ public class JwtOidProvider {
                 throw new BusinessException(ErrorCode.INVALID_TOKEN);
             }
         } catch (Exception e) {
-            throw new BusinessException(ErrorCode.HEADER_IS_EMPTY);
+            throw new BusinessException(ErrorCode.INVALID_AUTH_HEADER);
         }
     }
 

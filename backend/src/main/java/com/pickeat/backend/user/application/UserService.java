@@ -1,6 +1,6 @@
 package com.pickeat.backend.user.application;
 
-import com.pickeat.backend.global.auth.principal.ProviderPrincipal;
+import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
@@ -28,9 +28,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse createUser(SignupRequest request, ProviderPrincipal providerPrincipal) {
+    public UserResponse createUser(SignupRequest request, OAuthProviderPrincipal OAuthProviderPrincipal) {
         validateDuplicateNickname(request.nickname());
-        User user = new User(request.nickname(), providerPrincipal.providerId(), providerPrincipal.provider());
+        User user = new User(request.nickname(), OAuthProviderPrincipal.providerId(),
+                OAuthProviderPrincipal.provider());
         saveUser(user);
         return UserResponse.from(user);
     }

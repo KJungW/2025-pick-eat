@@ -1,8 +1,8 @@
 package com.pickeat.backend.global.config;
 
-import com.pickeat.backend.global.auth.LoginUserIdArgumentResolver;
-import com.pickeat.backend.global.auth.ParticipantInPickeatArgumentResolver;
-import com.pickeat.backend.global.auth.ProviderArgumentResolver;
+import com.pickeat.backend.global.argument.resolver.OAuthProviderArgumentResolver;
+import com.pickeat.backend.global.argument.resolver.ParticipantArgumentResolver;
+import com.pickeat.backend.global.argument.resolver.UserArgumentResolver;
 import com.pickeat.backend.global.version.DeprecationInterceptor;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final LoginUserIdArgumentResolver loginUserIdArgumentResolver;
-    private final ParticipantInPickeatArgumentResolver participantInPickeatArgumentResolver;
-    private final ProviderArgumentResolver providerArgumentResolver;
+    private final UserArgumentResolver userArgumentResolver;
+    private final ParticipantArgumentResolver participantArgumentResolver;
+    private final OAuthProviderArgumentResolver OAuthProviderArgumentResolver;
     private final DeprecationInterceptor deprecationInterceptor;
 
     @Value("${cors.allowed-origins}")
@@ -37,9 +37,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(loginUserIdArgumentResolver);
-        resolvers.add(participantInPickeatArgumentResolver);
-        resolvers.add(providerArgumentResolver);
+        resolvers.add(userArgumentResolver);
+        resolvers.add(participantArgumentResolver);
+        resolvers.add(OAuthProviderArgumentResolver);
     }
 
     @Override

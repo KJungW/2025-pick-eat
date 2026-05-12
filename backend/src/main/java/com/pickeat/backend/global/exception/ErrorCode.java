@@ -41,14 +41,14 @@ public enum ErrorCode {
     ROOM_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 방에 접근할 권한이 없습니다."),
     ROOM_HAS_NO_WISHES(HttpStatus.BAD_REQUEST, "벙애 위시가 존재하지 않습니다."),
 
-    // Template 관련 에로
+    // Template 관련 에러
     TEMPLATE_NOT_FOUND(HttpStatus.NOT_FOUND, "템플릿을 찾을 수 없습니다."),
 
     //입력 검증 에러
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "입력 데이터 검증에 실패했습니다."),
 
     // 헤더 관련 에러
-    HEADER_IS_EMPTY(HttpStatus.UNAUTHORIZED, "인증 헤더가 존재하지 않습니다."),
+    INVALID_AUTH_HEADER(HttpStatus.UNAUTHORIZED, "인증 헤더가 존재하지 않거나 올바르지 않습니다."),
 
     // Jwt 관련 에러
     TOKEN_IS_EMPTY(HttpStatus.FORBIDDEN, "인증되지 않은 사용자입니다."),
