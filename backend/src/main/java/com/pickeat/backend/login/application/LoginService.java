@@ -1,8 +1,8 @@
 package com.pickeat.backend.login.application;
 
 import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import com.pickeat.backend.login.application.dto.request.AuthCodeRequest;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.user.domain.User;

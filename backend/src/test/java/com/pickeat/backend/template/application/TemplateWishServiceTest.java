@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.configuration.cache.CacheKey;
-import com.pickeat.backend.global.exception.BusinessException;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.TemplateFixture;
 import com.pickeat.backend.support.fixture.TemplateWishFixture;

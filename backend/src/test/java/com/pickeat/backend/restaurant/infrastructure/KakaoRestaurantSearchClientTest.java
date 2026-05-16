@@ -11,7 +11,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pickeat.backend.global.exception.ExternalApiException;
+import com.pickeat.backend.global.exception.type.ExternalApiException;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantSearchRequest;
 import io.github.bucket4j.Bandwidth;

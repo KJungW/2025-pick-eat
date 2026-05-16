@@ -1,7 +1,7 @@
 package com.pickeat.backend.global.configuration.storage;
 
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import java.time.Duration;
 import java.util.IllegalFormatConversionException;
 import lombok.AccessLevel;

@@ -2,7 +2,7 @@ package com.pickeat.backend.wish.ui;
 
 import com.pickeat.backend.global.argument.annotation.User;
 import com.pickeat.backend.global.argument.principal.UserPrincipal;
-import com.pickeat.backend.global.log.BusinessLogging;
+import com.pickeat.backend.global.log.aspect.UserTracingLogging;
 import com.pickeat.backend.wish.application.WishPictureService;
 import com.pickeat.backend.wish.application.dto.response.WishPictureResponse;
 import com.pickeat.backend.wish.ui.api.WishPictureApiSpec;
@@ -26,7 +26,7 @@ public class WishPictureController implements WishPictureApiSpec {
     private final WishPictureService wishPictureService;
 
     @Override
-    @BusinessLogging("위시 사진 생성")
+    @UserTracingLogging(action = "위시 사진 생성")
     @PostMapping(value = "/wish/{wishId}/wishpictures", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<WishPictureResponse> createWishPictures(
             @PathVariable("wishId") Long wishId,
@@ -39,7 +39,7 @@ public class WishPictureController implements WishPictureApiSpec {
     }
 
     @Override
-    @BusinessLogging("위시 사진 삭제")
+    @UserTracingLogging(action = "위시 사진 삭제")
     @DeleteMapping("/wish/{wishId}/wishpictures")
     public ResponseEntity<Void> deleteWishPictures(
             @PathVariable("wishId") Long wishId,

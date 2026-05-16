@@ -2,7 +2,7 @@ package com.pickeat.backend.room.ui;
 
 import com.pickeat.backend.global.argument.annotation.User;
 import com.pickeat.backend.global.argument.principal.UserPrincipal;
-import com.pickeat.backend.global.log.BusinessLogging;
+import com.pickeat.backend.global.log.aspect.UserTracingLogging;
 import com.pickeat.backend.room.application.RoomService;
 import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
 import com.pickeat.backend.room.application.dto.request.RoomRequest;
@@ -30,7 +30,7 @@ public class RoomController implements RoomApiSpec {
 
     @Override
     @PostMapping
-    @BusinessLogging("방 생성")
+    @UserTracingLogging(action = "방 생성")
     public ResponseEntity<RoomResponse> create(
             @Valid @RequestBody RoomRequest request,
             @User UserPrincipal userPrincipal
@@ -59,7 +59,7 @@ public class RoomController implements RoomApiSpec {
     }
 
     @Override
-    @BusinessLogging("방 초대")
+    @UserTracingLogging(action = "방 초대")
     @PostMapping("/{roomId}/invite")
     public ResponseEntity<Void> invite(
             @PathVariable("roomId") Long roomId,

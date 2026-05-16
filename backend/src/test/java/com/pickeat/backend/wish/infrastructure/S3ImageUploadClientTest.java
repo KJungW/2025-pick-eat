@@ -7,8 +7,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.pickeat.backend.global.exception.BusinessException;
-import com.pickeat.backend.global.exception.ExternalApiException;
+import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ExternalApiException;
 import com.pickeat.backend.wish.application.dto.request.ImageRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

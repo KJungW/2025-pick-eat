@@ -1,12 +1,16 @@
 package com.pickeat.backend.global.exception;
 
-import com.pickeat.backend.global.log.dto.ErrorLog;
-import com.pickeat.backend.global.log.dto.Log;
+import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ExternalApiException;
+import com.pickeat.backend.global.exception.type.InvalidRequestException;
+import com.pickeat.backend.global.log.LogWriter;
+import com.pickeat.backend.global.log.model.error.ClientErrorLog;
+import com.pickeat.backend.global.log.model.error.ExternalErrorLog;
+import com.pickeat.backend.global.log.model.error.ServerErrorLog;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.logstash.logback.marker.Markers;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -28,59 +32,29 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    public ProblemDetail handleBusinessException(BusinessException e) {
-        ErrorCode errorCode = e.getErrorCode();
-        HttpStatus status = errorCode.getStatus();
-
-        if (status.isSameCodeAs(HttpStatusCode.valueOf(401)) || status.isSameCodeAs(
-                HttpStatusCode.valueOf(403))) {
-            logWarn(status, e, errorCode.name());
-        } else {
-            logInfo(e, errorCode.name());
-        }
-
-        ProblemDetail problemDetail = ProblemDetail.forStatus(errorCode.getStatus());
-        problemDetail.setTitle(errorCode.name());
-        problemDetail.setDetail(e.getMessage());
-
-        return problemDetail;
+    public ProblemDetail handleBusinessException(BusinessException exception) {
+        logInfoClientError(exception);
+        return makeProblemDetail(exception.getErrorCode());
+        //TODO: 내부 에러 분리하면 따로 500 처리 필요  (2026-05-16, 토, 20:49)
     }
 
     @ExceptionHandler(ExternalApiException.class)
-    public ProblemDetail handleExternalApiException(ExternalApiException e) {
-        HttpStatus status = e.getHttpStatus();
-
-        if (status.is5xxServerError()) {
-            logExternalError(e, status);
-        } else {
-            logWarn(status, e, e.getPlatformName());
-        }
-
-        ProblemDetail problemDetail = ProblemDetail.forStatus(e.getHttpStatus());
-        problemDetail.setTitle(e.getHttpStatus().name());
-        problemDetail.setDetail(e.getMessage());
-
-        return problemDetail;
+    public ProblemDetail handleExternalApiException(ExternalApiException exception) {
+        logExternalError(exception);
+        return makeProblemDetail(exception.getErrorCode());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException e) {
-
-        logInfo(e, "INVALID_INPUT");
-
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                ErrorCode.VALIDATION_FAILED.getMessage()
-        );
-
-        problemDetail.setTitle(ErrorCode.VALIDATION_FAILED.name());
-
+    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException exception) {
         Map<String, String> fieldErrors = new HashMap<>();
-        e.getBindingResult().getFieldErrors()
+        exception.getBindingResult().getFieldErrors()
                 .forEach(error -> fieldErrors.put(error.getField(), error.getDefaultMessage()));
-        problemDetail.setProperty("fieldErrors", fieldErrors);
 
-        return problemDetail;
+        InvalidRequestException invalidRequestException = new InvalidRequestException(
+                ErrorCode.REQUEST_VALIDATION_FAILED);
+
+        logInfoClientError(invalidRequestException);
+        return makeProblemDetail(invalidRequestException.getErrorCode(), fieldErrors);
     }
 
     @ExceptionHandler({
@@ -149,29 +123,49 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    private void logServerError(Exception e) {
-        logSafe(ErrorLog.createServerErrorLog(500, e, ErrorCode.INTERNAL_SERVER_ERROR.name()), LogLevel.ERROR);
+    private void logServerError(BusinessException exception) {
+        ErrorCode errorCode = exception.getErrorCode();
+        LogWriter.error(this.getClass(), ServerErrorLog.of(errorCode, exception));
     }
 
-    private void logExternalError(ExternalApiException e, HttpStatus status) {
-        logSafe(ErrorLog.createExternalErrorLog(status.value(), e, e.getPlatformName()), LogLevel.ERROR);
-    }
+    private void logInfoClientError(BusinessException exception) {
+        ErrorCode errorCode = exception.getErrorCode();
+        ClientErrorLog clientErrorLog = ClientErrorLog.of(errorCode, exception);
 
-    private void logInfo(Exception e, String customCode) {
-        logSafe(ErrorLog.createClientErrorLog(400, e, customCode), LogLevel.INFO);
-    }
-
-    private void logWarn(HttpStatus status, Throwable e, String customCode) {
-        logSafe(ErrorLog.createClientErrorLog(status.value(), e, customCode), LogLevel.WARN);
-    }
-
-    private void logSafe(Log logObject, LogLevel level) {
-        switch (level) {
-            case INFO -> log.info(Markers.appendEntries(logObject.fields()), logObject.summary());
-            case WARN -> log.warn(Markers.appendEntries(logObject.fields()), logObject.summary());
-            case ERROR -> log.error(Markers.appendEntries(logObject.fields()), logObject.summary());
+        HttpStatus status = errorCode.getStatus();
+        if (status.isSameCodeAs(HttpStatusCode.valueOf(401))
+                || status.isSameCodeAs(HttpStatusCode.valueOf(403))) {
+            LogWriter.warn(this.getClass(), clientErrorLog);
+        } else {
+            LogWriter.info(this.getClass(), clientErrorLog);
         }
     }
 
-    private enum LogLevel {INFO, WARN, ERROR}
+    private void logExternalError(ExternalApiException exception) {
+        ExternalErrorLog externalErrorLog = ExternalErrorLog.of(exception.getErrorCode(), exception);
+
+        HttpStatus status = exception.getErrorCode().getStatus();
+        if (status.is5xxServerError()) {
+            LogWriter.error(this.getClass(), externalErrorLog);
+        } else {
+            LogWriter.warn(this.getClass(), externalErrorLog);
+        }
+    }
+
+    private ProblemDetail makeProblemDetail(ErrorCode errorCode) {
+        HttpStatus status = errorCode.getStatus();
+        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
+        problemDetail.setTitle(status.name());
+        problemDetail.setDetail(errorCode.getMessage());
+        return problemDetail;
+    }
+
+    private ProblemDetail makeProblemDetail(ErrorCode errorCode, Map<String, String> fieldErrors) {
+        HttpStatus status = errorCode.getStatus();
+        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
+        problemDetail.setTitle(status.name());
+        problemDetail.setDetail(errorCode.getMessage());
+        problemDetail.setProperty("fieldErrors", fieldErrors);
+        return problemDetail;
+    }
 }

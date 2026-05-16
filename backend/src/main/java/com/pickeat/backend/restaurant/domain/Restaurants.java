@@ -1,7 +1,7 @@
 package com.pickeat.backend.restaurant.domain;
 
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;

@@ -2,8 +2,8 @@ package com.pickeat.backend.login.infrastructure;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import com.pickeat.backend.login.application.OidcPublicKeyProvider;
 import java.security.interfaces.RSAPublicKey;
 import lombok.RequiredArgsConstructor;

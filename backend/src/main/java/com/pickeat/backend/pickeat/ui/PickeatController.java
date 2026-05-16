@@ -4,7 +4,7 @@ import com.pickeat.backend.global.argument.annotation.Participant;
 import com.pickeat.backend.global.argument.annotation.User;
 import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
 import com.pickeat.backend.global.argument.principal.UserPrincipal;
-import com.pickeat.backend.global.log.BusinessLogging;
+import com.pickeat.backend.global.log.aspect.UserTracingLogging;
 import com.pickeat.backend.pickeat.application.PickeatResultService;
 import com.pickeat.backend.pickeat.application.PickeatService;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
@@ -39,7 +39,7 @@ public class PickeatController implements PickeatApiSpec {
     }
 
     @Override
-    @BusinessLogging("방에서 픽잇 생성")
+    @UserTracingLogging(action = "RESTAURANT_VOTE")
     @PostMapping("/rooms/{roomId}/pickeats")
     public ResponseEntity<PickeatResponse> createPickeatWithRoom(
             @PathVariable("roomId") Long roomId,

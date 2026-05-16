@@ -2,7 +2,7 @@ package com.pickeat.backend.wish.ui;
 
 import com.pickeat.backend.global.argument.annotation.User;
 import com.pickeat.backend.global.argument.principal.UserPrincipal;
-import com.pickeat.backend.global.log.BusinessLogging;
+import com.pickeat.backend.global.log.aspect.UserTracingLogging;
 import com.pickeat.backend.wish.application.WishService;
 import com.pickeat.backend.wish.application.dto.request.WishRequest;
 import com.pickeat.backend.wish.application.dto.response.WishResponse;
@@ -28,7 +28,7 @@ public class WishController implements WishApiSpec {
     private final WishService wishService;
 
     @Override
-    @BusinessLogging("위시 생성")
+    @UserTracingLogging(action = "위시 생성")
     @PostMapping(value = "/rooms/{roomId}/wishes")
     public ResponseEntity<WishResponse> createWish(
             @PathVariable("roomId") Long roomId,
@@ -42,7 +42,7 @@ public class WishController implements WishApiSpec {
     }
 
     @Override
-    @BusinessLogging("위시 삭제")
+    @UserTracingLogging(action = "위시 삭제")
     @DeleteMapping("/wishes/{wishId}")
     public ResponseEntity<Void> deleteWish(
             @PathVariable("wishId") Long wishId,

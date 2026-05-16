@@ -1,8 +1,8 @@
 package com.pickeat.backend.template.application;
 
 import com.pickeat.backend.global.configuration.cache.CacheKey.Holder;
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import com.pickeat.backend.template.application.dto.response.TemplateWishResponse;
 import com.pickeat.backend.template.domain.Template;
 import com.pickeat.backend.template.domain.TemplateWish;

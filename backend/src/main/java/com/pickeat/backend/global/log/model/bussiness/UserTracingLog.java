@@ -1,19 +1,17 @@
-package com.pickeat.backend.global.log.dto;
+package com.pickeat.backend.global.log.model.bussiness;
 
+import com.pickeat.backend.global.log.model.Log;
+import com.pickeat.backend.global.log.model.LogType;
 import java.util.Map;
 
-public record BusinessLog(
+public record UserTracingLog(
         LogType logType,
         Long userId,
         String action
 ) implements Log {
 
-    public static BusinessLog of(Long userId, String action) {
-        return new BusinessLog(
-                LogType.BUSINESS,
-                userId,
-                action
-        );
+    public static UserTracingLog of(Long userId, String action) {
+        return new UserTracingLog(LogType.USER_TRACE, userId, action);
     }
 
     @Override

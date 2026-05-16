@@ -1,6 +1,9 @@
-package com.pickeat.backend.global.log.dto;
+package com.pickeat.backend.global.log.model.http;
 
+import com.pickeat.backend.global.log.model.Log;
+import com.pickeat.backend.global.log.model.LogType;
 import java.util.Map;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
 public record ResponseLog(
@@ -9,10 +12,10 @@ public record ResponseLog(
         int status
 ) implements Log {
 
-    public static ResponseLog of(ContentCachingResponseWrapper response, String requestURI) {
+    public static ResponseLog of(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
         return new ResponseLog(
                 LogType.RESPONSE,
-                requestURI,
+                request.getRequestURI(),
                 response.getStatus()
         );
     }

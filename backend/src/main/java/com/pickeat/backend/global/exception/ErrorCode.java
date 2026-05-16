@@ -60,7 +60,16 @@ public enum ErrorCode {
     INVALID_STORAGE_KEY_FORMAT(HttpStatus.INTERNAL_SERVER_ERROR, "Storage 키를 생성하기 위한 인자 형식 적절하지 않습니다."),
     STORAGE_KEY_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Storage 키를 생성하는데 실패했습니다."),
 
-    // 시스템 에러
+    // 요청 형식 에러
+    REQUEST_VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "입력 데이터 검증에 실패했습니다."),
+    INVALID_HTTP_METHOD(HttpStatus.BAD_REQUEST, ""),
+
+
+    // 외부 API 및 인프라 에러
+    EXTERNAL_API_FAIL_5XX(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 연결에 실패했습니다."),
+    EXTERNAL_API_FAIL_4XX(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 연결에 실패했습니다."),
+
+    // 서버 내부 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생했습니다.");
 
     private final HttpStatus status;

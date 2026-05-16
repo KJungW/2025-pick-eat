@@ -8,8 +8,8 @@ import static org.mockito.Mockito.doReturn;
 
 import com.pickeat.backend.global.argument.annotation.OAuthProvider;
 import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import com.pickeat.backend.login.application.OAuthProviderTokenProvider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

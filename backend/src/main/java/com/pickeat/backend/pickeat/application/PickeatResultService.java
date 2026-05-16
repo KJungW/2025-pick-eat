@@ -1,7 +1,7 @@
 package com.pickeat.backend.pickeat.application;
 
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponse;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
 import com.pickeat.backend.pickeat.domain.PickeatResult;

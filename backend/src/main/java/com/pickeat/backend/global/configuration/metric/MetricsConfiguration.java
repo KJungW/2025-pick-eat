@@ -1,11 +1,11 @@
 package com.pickeat.backend.global.configuration.metric;
 
+import com.pickeat.backend.global.utility.SystemRequestChecker;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.config.MeterFilter;
-import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -13,28 +13,26 @@ import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class MetricsConfiguration {
-
-    private static final Set<String> INFRA_URI_EXACT = Set.of("/", "/error");
-    private static final List<String> INFRA_URI_PREFIXES = List.of(
-            "/actuator", "/swagger", "/v3/api-docs", "/static", "/webjars", "/favicon"
-    );
 
     private static final Pattern ID_PATTERN = Pattern.compile("/\\d+(/|$)");
     private static final Pattern UUID_PATTERN = Pattern.compile(
             "/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(/|$)"
     );
 
+    private final SystemRequestChecker systemRequestChecker;
+
     @Bean
     MeterRegistryCustomizer<MeterRegistry> goldenSignalsCustomizer() {
         return registry -> {
             registry.config()
-                    .meterFilter(MeterFilter.deny(this::isDenyRequest))
+                    .meterFilter(MeterFilter.deny(this::isExcludeRequest))
                     .meterFilter(MeterFilter.replaceTagValues("uri", this::normalizeUri));
         };
     }
 
-    private boolean isDenyRequest(Meter.Id id) {
+    private boolean isExcludeRequest(Meter.Id id) {
         // HTTP 요청이 아닌 경우 허용
         if (!"http.server.requests".equals(id.getName())) {
             return false;
@@ -47,11 +45,9 @@ public class MetricsConfiguration {
             return true;
         }
 
-        // 인프라 경로 거부
-        boolean isInfraRequest = INFRA_URI_EXACT.contains(uri) ||
-                INFRA_URI_PREFIXES.stream().anyMatch(uri::startsWith);
-
-        if (isInfraRequest) {
+        // 시스템 경로 거부
+        boolean isSystemRequest = systemRequestChecker.isSystemRequest(uri);
+        if (isSystemRequest) {
             log.debug("Filtering infrastructure request: {}", uri);
             return true;
         }

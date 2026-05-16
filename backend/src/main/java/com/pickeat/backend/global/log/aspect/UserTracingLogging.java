@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.log;
+package com.pickeat.backend.global.log.aspect;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface BusinessLogging {
-    String value() default ""; // 어떤 액션인지 명시
+public @interface UserTracingLogging {
+
+    String action() default "";
 }

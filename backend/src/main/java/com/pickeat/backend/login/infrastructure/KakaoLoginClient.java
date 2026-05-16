@@ -2,9 +2,9 @@ package com.pickeat.backend.login.infrastructure;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.ExternalApiException;
+import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ExternalApiException;
 import com.pickeat.backend.login.application.LoginClient;
 import com.pickeat.backend.login.application.dto.response.OAuthTokenResponse;
 import java.io.IOException;

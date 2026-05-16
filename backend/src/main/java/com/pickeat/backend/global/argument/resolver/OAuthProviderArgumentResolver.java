@@ -2,8 +2,8 @@ package com.pickeat.backend.global.argument.resolver;
 
 import com.pickeat.backend.global.argument.annotation.OAuthProvider;
 import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import com.pickeat.backend.login.application.OAuthProviderTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;

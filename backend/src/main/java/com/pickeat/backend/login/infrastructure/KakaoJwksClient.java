@@ -1,7 +1,7 @@
 package com.pickeat.backend.login.infrastructure;
 
 import com.nimbusds.jose.jwk.JWKSet;
-import com.pickeat.backend.global.exception.ExternalApiException;
+import com.pickeat.backend.global.exception.type.ExternalApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;

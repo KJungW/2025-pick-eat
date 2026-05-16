@@ -2,8 +2,8 @@ package com.pickeat.backend.global.argument.resolver;
 
 import com.pickeat.backend.global.argument.annotation.Participant;
 import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
-import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.type.BusinessException;
 import com.pickeat.backend.participant.application.ParticipantTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;

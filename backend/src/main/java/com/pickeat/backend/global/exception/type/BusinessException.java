@@ -1,5 +1,6 @@
-package com.pickeat.backend.global.exception;
+package com.pickeat.backend.global.exception.type;
 
+import com.pickeat.backend.global.exception.ErrorCode;
 import lombok.Getter;
 
 @Getter
@@ -11,10 +12,4 @@ public class BusinessException extends RuntimeException {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
-
-    public BusinessException(ErrorCode errorCode, String message) {
-        super(message);
-        this.errorCode = errorCode;
-    }
-
 }
