@@ -8,7 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.restaurant.domain.Picture;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
@@ -129,7 +129,7 @@ class WishPictureServiceTest extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(
                     () -> wishPictureService.createWishPicture(wish.getId(), roomUser.getId(), picture))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.NOT_ALLOWED_CONTENT_TYPE.getMessage());
         }
 
@@ -148,7 +148,7 @@ class WishPictureServiceTest extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(
                     () -> wishPictureService.createWishPicture(wishInOtherRoom.getId(), user.getId(), picture))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.WISH_PICTURE_ACCESS_DENIED.getMessage());
         }
 
@@ -157,7 +157,7 @@ class WishPictureServiceTest extends DatabaseSliceTest {
             // given
             ImageUploadClient imageUploadClient = mock(ImageUploadClient.class);
             when(imageUploadClient.uploadImage(any()))
-                    .thenThrow(new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "이미지 업로드 실패"));
+                    .thenThrow(new ClientException(ErrorCode.INTERNAL_SERVER_ERROR, "이미지 업로드 실패"));
             wishPictureService = setupWishPictureService(imageUploadClient);
 
             RoomUser roomUser = makeRoomUser();
@@ -172,7 +172,7 @@ class WishPictureServiceTest extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(
                     () -> wishPictureService.createWishPicture(wish.getId(), roomUser.getUserId(), picture))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage("이미지 업로드 실패");
         }
     }
@@ -215,7 +215,7 @@ class WishPictureServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> wishPictureService.deleteWishPictures(wish.getId(), otherUser.getId()))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.WISH_PICTURE_ACCESS_DENIED.getMessage());
         }
     }
@@ -273,7 +273,7 @@ class WishPictureServiceTest extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(
                     () -> wishPictureService.updateWishPictures(wish.getId(), roomUser.getId(), newPicture))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.NOT_ALLOWED_CONTENT_TYPE.getMessage());
         }
 
@@ -295,7 +295,7 @@ class WishPictureServiceTest extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(
                     () -> wishPictureService.updateWishPictures(wish.getId(), otherUser.getId(), newPicture))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.WISH_PICTURE_ACCESS_DENIED.getMessage());
         }
 
@@ -304,7 +304,7 @@ class WishPictureServiceTest extends DatabaseSliceTest {
             // given
             ImageUploadClient imageUploadClient = mock(ImageUploadClient.class);
             when(imageUploadClient.uploadImage(any()))
-                    .thenThrow(new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "이미지 업로드 실패"));
+                    .thenThrow(new ClientException(ErrorCode.INTERNAL_SERVER_ERROR, "이미지 업로드 실패"));
             wishPictureService = setupWishPictureService(imageUploadClient);
 
             RoomUser roomUser = makeRoomUser();
@@ -320,7 +320,7 @@ class WishPictureServiceTest extends DatabaseSliceTest {
             // when & then
             assertThatThrownBy(
                     () -> wishPictureService.updateWishPictures(wish.getId(), roomUser.getId(), newPicture))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage("이미지 업로드 실패");
         }
     }

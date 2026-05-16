@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.restaurant.domain.FoodCategory;
 import com.pickeat.backend.restaurant.domain.RestaurantInfo;
 import com.pickeat.backend.room.domain.Room;
@@ -90,7 +90,7 @@ class WishServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> wishService.createWish(room.getId(), wishRequest, otherUser.getId()))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.WISH_ACCESS_DENIED.getMessage());
         }
     }
@@ -133,7 +133,7 @@ class WishServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> wishService.deleteWish(wish.getId(), otherUser.getId()))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.WISH_ACCESS_DENIED.getMessage());
         }
     }
@@ -198,7 +198,7 @@ class WishServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> wishService.updateWish(wish.getId(), otherUser.getId(), wishUpdateRequest))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.WISH_ACCESS_DENIED.getMessage());
         }
     }
@@ -274,7 +274,7 @@ class WishServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> wishService.getWishes(room.getId(), otherUser.getId()))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.WISH_ACCESS_DENIED.getMessage());
         }
     }

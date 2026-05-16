@@ -1,7 +1,7 @@
 package com.pickeat.backend.wish.application;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.restaurant.domain.Picture;
 import com.pickeat.backend.restaurant.domain.RestaurantInfo;
 import com.pickeat.backend.room.domain.repository.RoomUserRepository;
@@ -58,7 +58,7 @@ public class WishPictureService {
 
     private Wish getWish(Long wishId) {
         return wishRepository.findById(wishId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.WISH_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.WISH_NOT_FOUND));
     }
 
     private ImageRequest uploadWishPictures(MultipartFile picture) {
@@ -93,14 +93,14 @@ public class WishPictureService {
 
     private void validateWishPictureFormat(MultipartFile picture) {
         if (!ALLOWED_IMAGE_TYPE.contains(picture.getContentType())) {
-            throw new BusinessException(ErrorCode.NOT_ALLOWED_CONTENT_TYPE);
+            throw new ClientException(ErrorCode.NOT_ALLOWED_CONTENT_TYPE);
         }
     }
 
     private void validateUserAccessToWish(Wish wish, Long userId) {
         Long roomId = wish.getRoomId();
         if (!roomUserRepository.existsByRoomIdAndUserId(roomId, userId)) {
-            throw new BusinessException(ErrorCode.WISH_PICTURE_ACCESS_DENIED);
+            throw new ClientException(ErrorCode.WISH_PICTURE_ACCESS_DENIED);
         }
     }
 }

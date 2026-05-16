@@ -1,6 +1,7 @@
 package com.pickeat.backend.global.log.model.error;
 
-import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.code.ExternalErrorCode;
+import com.pickeat.backend.global.exception.type.ExternalException;
 import com.pickeat.backend.global.log.model.Log;
 import com.pickeat.backend.global.log.model.LogType;
 import java.util.HashMap;
@@ -8,15 +9,16 @@ import java.util.Map;
 
 public record ExternalErrorLog(
         LogType logType,
-        ErrorCode errorCode,
+        ExternalErrorCode errorCode,
         Throwable exception
 ) implements Log {
 
-    public static ExternalErrorLog of(
-            ErrorCode errorCode,
-            Throwable exception
-    ) {
-        return new ExternalErrorLog(LogType.EXTERNAL_ERROR, errorCode, exception);
+    public static ExternalErrorLog of(ExternalException exception) {
+        ExternalErrorCode errorCode = (ExternalErrorCode) exception.getErrorCode();
+        if (exception.getCause() == null) {
+            return new ExternalErrorLog(LogType.EXTERNAL_ERROR, errorCode, exception);
+        }
+        return new ExternalErrorLog(LogType.EXTERNAL_ERROR, errorCode, exception.getCause());
     }
 
     @Override
@@ -24,7 +26,7 @@ public record ExternalErrorLog(
         Map<String, Object> map = new HashMap<>();
         map.put("logType", logType.name());
         map.put("status", errorCode.getStatus());
-        map.put("errorCode", errorCode.name());
+        map.put("errorCode", errorCode.getName());
         map.put("errorType", exception.getClass().getName());
         map.put("errorMessage", exception.getMessage());
         map.put("stackTrace", getStackTraceAsString(exception));
@@ -37,7 +39,7 @@ public record ExternalErrorLog(
                 "[%s] %d %s occurred",
                 logType.name(),
                 errorCode.getStatus().value(),
-                errorCode.name()
+                errorCode.getName()
         );
     }
 

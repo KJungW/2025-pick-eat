@@ -3,7 +3,7 @@ package com.pickeat.backend.login.infrastructure;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.login.application.OidcPublicKeyProvider;
 import java.security.interfaces.RSAPublicKey;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +32,12 @@ public class KakaoOidcPublicKeyProvider implements OidcPublicKeyProvider {
             kakaoJwksCache.refresh(kakaoJwksClient.fetchJwkSet());
             jwk = kakaoJwksCache.getJwkByKeyId(kId);
             if (jwk == null) {
-                throw new BusinessException(ErrorCode.TOKEN_IS_EMPTY);
+                throw new ClientException(ErrorCode.TOKEN_IS_EMPTY);
             }
         }
 
         if (!(jwk instanceof RSAKey)) {
-            throw new BusinessException(ErrorCode.TOKEN_IS_EMPTY);
+            throw new ClientException(ErrorCode.TOKEN_IS_EMPTY);
         }
         return (RSAKey) jwk;
     }
@@ -46,7 +46,7 @@ public class KakaoOidcPublicKeyProvider implements OidcPublicKeyProvider {
         try {
             return rsaKey.toRSAPublicKey();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+            throw new ClientException(ErrorCode.INVALID_TOKEN);
         }
     }
 }

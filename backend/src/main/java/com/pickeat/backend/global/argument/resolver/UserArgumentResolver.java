@@ -2,8 +2,8 @@ package com.pickeat.backend.global.argument.resolver;
 
 import com.pickeat.backend.global.argument.annotation.User;
 import com.pickeat.backend.global.argument.principal.UserPrincipal;
-import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.code.ClientErrorCode;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.login.application.UserTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -37,7 +37,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         String authHeader = webRequest.getHeader(AUTH_HEADER);
 
         if (authHeader == null || !authHeader.startsWith(TOKEN_PREFIX)) {
-            throw new BusinessException(ErrorCode.INVALID_AUTH_HEADER);
+            throw new ClientException(ClientErrorCode.INVALID_AUTH_HEADER);
         }
 
         return parseUserToken(authHeader);

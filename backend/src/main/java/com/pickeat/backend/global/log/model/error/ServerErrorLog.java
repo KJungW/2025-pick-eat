@@ -1,6 +1,7 @@
 package com.pickeat.backend.global.log.model.error;
 
-import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.code.ServerErrorCode;
+import com.pickeat.backend.global.exception.type.ServerException;
 import com.pickeat.backend.global.log.model.Log;
 import com.pickeat.backend.global.log.model.LogType;
 import java.util.HashMap;
@@ -8,15 +9,16 @@ import java.util.Map;
 
 public record ServerErrorLog(
         LogType logType,
-        ErrorCode errorCode,
+        ServerErrorCode errorCode,
         Throwable exception
 ) implements Log {
 
-    public static ServerErrorLog of(
-            ErrorCode errorCode,
-            Throwable exception
-    ) {
-        return new ServerErrorLog(LogType.SERVER_ERROR, errorCode, exception);
+    public static ServerErrorLog of(ServerException exception) {
+        ServerErrorCode errorCode = (ServerErrorCode) exception.getErrorCode();
+        if (exception.getCause() == null) {
+            return new ServerErrorLog(LogType.SERVER_ERROR, errorCode, exception);
+        }
+        return new ServerErrorLog(LogType.SERVER_ERROR, errorCode, exception.getCause());
     }
 
     @Override
@@ -24,7 +26,7 @@ public record ServerErrorLog(
         Map<String, Object> map = new HashMap<>();
         map.put("logType", logType.name());
         map.put("status", errorCode.getStatus());
-        map.put("errorCode", errorCode.name());
+        map.put("errorCode", errorCode.getName());
         map.put("errorType", exception.getClass().getName());
         map.put("errorMessage", exception.getMessage());
         map.put("stackTrace", getStackTraceAsString(exception));
@@ -37,7 +39,7 @@ public record ServerErrorLog(
                 "[%s] %d %s occurred",
                 logType.name(),
                 errorCode.getStatus().value(),
-                errorCode.name()
+                errorCode.getName()
         );
     }
 

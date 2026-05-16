@@ -1,7 +1,7 @@
 package com.pickeat.backend.pickeat.application;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponse;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
 import com.pickeat.backend.pickeat.domain.PickeatResult;
@@ -27,11 +27,11 @@ public class PickeatResultService {
 
     private PickeatRecord getPickeatRecordByCode(String pickeatCode) {
         return pickeatRecordRepository.findByCode(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_RECORD_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.PICKEAT_RECORD_NOT_FOUND));
     }
 
     private PickeatResult getPickeatResultByCode(Long recordId) {
         return pickeatResultRepository.findByPickeatRecordId(recordId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PICKEAT_RESULT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.PICKEAT_RESULT_NOT_FOUND));
     }
 }

@@ -1,7 +1,7 @@
 package com.pickeat.backend.room.application;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
 import com.pickeat.backend.room.application.dto.request.RoomRequest;
 import com.pickeat.backend.room.application.dto.response.RoomResponse;
@@ -89,12 +89,12 @@ public class RoomService {
     }
 
     private Room getRoomById(Long roomId) {
-        return roomRepository.findById(roomId).orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+        return roomRepository.findById(roomId).orElseThrow(() -> new ClientException(ErrorCode.ROOM_NOT_FOUND));
     }
 
     private void validateUserAccessToRoom(Long roomId, Long userId) {
         if (!roomUserRepository.existsByRoomIdAndUserId(roomId, userId)) {
-            throw new BusinessException(ErrorCode.ROOM_ACCESS_DENIED);
+            throw new ClientException(ErrorCode.ROOM_ACCESS_DENIED);
         }
     }
 }

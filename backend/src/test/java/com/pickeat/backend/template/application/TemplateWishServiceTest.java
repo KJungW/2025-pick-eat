@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.configuration.cache.CacheKey;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.TemplateFixture;
 import com.pickeat.backend.support.fixture.TemplateWishFixture;
@@ -71,7 +71,7 @@ class TemplateWishServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> templateWishService.getWishesFromTemplates(invalidId))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessageContaining("템플릿을 찾을 수 없습니다.");
         }
 
@@ -86,7 +86,7 @@ class TemplateWishServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> templateWishService.getWishesFromTemplates(inactiveTemplate.getId()))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessageContaining("템플릿을 찾을 수 없습니다.");
         }
 

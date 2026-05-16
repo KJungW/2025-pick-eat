@@ -2,7 +2,7 @@ package com.pickeat.backend.template.application;
 
 import com.pickeat.backend.global.configuration.cache.CacheKey.Holder;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.template.application.dto.response.TemplateWishResponse;
 import com.pickeat.backend.template.domain.Template;
 import com.pickeat.backend.template.domain.TemplateWish;
@@ -35,12 +35,12 @@ public class TemplateWishService {
 
     private Template getTemplate(Long templateId) {
         return templateRepository.findById(templateId).orElseThrow(
-                () -> new BusinessException(ErrorCode.TEMPLATE_NOT_FOUND));
+                () -> new ClientException(ErrorCode.TEMPLATE_NOT_FOUND));
     }
 
     private void validateTemplateState(Template template) {
         if (!template.getIsActive()) {
-            throw new BusinessException(ErrorCode.TEMPLATE_NOT_FOUND);
+            throw new ClientException(ErrorCode.TEMPLATE_NOT_FOUND);
         }
     }
 }

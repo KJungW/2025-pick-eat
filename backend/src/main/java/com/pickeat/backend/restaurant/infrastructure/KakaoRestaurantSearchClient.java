@@ -3,8 +3,8 @@ package com.pickeat.backend.restaurant.infrastructure;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
-import com.pickeat.backend.global.exception.type.ExternalApiException;
+import com.pickeat.backend.global.exception.type.ClientException;
+import com.pickeat.backend.global.exception.type.ExternalException;
 import com.pickeat.backend.restaurant.application.RestaurantSearchClient;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantSearchRequest;
@@ -39,10 +39,10 @@ public class KakaoRestaurantSearchClient implements RestaurantSearchClient {
             return callApi(request);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ExternalApiException(
+            throw new ExternalException(
                     "요청 제한을 위한 토큰 대기에서 타임아웃 발생", PLATFORM_NAME, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (RestClientException e) {
-            throw new ExternalApiException(e.getMessage(), PLATFORM_NAME, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ExternalException(e.getMessage(), PLATFORM_NAME, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -68,9 +68,9 @@ public class KakaoRestaurantSearchClient implements RestaurantSearchClient {
         try {
             JsonNode errorRoot = objectMapper.readTree(response.getBody());
             String kakaoErrorMessage = objectMapper.writeValueAsString(errorRoot);
-            throw new ExternalApiException(kakaoErrorMessage, PLATFORM_NAME, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ExternalException(kakaoErrorMessage, PLATFORM_NAME, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
+            throw new ClientException(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

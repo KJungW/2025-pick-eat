@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.application.dto.event.PickeatCompletionEventRequest;
@@ -238,7 +238,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> pickeatService.getPickeatMeta(invalidCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PICKEAT_NOT_FOUND);
         }
     }
@@ -279,7 +279,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> pickeatService.getPickeatState(invalidCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PICKEAT_NOT_FOUND);
         }
     }

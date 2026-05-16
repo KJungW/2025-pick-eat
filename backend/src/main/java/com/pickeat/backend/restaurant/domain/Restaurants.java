@@ -1,7 +1,7 @@
 package com.pickeat.backend.restaurant.domain;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -45,6 +45,6 @@ public class Restaurants {
         return restaurants.stream()
                 .filter(restaurant -> restaurant.getCode().equals(selectedCode))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR));
+                .orElseThrow(() -> new ClientException(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }

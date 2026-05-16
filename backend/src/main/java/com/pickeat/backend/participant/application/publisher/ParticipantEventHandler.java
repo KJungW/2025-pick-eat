@@ -6,7 +6,7 @@ import com.pickeat.backend.global.configuration.sse.event.EventGroup;
 import com.pickeat.backend.global.configuration.sse.event.EventMeta;
 import com.pickeat.backend.global.configuration.sse.event.PickeatEvent;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
 import com.pickeat.backend.participant.application.dto.event.ParticipantUpdateEventContent;
@@ -45,6 +45,6 @@ public class ParticipantEventHandler {
 
     private ParticipantStateDto getParticipantsStateInPickeat(String pickeatCode) {
         return participantStorage.getParticipantsStateWithSequence(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PARTICIPANT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.PARTICIPANT_NOT_FOUND));
     }
 }

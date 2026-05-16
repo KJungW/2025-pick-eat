@@ -9,7 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.pickeat.backend.global.exception.type.ExternalApiException;
+import com.pickeat.backend.global.exception.type.ExternalException;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.support.DatabaseSliceTest;
@@ -96,14 +96,14 @@ class LocationRestaurantSearchServiceTest extends DatabaseSliceTest {
 
             when(restaurantSearchClient.getRestaurants(any()))
                     .thenReturn(List.of(RestaurantRequestFixture.create("정상 식당"))) // 1번째 호출 성공
-                    .thenThrow(new ExternalApiException("카카오 서버 장애", "KAKAO", HttpStatus.valueOf(500))) // 2번째 호출 실패
+                    .thenThrow(new ExternalException("카카오 서버 장애", "KAKAO", HttpStatus.valueOf(500))) // 2번째 호출 실패
                     .thenReturn(List.of(RestaurantRequestFixture.create("데이터")));  // 이후 호출들...
 
             LocationRestaurantRequest request = new LocationRestaurantRequest(127.0, 37.0, 1000);
 
             // when & then
             assertThatThrownBy(() -> locationRestaurantSearchService.searchByLocation(request))
-                    .isInstanceOf(ExternalApiException.class)
+                    .isInstanceOf(ExternalException.class)
                     .hasMessage("카카오 서버 장애");
         }
     }

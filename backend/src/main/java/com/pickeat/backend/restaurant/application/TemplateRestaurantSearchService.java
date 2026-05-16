@@ -1,7 +1,7 @@
 package com.pickeat.backend.restaurant.application;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.template.domain.Template;
@@ -32,7 +32,7 @@ public class TemplateRestaurantSearchService {
 
     public Template getTemplateById(Long id) {
         return templateRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(ErrorCode.TEMPLATE_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.TEMPLATE_NOT_FOUND));
     }
 
     public List<TemplateWish> getTemplateWishById(Template template) {
@@ -41,7 +41,7 @@ public class TemplateRestaurantSearchService {
 
     public void validateTemplateState(Template template) {
         if (!template.getIsActive()) {
-            throw new BusinessException(ErrorCode.TEMPLATE_NOT_FOUND);
+            throw new ClientException(ErrorCode.TEMPLATE_NOT_FOUND);
         }
     }
 }

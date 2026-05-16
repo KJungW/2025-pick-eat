@@ -1,8 +1,8 @@
 package com.pickeat.backend.wish.infrastructure;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
-import com.pickeat.backend.global.exception.type.ExternalApiException;
+import com.pickeat.backend.global.exception.type.ClientException;
+import com.pickeat.backend.global.exception.type.ExternalException;
 import com.pickeat.backend.wish.application.ImageUploadClient;
 import com.pickeat.backend.wish.application.dto.request.ImageRequest;
 import java.util.UUID;
@@ -47,11 +47,11 @@ public class S3ImageUploadClient implements ImageUploadClient {
             String downloadUrl = "https://" + bucketName + ".s3." + region.id() + ".amazonaws.com/" + key;
             return new ImageRequest(key, downloadUrl);
         } catch (S3Exception e) { // S3 API 서버 측 오류
-            throw new ExternalApiException(e.getMessage(), "AWS-S3", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ExternalException(e.getMessage(), "AWS-S3", HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (SdkClientException e) { // 클라이언트 측에서 발생한 오류
-            throw new ExternalApiException(e.getMessage(), "AWS-S3", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ExternalException(e.getMessage(), "AWS-S3", HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) { // 그외 오류
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
+            throw new ClientException(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 }

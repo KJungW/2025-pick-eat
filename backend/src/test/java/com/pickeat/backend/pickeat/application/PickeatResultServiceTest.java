@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponse;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.PickeatRecord;
@@ -57,7 +57,7 @@ class PickeatResultServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> pickeatResultService.getByPickeatCode(nonExistCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.PICKEAT_RECORD_NOT_FOUND.getMessage());
         }
     }

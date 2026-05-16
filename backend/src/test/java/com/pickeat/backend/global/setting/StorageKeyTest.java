@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.pickeat.backend.global.configuration.storage.StorageKey;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
@@ -39,7 +39,7 @@ class StorageKeyTest {
 
             // when & then
             assertThatThrownBy(() -> keyType.generateKey(args))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessageContaining(ErrorCode.INVALID_STORAGE_KEY_ARGUMENT_COUNT.getMessage());
         }
 

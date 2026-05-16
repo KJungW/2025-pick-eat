@@ -1,7 +1,7 @@
 package com.pickeat.backend.restaurant.application;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
@@ -65,23 +65,23 @@ public class RestaurantService {
 
     private Pickeat getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 
     private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
         return restaurantsStorage.getRestaurantMeta(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
         return restaurantsStorage.getRestaurantState(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private void setupRestaurants(String pickeatCode, Restaurants restaurants) {
         boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
         if (!isSuccess) {
-            throw new BusinessException(ErrorCode.RESTAURANT_ALREADY_EXISTS);
+            throw new ClientException(ErrorCode.RESTAURANT_ALREADY_EXISTS);
         }
     }
 
@@ -92,14 +92,14 @@ public class RestaurantService {
     private void likeRestaurant(String pickeatCode, String participantCode, String restaurantCode) {
         boolean isSuccess = restaurantsStorage.like(pickeatCode, participantCode, restaurantCode);
         if (!isSuccess) {
-            throw new BusinessException(ErrorCode.PARTICIPANT_RESTAURANT_ALREADY_LIKED);
+            throw new ClientException(ErrorCode.PARTICIPANT_RESTAURANT_ALREADY_LIKED);
         }
     }
 
     private void cancelLikeRestaurant(String pickeatCode, String participantCode, String restaurantCode) {
         boolean isSuccess = restaurantsStorage.cancelLike(pickeatCode, participantCode, restaurantCode);
         if (!isSuccess) {
-            throw new BusinessException(ErrorCode.PARTICIPANT_RESTAURANT_NOT_LIKED);
+            throw new ClientException(ErrorCode.PARTICIPANT_RESTAURANT_NOT_LIKED);
         }
     }
 

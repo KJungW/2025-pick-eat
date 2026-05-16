@@ -5,7 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
@@ -100,7 +100,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> restaurantService.create(invalidCode, requests))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessageContaining(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
 
@@ -117,7 +117,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> restaurantService.create(pickeat.getCode(), newRequests))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessageContaining(ErrorCode.RESTAURANT_ALREADY_EXISTS.getMessage());
         }
     }
@@ -154,7 +154,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> restaurantService.getMetaInPickeat(invalidCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessageContaining(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
@@ -201,7 +201,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> restaurantService.getStateInPickeat(invalidCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROCESSING_PICKEAT_NOT_FOUND);
         }
     }
@@ -262,7 +262,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> restaurantService.exclude(invalidPickeatCode, restaurantCodes))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROCESSING_PICKEAT_NOT_FOUND);
         }
     }
@@ -308,7 +308,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> restaurantService.like(pickeat.getCode(), participantCode, restaurantCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PARTICIPANT_RESTAURANT_ALREADY_LIKED);
         }
 
@@ -376,7 +376,7 @@ class RestaurantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> restaurantService.cancelLike(pickeat.getCode(), participantCode, restaurantCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PARTICIPANT_RESTAURANT_NOT_LIKED);
         }
 

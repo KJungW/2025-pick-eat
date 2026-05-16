@@ -2,7 +2,7 @@ package com.pickeat.backend.user.application;
 
 import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
 import com.pickeat.backend.room.domain.repository.RoomUserRepository;
 import com.pickeat.backend.user.application.dto.UserResponse;
@@ -44,7 +44,7 @@ public class UserService {
 
     public UserResponse findByNickName(String nickname) {
         User user = userRepository.findByNickname(nickname)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
         return UserResponse.from(user);
     }
@@ -72,7 +72,7 @@ public class UserService {
 
     private void validateDuplicateNickname(String nickname) {
         if (userRepository.existsByNickname(nickname)) {
-            throw new BusinessException(ErrorCode.ALREADY_NICKNAME_EXISTS);
+            throw new ClientException(ErrorCode.ALREADY_NICKNAME_EXISTS);
         }
     }
 
@@ -80,12 +80,12 @@ public class UserService {
         try {
             userRepository.save(user);
         } catch (DataIntegrityViolationException exception) {
-            throw new BusinessException(ErrorCode.ALREADY_NICKNAME_EXISTS);
+            throw new ClientException(ErrorCode.ALREADY_NICKNAME_EXISTS);
         }
     }
 
     private User getUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
     }
 }

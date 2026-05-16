@@ -1,7 +1,7 @@
 package com.pickeat.backend.global.utility;
 
-import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.code.ClientErrorCode;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -68,7 +68,7 @@ public class JwtProvider {
 
     public Claims getClaims(String token) {
         if (token == null || token.isEmpty()) {
-            throw new BusinessException(ErrorCode.TOKEN_IS_EMPTY);
+            throw new ClientException(ClientErrorCode.TOKEN_IS_EMPTY);
         }
 
         try {
@@ -78,9 +78,9 @@ public class JwtProvider {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (ExpiredJwtException e) {
-            throw new BusinessException(ErrorCode.EXPIRED_TOKEN);
+            throw new ClientException(ClientErrorCode.EXPIRED_TOKEN);
         } catch (JwtException e) {
-            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+            throw new ClientException(ClientErrorCode.INVALID_TOKEN);
         }
     }
 }

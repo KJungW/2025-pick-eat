@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.global.utility.JwtProvider;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import io.jsonwebtoken.Claims;
@@ -62,7 +62,7 @@ class UserProviderTest {
         @Test
         void 토큰이_null() {
             // when & then
-            BusinessException exception = assertThrows(BusinessException.class, () -> {
+            ClientException exception = assertThrows(ClientException.class, () -> {
                 userTokenProvider.getUserId(null);
             });
             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.TOKEN_IS_EMPTY);
@@ -71,7 +71,7 @@ class UserProviderTest {
         @Test
         void 토큰이_비어있음() {
             // when & then
-            BusinessException exception = assertThrows(BusinessException.class, () -> {
+            ClientException exception = assertThrows(ClientException.class, () -> {
                 userTokenProvider.getUserId("");
             });
             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.TOKEN_IS_EMPTY);
@@ -83,7 +83,7 @@ class UserProviderTest {
             String invalidToken = "invalid-token";
 
             // when & then
-            BusinessException exception = assertThrows(BusinessException.class, () -> {
+            ClientException exception = assertThrows(ClientException.class, () -> {
                 userTokenProvider.getUserId(invalidToken);
             });
             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_TOKEN);
@@ -96,7 +96,7 @@ class UserProviderTest {
             TokenResponse response = expiredTokenProvider.createToken(1L);
 
             // when & then
-            BusinessException exception = assertThrows(BusinessException.class, () -> {
+            ClientException exception = assertThrows(ClientException.class, () -> {
                 userTokenProvider.getUserId(response.token());
             });
             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.EXPIRED_TOKEN);

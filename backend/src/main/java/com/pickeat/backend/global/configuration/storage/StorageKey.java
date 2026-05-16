@@ -1,7 +1,7 @@
 package com.pickeat.backend.global.configuration.storage;
 
-import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.code.ServerErrorCode;
+import com.pickeat.backend.global.exception.type.ServerException;
 import java.time.Duration;
 import java.util.IllegalFormatConversionException;
 import lombok.AccessLevel;
@@ -36,7 +36,7 @@ public enum StorageKey {
 
     private void validateArgCount(Object[] args) {
         if (args == null || args.length == 0 || args.length != this.argCount) {
-            throw new BusinessException(ErrorCode.INVALID_STORAGE_KEY_ARGUMENT_COUNT);
+            throw new ServerException(ServerErrorCode.INVALID_STORAGE_KEY_ARGUMENT_COUNT);
         }
     }
 
@@ -45,9 +45,9 @@ public enum StorageKey {
             return String.format(this.format, args);
         } catch (IllegalFormatConversionException e) {
             System.out.println("args[0] = " + args[0]);
-            throw new BusinessException(ErrorCode.INVALID_STORAGE_KEY_FORMAT);
+            throw new ServerException(ServerErrorCode.INVALID_STORAGE_KEY_FORMAT);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCode.STORAGE_KEY_CREATION_FAILED);
+            throw new ServerException(ServerErrorCode.STORAGE_KEY_CREATION_FAILED);
         }
     }
 }

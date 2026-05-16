@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
 import com.pickeat.backend.room.application.dto.request.RoomRequest;
 import com.pickeat.backend.room.application.dto.response.RoomResponse;
@@ -95,7 +95,7 @@ class RoomServiceTest extends DatabaseSliceTest {
 
             // when && then
             assertThatThrownBy(() -> roomService.getRoom(room.getId(), user.getId()))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.ROOM_ACCESS_DENIED.getMessage());
         }
     }
@@ -211,7 +211,7 @@ class RoomServiceTest extends DatabaseSliceTest {
 
             // when && then
             assertThatThrownBy(() -> roomService.inviteUsers(room.getId(), user.getId(), request))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.ROOM_ACCESS_DENIED.getMessage());
 
         }

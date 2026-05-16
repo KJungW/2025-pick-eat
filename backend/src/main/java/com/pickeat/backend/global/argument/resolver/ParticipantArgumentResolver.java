@@ -2,8 +2,8 @@ package com.pickeat.backend.global.argument.resolver;
 
 import com.pickeat.backend.global.argument.annotation.Participant;
 import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
-import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.code.ClientErrorCode;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.participant.application.ParticipantTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -38,7 +38,7 @@ public class ParticipantArgumentResolver implements HandlerMethodArgumentResolve
 
         if (isEmptyToken(authHeader)) {
             if (isRequiredToken(parameter)) {
-                throw new BusinessException(ErrorCode.INVALID_AUTH_HEADER);
+                throw new ClientException(ClientErrorCode.INVALID_AUTH_HEADER);
             }
             return null;
         }

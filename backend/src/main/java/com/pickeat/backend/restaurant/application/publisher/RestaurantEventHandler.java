@@ -6,7 +6,7 @@ import com.pickeat.backend.global.configuration.sse.event.EventGroup;
 import com.pickeat.backend.global.configuration.sse.event.EventMeta;
 import com.pickeat.backend.global.configuration.sse.event.PickeatEvent;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventContent;
@@ -45,6 +45,6 @@ public class RestaurantEventHandler {
 
     private RestaurantStateDto getRestaurantStateWithSequence(String pickeatCode) {
         return restaurantsStorage.getRestaurantStateWithSequence(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 }

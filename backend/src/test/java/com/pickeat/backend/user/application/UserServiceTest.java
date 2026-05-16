@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
@@ -87,7 +87,7 @@ class UserServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> userService.createUser(request, OAuthProviderPrincipal)).isInstanceOf(
-                    BusinessException.class).hasMessage(ALREADY_NICKNAME_EXISTS.getMessage());
+                    ClientException.class).hasMessage(ALREADY_NICKNAME_EXISTS.getMessage());
         }
     }
 
@@ -116,7 +116,7 @@ class UserServiceTest extends DatabaseSliceTest {
         void findUserByIdFail() {
             // when & then
             assertThatThrownBy(() -> userService.getById(999L))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(USER_NOT_FOUND.getMessage());
         }
 
@@ -141,7 +141,7 @@ class UserServiceTest extends DatabaseSliceTest {
         void findUserByNicknameFail() {
             // when & then
             assertThatThrownBy(() -> userService.findByNickName("없는유저"))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(USER_NOT_FOUND.getMessage());
         }
     }

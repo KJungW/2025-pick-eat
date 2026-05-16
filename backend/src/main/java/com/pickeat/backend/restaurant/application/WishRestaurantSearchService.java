@@ -1,7 +1,7 @@
 package com.pickeat.backend.restaurant.application;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
 import com.pickeat.backend.wish.domain.Wish;
@@ -29,7 +29,7 @@ public class WishRestaurantSearchService {
 
     private void validateWishExists(List<Wish> wishes) {
         if (wishes.isEmpty()) {
-            throw new BusinessException(ErrorCode.ROOM_HAS_NO_WISHES);
+            throw new ClientException(ErrorCode.ROOM_HAS_NO_WISHES);
         }
     }
 }

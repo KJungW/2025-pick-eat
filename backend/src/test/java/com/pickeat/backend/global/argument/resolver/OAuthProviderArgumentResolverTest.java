@@ -9,7 +9,7 @@ import static org.mockito.Mockito.doReturn;
 import com.pickeat.backend.global.argument.annotation.OAuthProvider;
 import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.login.application.OAuthProviderTokenProvider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -85,7 +85,7 @@ class OAuthProviderArgumentResolverTest {
             // when & then
             assertThatThrownBy(
                     () -> oAuthProviderArgumentResolver.resolveArgument(methodParameter, null, webRequest, null))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.INVALID_AUTH_HEADER.getMessage());
         }
 
@@ -97,7 +97,7 @@ class OAuthProviderArgumentResolverTest {
             // when & then
             assertThatThrownBy(
                     () -> oAuthProviderArgumentResolver.resolveArgument(methodParameter, null, webRequest, null))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.INVALID_AUTH_HEADER.getMessage());
         }
 
@@ -106,12 +106,12 @@ class OAuthProviderArgumentResolverTest {
             // given
             given(webRequest.getHeader("Authorization")).willReturn(AUTH_HEADER);
             given(providerTokenProvider.getProviderId(VALID_TOKEN))
-                    .willThrow(new BusinessException(ErrorCode.INVALID_TOKEN));
+                    .willThrow(new ClientException(ErrorCode.INVALID_TOKEN));
 
             // when & then
             assertThatThrownBy(
                     () -> oAuthProviderArgumentResolver.resolveArgument(methodParameter, null, webRequest, null))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
         }
     }

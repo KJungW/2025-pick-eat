@@ -1,7 +1,7 @@
 package com.pickeat.backend.login.infrastructure;
 
 import com.nimbusds.jose.jwk.JWKSet;
-import com.pickeat.backend.global.exception.type.ExternalApiException;
+import com.pickeat.backend.global.exception.type.ExternalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;
@@ -21,7 +21,7 @@ public class KakaoJwksClient {
             JWKSet freshJwkSet = JWKSet.parse(jwtSet);
             return freshJwkSet;
         } catch (Exception e) {
-            throw new ExternalApiException(e.getMessage(), "kakao", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ExternalException(e.getMessage(), "kakao", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

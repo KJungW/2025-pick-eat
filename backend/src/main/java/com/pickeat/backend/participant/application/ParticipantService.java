@@ -1,7 +1,7 @@
 package com.pickeat.backend.participant.application;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
 import com.pickeat.backend.participant.application.dto.event.ParticipantUpdateEventRequest;
@@ -62,7 +62,7 @@ public class ParticipantService {
 
     private Pickeat getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 
     private List<Participant> getParticipantsMetaInPickeat(String pickeatCode) {
@@ -71,13 +71,13 @@ public class ParticipantService {
 
     private ParticipantStateDto getParticipantsStateInPickeat(String pickeatCode) {
         return participantStorage.getParticipantsState(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PARTICIPANT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.PARTICIPANT_NOT_FOUND));
     }
 
     private void setupAboutParticipant(Pickeat pickeat, Participant participant) {
         boolean isSuccess = participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
         if (!isSuccess) {
-            throw new BusinessException(ErrorCode.PARTICIPANT_ALREADY_EXISTS);
+            throw new ClientException(ErrorCode.PARTICIPANT_ALREADY_EXISTS);
         }
     }
 }

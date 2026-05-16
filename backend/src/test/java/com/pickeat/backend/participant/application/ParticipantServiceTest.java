@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.global.utility.JwtProvider;
 import com.pickeat.backend.login.application.dto.response.TokenResponse;
 import com.pickeat.backend.participant.application.dto.event.ParticipantUpdateEventRequest;
@@ -94,7 +94,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> participantService.createParticipant(request))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessageContaining(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
@@ -132,7 +132,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> participantService.getMetaInPickeat(pickeatCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
@@ -176,7 +176,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> participantService.getMetaInPickeat(pickeatCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
@@ -230,7 +230,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> participantService.markCompletion(invalidPickeatCode, participantCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }
@@ -288,7 +288,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
 
             // when & then
             assertThatThrownBy(() -> participantService.cancelCompletion(invalidPickeatCode, participantCode))
-                    .isInstanceOf(BusinessException.class)
+                    .isInstanceOf(ClientException.class)
                     .hasMessage(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND.getMessage());
         }
     }

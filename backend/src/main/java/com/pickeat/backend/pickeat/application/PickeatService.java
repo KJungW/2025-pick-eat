@@ -1,7 +1,7 @@
 package com.pickeat.backend.pickeat.application;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;
 import com.pickeat.backend.pickeat.application.dto.event.PickeatCompletionEventRequest;
@@ -76,7 +76,7 @@ public class PickeatService {
         if (pickeatRecord.isPresent()) {
             return PickeatResponse.from(pickeatRecord.get());
         }
-        throw new BusinessException(ErrorCode.PICKEAT_NOT_FOUND);
+        throw new ClientException(ErrorCode.PICKEAT_NOT_FOUND);
     }
 
     public PickeatStateResponse getPickeatState(String pickeatCode) {
@@ -88,22 +88,22 @@ public class PickeatService {
         if (pickeatRecord.isPresent()) {
             return new PickeatStateResponse(true);
         }
-        throw new BusinessException(ErrorCode.PICKEAT_NOT_FOUND);
+        throw new ClientException(ErrorCode.PICKEAT_NOT_FOUND);
     }
 
     private Pickeat getPickeatByCode(String pickeatCode) {
         return pickeatStorage.get(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 
     private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
         return restaurantsStorage.getRestaurantMeta(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
         return restaurantsStorage.getRestaurantState(pickeatCode)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESTAURANT_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private List<Participant> getParticipantInPickeat(String pickeatCode) {
@@ -122,7 +122,7 @@ public class PickeatService {
 
     private void validateUserAccessToRoom(Long roomId, Long userId) {
         if (!roomUserRepository.existsByRoomIdAndUserId(roomId, userId)) {
-            throw new BusinessException(ErrorCode.ROOM_ACCESS_DENIED);
+            throw new ClientException(ErrorCode.ROOM_ACCESS_DENIED);
         }
     }
 

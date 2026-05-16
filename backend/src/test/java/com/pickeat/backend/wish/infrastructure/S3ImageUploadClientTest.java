@@ -7,8 +7,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.pickeat.backend.global.exception.type.BusinessException;
-import com.pickeat.backend.global.exception.type.ExternalApiException;
+import com.pickeat.backend.global.exception.type.ClientException;
+import com.pickeat.backend.global.exception.type.ExternalException;
 import com.pickeat.backend.wish.application.dto.request.ImageRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -79,7 +79,7 @@ class S3ImageUploadClientTest {
 
             // when & then
             assertThatThrownBy(() -> uploadClient.uploadImage(multipartFile))
-                    .isInstanceOf(ExternalApiException.class);
+                    .isInstanceOf(ExternalException.class);
         }
 
         @Test
@@ -96,7 +96,7 @@ class S3ImageUploadClientTest {
 
             // when & then
             assertThatThrownBy(() -> uploadClient.uploadImage(multipartFile))
-                    .isInstanceOf(ExternalApiException.class);
+                    .isInstanceOf(ExternalException.class);
         }
 
         @Test
@@ -113,7 +113,7 @@ class S3ImageUploadClientTest {
 
             // when & then
             assertThatThrownBy(() -> uploadClient.uploadImage(multipartFile))
-                    .isInstanceOf(BusinessException.class);
+                    .isInstanceOf(ClientException.class);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.pickeat.backend.wish.application;
 
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.exception.type.BusinessException;
+import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.restaurant.domain.FoodCategory;
 import com.pickeat.backend.restaurant.domain.RestaurantInfo;
 import com.pickeat.backend.room.domain.Room;
@@ -78,7 +78,7 @@ public class WishService {
 
     private Wish getWish(Long wishId) {
         return wishRepository.findById(wishId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.WISH_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.WISH_NOT_FOUND));
     }
 
     private Wish getWishWithAccessValidation(Long wishId, Long userId) {
@@ -90,12 +90,12 @@ public class WishService {
 
     private Room getRoom(Long roomId) {
         return roomRepository.findById(roomId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ErrorCode.ROOM_NOT_FOUND));
     }
 
     private void validateUserAccessToRoom(Long roomId, Long userId) {
         if (!roomUserRepository.existsByRoomIdAndUserId(roomId, userId)) {
-            throw new BusinessException(ErrorCode.WISH_ACCESS_DENIED);
+            throw new ClientException(ErrorCode.WISH_ACCESS_DENIED);
         }
     }
 }
