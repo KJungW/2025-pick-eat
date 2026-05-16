@@ -3,7 +3,7 @@ package com.pickeat.backend.pickeat.application.publisher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.global.sse.SseChannelTopic;
+import com.pickeat.backend.global.configuration.sse.SseChannelTopic;
 import com.pickeat.backend.pickeat.application.dto.event.PickeatCompletionEventRequest;
 import com.pickeat.backend.pickeat.application.dto.response.PickeatResultResponse;
 import com.pickeat.backend.support.DatabaseSliceTest;

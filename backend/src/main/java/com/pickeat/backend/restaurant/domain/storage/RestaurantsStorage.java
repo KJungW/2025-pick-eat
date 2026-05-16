@@ -1,6 +1,6 @@
 package com.pickeat.backend.restaurant.domain.storage;
 
-import com.pickeat.backend.global.setting.StorageKey;
+import com.pickeat.backend.global.configuration.storage.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.domain.Restaurants;

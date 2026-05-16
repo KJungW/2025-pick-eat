@@ -1,4 +1,8 @@
-package com.pickeat.backend.global.config;
+package com.pickeat.backend.global.configuration.swagger;
+
+import static com.pickeat.backend.global.configuration.profile.EnvironmentProfile.DEVELOPMENT;
+import static com.pickeat.backend.global.configuration.profile.EnvironmentProfile.LOCAL;
+import static com.pickeat.backend.global.configuration.profile.EnvironmentProfile.PERFORMANCE;
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -12,14 +16,16 @@ import java.util.Map.Entry;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
+@Profile({LOCAL, DEVELOPMENT, PERFORMANCE})
 @SecuritySchemes({
         @SecurityScheme(
                 name = "UserAuth",
-                type = SecuritySchemeType.HTTP,
-                scheme = "bearer",
-                bearerFormat = "JWT"
+                type = SecuritySchemeType.APIKEY,
+                in = SecuritySchemeIn.HEADER,
+                paramName = "Authorization"
         ),
         @SecurityScheme(
                 name = "ParticipantAuth",
@@ -28,7 +34,7 @@ import org.springframework.context.annotation.Configuration;
                 paramName = "Pickeat-Participant-Token"
         )
 })
-public class SwaggerConfig {
+public class SwaggerConfiguration {
 
     @Bean
     public OpenApiCustomizer deprecatedLastSortCustomizer() {

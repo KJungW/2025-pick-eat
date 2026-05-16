@@ -3,7 +3,7 @@ package com.pickeat.backend.participant.domain.store;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.global.setting.StorageKey;
+import com.pickeat.backend.global.configuration.storage.StorageKey;
 import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
 import com.pickeat.backend.participant.domain.Participant;
 import com.pickeat.backend.participant.domain.storage.ParticipantStorage;

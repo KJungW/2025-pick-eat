@@ -1,6 +1,6 @@
 package com.pickeat.backend.template.application.listener;
 
-import com.pickeat.backend.global.cache.CacheKey;
+import com.pickeat.backend.global.configuration.cache.CacheKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Optional;

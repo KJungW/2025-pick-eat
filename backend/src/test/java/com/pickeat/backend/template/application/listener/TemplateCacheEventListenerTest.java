@@ -3,7 +3,7 @@ package com.pickeat.backend.template.application.listener;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.global.cache.CacheKey;
+import com.pickeat.backend.global.configuration.cache.CacheKey;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.sse;
+package com.pickeat.backend.global.configuration.sse.event;
 
 public record EventMeta(
         EventGroup group,
@@ -8,7 +8,12 @@ public record EventMeta(
         long publishedAt
 ) {
 
-    public EventMeta(EventGroup group, Long groupSequence, EventAction action, String pickeatCode) {
+    public EventMeta(
+            EventGroup group,
+            Long groupSequence,
+            EventAction action,
+            String pickeatCode
+    ) {
         this(group, groupSequence, action, pickeatCode, System.currentTimeMillis());
     }
 }

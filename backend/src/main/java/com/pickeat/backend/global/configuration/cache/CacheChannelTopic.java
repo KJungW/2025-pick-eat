@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.cache;
+package com.pickeat.backend.global.configuration.cache;
 
 import lombok.Getter;
 

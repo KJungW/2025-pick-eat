@@ -1,6 +1,6 @@
 package com.pickeat.backend.pickeat.domain.store;
 
-import com.pickeat.backend.global.setting.StorageKey;
+import com.pickeat.backend.global.configuration.storage.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.pickeat.domain.Pickeat;
 import java.util.Optional;

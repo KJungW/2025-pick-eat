@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.sse;
+package com.pickeat.backend.global.configuration.sse.event;
 
 import lombok.Getter;
 

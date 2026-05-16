@@ -1,6 +1,6 @@
 package com.pickeat.backend.template.application;
 
-import com.pickeat.backend.global.cache.CacheKey.Holder;
+import com.pickeat.backend.global.configuration.cache.CacheKey.Holder;
 import com.pickeat.backend.template.application.dto.response.TemplateResponse;
 import com.pickeat.backend.template.domain.Template;
 import com.pickeat.backend.template.domain.repository.TemplateRepository;

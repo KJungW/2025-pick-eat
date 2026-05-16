@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.cache;
+package com.pickeat.backend.global.configuration.cache;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.time.Duration;
@@ -23,7 +23,7 @@ public class CacheConfiguration {
                 .build());
 
         cacheManager.registerCustomCache(CacheKey.TEMPLATE_WISH_CACHE_KEY.getValue(), Caffeine.newBuilder()
-                .maximumSize(5000)
+                .maximumSize(500)
                 .expireAfterWrite(Duration.ofMinutes(60))
                 .recordStats()
                 .build());

@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.setting;
+package com.pickeat.backend.global.configuration.storage;
 
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;

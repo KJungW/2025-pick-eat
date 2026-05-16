@@ -3,7 +3,7 @@ package com.pickeat.backend.restaurant.domain.storage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.global.setting.StorageKey;
+import com.pickeat.backend.global.configuration.storage.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.domain.Restaurant;

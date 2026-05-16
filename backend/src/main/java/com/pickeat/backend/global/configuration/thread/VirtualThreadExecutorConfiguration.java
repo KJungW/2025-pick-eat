@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.config;
+package com.pickeat.backend.global.configuration.thread;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -6,7 +6,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.core.task.VirtualThreadTaskExecutor;
 
 @Configuration
-public class VirtualThreadExecutorConfig {
+public class VirtualThreadExecutorConfiguration {
 
     @Bean
     public TaskExecutor virtualThreadExecutor() {

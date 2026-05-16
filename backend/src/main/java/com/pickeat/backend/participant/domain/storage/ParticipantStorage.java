@@ -1,6 +1,6 @@
 package com.pickeat.backend.participant.domain.storage;
 
-import com.pickeat.backend.global.setting.StorageKey;
+import com.pickeat.backend.global.configuration.storage.StorageKey;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.participant.application.dto.ParticipantStateDto;
 import com.pickeat.backend.participant.domain.Participant;

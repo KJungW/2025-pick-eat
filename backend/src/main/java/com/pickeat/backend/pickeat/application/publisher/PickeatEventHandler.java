@@ -1,10 +1,10 @@
 package com.pickeat.backend.pickeat.application.publisher;
 
-import com.pickeat.backend.global.sse.EventAction;
-import com.pickeat.backend.global.sse.EventGroup;
-import com.pickeat.backend.global.sse.EventMeta;
-import com.pickeat.backend.global.sse.PickeatEvent;
-import com.pickeat.backend.global.sse.SseChannelTopic;
+import com.pickeat.backend.global.configuration.sse.SseChannelTopic;
+import com.pickeat.backend.global.configuration.sse.event.EventAction;
+import com.pickeat.backend.global.configuration.sse.event.EventGroup;
+import com.pickeat.backend.global.configuration.sse.event.EventMeta;
+import com.pickeat.backend.global.configuration.sse.event.PickeatEvent;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.pickeat.application.dto.event.PickeatCompletionEventContent;
 import com.pickeat.backend.pickeat.application.dto.event.PickeatCompletionEventRequest;

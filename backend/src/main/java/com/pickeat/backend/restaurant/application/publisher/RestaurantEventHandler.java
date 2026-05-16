@@ -1,12 +1,12 @@
 package com.pickeat.backend.restaurant.application.publisher;
 
+import com.pickeat.backend.global.configuration.sse.SseChannelTopic;
+import com.pickeat.backend.global.configuration.sse.event.EventAction;
+import com.pickeat.backend.global.configuration.sse.event.EventGroup;
+import com.pickeat.backend.global.configuration.sse.event.EventMeta;
+import com.pickeat.backend.global.configuration.sse.event.PickeatEvent;
 import com.pickeat.backend.global.exception.BusinessException;
 import com.pickeat.backend.global.exception.ErrorCode;
-import com.pickeat.backend.global.sse.EventAction;
-import com.pickeat.backend.global.sse.EventGroup;
-import com.pickeat.backend.global.sse.EventMeta;
-import com.pickeat.backend.global.sse.PickeatEvent;
-import com.pickeat.backend.global.sse.SseChannelTopic;
 import com.pickeat.backend.global.utility.JsonParser;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventContent;

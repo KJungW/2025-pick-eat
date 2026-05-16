@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.limiter;
+package com.pickeat.backend.global.configuration.limiter;
 
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.expiration.BasedOnTimeForRefillingBucketUpToMaxExpirationAfterWriteStrategy;

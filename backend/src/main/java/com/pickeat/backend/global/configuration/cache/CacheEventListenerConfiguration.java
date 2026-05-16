@@ -1,4 +1,4 @@
-package com.pickeat.backend.global.cache;
+package com.pickeat.backend.global.configuration.cache;
 
 import com.pickeat.backend.template.application.listener.TemplateCacheEventListener;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +17,10 @@ public class CacheEventListenerConfiguration {
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(templateCacheEventListener,
-                new ChannelTopic(CacheChannelTopic.TEMPLATE_TOPIC.getValue()));
+        container.addMessageListener(
+                templateCacheEventListener,
+                new ChannelTopic(CacheChannelTopic.TEMPLATE_TOPIC.getValue())
+        );
         return container;
     }
 }

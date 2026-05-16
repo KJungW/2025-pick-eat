@@ -3,7 +3,7 @@ package com.pickeat.backend.restaurant.application.publisher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.pickeat.backend.global.sse.SseChannelTopic;
+import com.pickeat.backend.global.configuration.sse.SseChannelTopic;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.RestaurantService;
 import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventRequest;
