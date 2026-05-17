@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -12,8 +13,10 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickeat.backend.global.exception.type.ExternalException;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantSearchRequest;
+import com.pickeat.backend.restaurant.application.dto.RestaurantInfoDto;
+import com.pickeat.backend.restaurant.application.dto.external.RestaurantSearchClientRequest;
+import com.pickeat.backend.restaurant.infrastructure.search.kakao.KakaoRestaurantSearchClient;
+import com.pickeat.backend.restaurant.infrastructure.search.kakao.KakaoRestaurantSearchParser;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import java.time.Duration;
@@ -30,13 +33,13 @@ import org.springframework.web.client.RestClient.Builder;
 
 class KakaoRestaurantSearchClientTest {
 
-    private MockRestServiceServer mockServer;
+    private MockRestServiceServer externalServer;
     private KakaoRestaurantSearchClient kakaoRestaurantSearchClient;
 
     @BeforeEach
     void setup() {
         Builder restClientBuilder = makeRestClientBuilder("https://dapi.kakao.com");
-        this.mockServer = makeMockServer(restClientBuilder);
+        this.externalServer = makeMockServer(restClientBuilder);
 
         Bucket bucket = makeTestBucket(1000000);
         this.kakaoRestaurantSearchClient = new KakaoRestaurantSearchClient(
@@ -94,18 +97,18 @@ class KakaoRestaurantSearchClientTest {
                     }
                     """;
 
-            mockServer.expect(requestTo(startsWith("https://dapi.kakao.com/v2/local/search/keyword.json")))
+            externalServer.expect(requestTo(startsWith("https://dapi.kakao.com/v2/local/search/keyword.json")))
                     .andExpect(method(HttpMethod.GET))
                     .andRespond(withSuccess(mockResponse, MediaType.APPLICATION_JSON));
 
             // when
-            List<RestaurantRequest> response = kakaoRestaurantSearchClient.getRestaurants(
-                    new RestaurantSearchRequest("패스트푸드", 127.1234874512, 26.1395871235, 200, 2));
+            List<RestaurantInfoDto> response = kakaoRestaurantSearchClient.getRestaurants(
+                    new RestaurantSearchClientRequest("패스트푸드", 127.1234874512, 26.1395871235, 200, 2));
 
             // then
             assertThat(response).hasSize(2);
 
-            RestaurantRequest first = response.get(0);
+            RestaurantInfoDto first = response.get(0);
             assertThat(first.name()).isEqualTo("써브웨이 잠실역점");
             assertThat(first.distance()).isEqualTo(45);
             assertThat(first.roadAddressName()).isEqualTo("서울 송파구 올림픽로 293-19");
@@ -113,7 +116,7 @@ class KakaoRestaurantSearchClientTest {
             assertThat(first.category().getName()).isEqualTo("기타");
             assertThat(first.tags()).contains("패스트푸드", "샌드위치", "써브웨이");
 
-            RestaurantRequest second = response.get(1);
+            RestaurantInfoDto second = response.get(1);
             assertThat(second.name()).isEqualTo("오호이 홈플러스 잠실점");
             assertThat(second.distance()).isEqualTo(110);
             assertThat(second.roadAddressName()).isEqualTo("서울 송파구 올림픽로35가길 16");
@@ -138,7 +141,7 @@ class KakaoRestaurantSearchClientTest {
                     }
                     """;
 
-            mockServer.expect(requestTo(startsWith("https://dapi.kakao.com/v2/local/search/keyword.json")))
+            externalServer.expect(requestTo(startsWith("https://dapi.kakao.com/v2/local/search/keyword.json")))
                     .andExpect(method(HttpMethod.GET))
                     .andRespond(
                             withStatus(HttpStatus.BAD_REQUEST)
@@ -148,7 +151,7 @@ class KakaoRestaurantSearchClientTest {
 
             // when & then
             assertThatThrownBy(() -> kakaoRestaurantSearchClient.getRestaurants(
-                    new RestaurantSearchRequest("패스트푸드", 127.1234874512, 26.1395871235, 200, 2))
+                    new RestaurantSearchClientRequest("패스트푸드", 127.1234874512, 26.1395871235, 200, 2))
             )
                     .isInstanceOf(ExternalException.class);
         }
@@ -158,19 +161,25 @@ class KakaoRestaurantSearchClientTest {
     void 초당_요청_횟수_제한() {
         // given
         Builder restClientBuilder = makeRestClientBuilder("https://dapi.kakao.com");
-        this.mockServer = makeMockServer(restClientBuilder);
-
-        Bucket bucket = makeTestBucket(1);
+        this.externalServer = makeMockServer(restClientBuilder);
         this.kakaoRestaurantSearchClient = new KakaoRestaurantSearchClient(
-                restClientBuilder.build(), new ObjectMapper(), bucket);
+                restClientBuilder.build(),
+                new ObjectMapper(),
+                new KakaoRestaurantSearchParser(),
+                makeTestBucket(1)
+        );
 
-        String responseJson = "[]";
-        for (int i = 0; i < 2; i++) {
-            mockServer.expect(requestTo(containsString("/v2/local/search/keyword.json")))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
-        }
+        // 외부 API 호출 요청 구성
+        RestaurantSearchClientRequest request = new RestaurantSearchClientRequest(
+                "패스트푸드", 127.1234874512, 26.1395871235, 200, 2);
 
-        RestaurantSearchRequest request = new RestaurantSearchRequest("패스트푸드", 127.1234874512, 26.1395871235, 200, 2);
+        // 첫번째 외부 API 호출 응답 설정
+        externalServer.expect(requestTo(containsString("/v2/local/search/keyword.json")))
+                .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
+
+        // 두번째 외부 API 호출 응답 설정
+        externalServer.expect(requestTo(containsString("/v2/local/search/keyword.json")))
+                .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
         // when
         long startTime = System.currentTimeMillis();
@@ -179,8 +188,10 @@ class KakaoRestaurantSearchClientTest {
         long endTime = System.currentTimeMillis();
 
         // then
-        assertTrue((endTime - startTime) >= 1000, "Rate Limit에 의해 실행이 1초 이상 지연되어야 합니다.");
-        mockServer.verify();
+        assertAll(
+                () -> assertTrue((endTime - startTime) >= 1000, "Rate Limit에 의해 실행이 1초 이상 지연되어야 합니다."),
+                () -> externalServer.verify()
+        );
     }
 
     private RestClient.Builder makeRestClientBuilder(String baseUrl) {

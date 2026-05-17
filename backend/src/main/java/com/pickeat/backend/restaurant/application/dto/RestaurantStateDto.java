@@ -10,7 +10,7 @@ public record RestaurantStateDto(
         Map<String, Integer> likeCountByRestaurant
 ) {
 
-    public List<String> extrudeMaxLikeRestaurantCode() {
+    public List<String> getMostLikedRestaurantCodes() {
         int maxLikeCount = aliveRestaurantCode.stream()
                 .filter(likeCountByRestaurant::containsKey)
                 .mapToInt(likeCountByRestaurant::get)

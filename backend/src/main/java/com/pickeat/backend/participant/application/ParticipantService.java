@@ -81,6 +81,11 @@ public class ParticipantService {
                 .orElseThrow(() -> new ClientException(ClientErrorCode.PARTICIPANT_NOT_FOUND));
     }
 
+    private ParticipantStateDto getParticipantsStateWithSequence(String pickeatCode) {
+        return participantStorage.getParticipantsStateWithSequence(pickeatCode)
+                .orElseThrow(() -> new ClientException(ClientErrorCode.PARTICIPANT_NOT_FOUND));
+    }
+
     private void publishParticipantUpdateEvent(String pickeatCode) {
         ParticipantStateDto state = getParticipantsStateInPickeat(pickeatCode);
         ParticipantUpdateEventRequest EventRequest = ParticipantUpdateEventRequest.of(state, pickeatCode);

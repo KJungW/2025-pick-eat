@@ -1,6 +1,6 @@
 package com.pickeat.backend.support.fake.restaurant;
 
-import com.pickeat.backend.restaurant.application.RestaurantSearchClient;
+import com.pickeat.backend.restaurant.application.client.RestaurantSearchClient;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.distributed.proxy.ProxyManager;

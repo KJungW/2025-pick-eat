@@ -20,7 +20,7 @@ import com.pickeat.backend.pickeat.domain.repository.PickeatResultRepository;
 import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.domain.Restaurant;
 import com.pickeat.backend.restaurant.domain.Restaurants;
-import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
+import com.pickeat.backend.restaurant.domain.storage.RestaurantsCommandStorage;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
 import com.pickeat.backend.support.DatabaseSliceTest;
@@ -37,7 +37,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.event.ApplicationEvents;
 
-@Import({PickeatService.class, PickeatStorage.class, RestaurantsStorage.class, ParticipantStorage.class})
+@Import({PickeatService.class, PickeatStorage.class, RestaurantsCommandStorage.class, ParticipantStorage.class})
 class PickeatServiceTest extends DatabaseSliceTest {
 
     @Autowired
@@ -47,7 +47,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
     private PickeatStorage pickeatStorage;
 
     @Autowired
-    private RestaurantsStorage restaurantsStorage;
+    private RestaurantsCommandStorage restaurantsCommandStorage;
 
     @Autowired
     private ParticipantStorage participantStorage;
@@ -117,12 +117,12 @@ class PickeatServiceTest extends DatabaseSliceTest {
             Restaurant restaurantA = RestaurantFixture.create("식당A");
             Restaurant restaurantB = RestaurantFixture.create("식당B");
             Restaurants restaurants = new Restaurants(List.of(restaurantA, restaurantB));
-            restaurantsStorage.setupRestaurants(pickeat.getCode(), restaurants);
+            restaurantsCommandStorage.setupRestaurants(pickeat.getCode(), restaurants);
 
             Participant participant = new Participant("참가자");
             participantStorage.saveAboutParticipant(pickeat.getCode(), participant);
 
-            restaurantsStorage.like(pickeat.getCode(), participant.getCode(), restaurantA.getCode());
+            restaurantsCommandStorage.like(pickeat.getCode(), participant.getCode(), restaurantA.getCode());
 
             // when
             pickeatService.completePickeat(pickeat.getCode());
@@ -146,7 +146,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
             pickeatStorage.save(pickeat);
 
             Restaurant selectedRestaurant = RestaurantFixture.create("선택될 식당");
-            restaurantsStorage.setupRestaurants(code, new Restaurants(List.of(selectedRestaurant)));
+            restaurantsCommandStorage.setupRestaurants(code, new Restaurants(List.of(selectedRestaurant)));
             participantStorage.saveAboutParticipant(code, new Participant("참가자"));
 
             // when
@@ -177,7 +177,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
             pickeatStorage.save(pickeat);
 
             Restaurant restaurant = RestaurantFixture.create("식당");
-            restaurantsStorage.setupRestaurants(code, new Restaurants(List.of(restaurant)));
+            restaurantsCommandStorage.setupRestaurants(code, new Restaurants(List.of(restaurant)));
 
             Participant participant = new Participant("참가자");
             participantStorage.saveAboutParticipant(code, participant);
@@ -188,8 +188,8 @@ class PickeatServiceTest extends DatabaseSliceTest {
             // then
             assertAll(
                     () -> assertThat(pickeatStorage.getMeta(code).isEmpty()).isTrue(),
-                    () -> assertThat(restaurantsStorage.getRestaurantMeta(code).isEmpty()).isTrue(),
-                    () -> assertThat(restaurantsStorage.getRestaurantState(code).isEmpty()).isTrue(),
+                    () -> assertThat(restaurantsCommandStorage.getRestaurantMeta(code).isEmpty()).isTrue(),
+                    () -> assertThat(restaurantsCommandStorage.getRestaurantState(code).isEmpty()).isTrue(),
                     () -> assertThat(participantStorage.getParticipantsMeta(code).isEmpty()).isTrue(),
                     () -> assertThat(participantStorage.getParticipantsState(code).isEmpty()).isTrue()
             );

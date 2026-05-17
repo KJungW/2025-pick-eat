@@ -14,7 +14,7 @@ public class ExternalException extends BaseException {
         this.platformName = platformName;
     }
 
-    public ExternalException(ServerErrorCode errorCode, String platformName, String message) {
+    public ExternalException(ExternalErrorCode errorCode, String platformName, String message) {
         super(errorCode, message);
         this.platformName = platformName;
     }

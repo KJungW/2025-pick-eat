@@ -1,8 +1,8 @@
 package com.pickeat.backend.restaurant.application;
 
-import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.code.ClientErrorCode;
 import com.pickeat.backend.global.exception.type.ClientException;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
+import com.pickeat.backend.restaurant.application.dto.RestaurantInfoDto;
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.template.domain.Template;
 import com.pickeat.backend.template.domain.TemplateWish;
@@ -21,27 +21,25 @@ public class TemplateRestaurantSearchService {
     private final TemplateRepository templateRepository;
     private final TemplateWishRepository templateWishRepository;
 
-    public List<RestaurantRequest> searchByTemplate(TemplateRestaurantRequest request) {
+    public List<RestaurantInfoDto> searchByTemplate(TemplateRestaurantRequest request) {
         Template template = getTemplateById(request.templateId());
-        validateTemplateState(template);
+        validateTemplateActive(template);
         List<TemplateWish> templateWishes = getTemplateWishById(template);
-        return templateWishes.stream()
-                .map(RestaurantRequest::fromTemplateWish)
-                .toList();
+        return RestaurantInfoDto.fromTemplateWish(templateWishes);
     }
 
-    public Template getTemplateById(Long id) {
+    private Template getTemplateById(Long id) {
         return templateRepository.findById(id)
-                .orElseThrow(() -> new ClientException(ErrorCode.TEMPLATE_NOT_FOUND));
+                .orElseThrow(() -> new ClientException(ClientErrorCode.TEMPLATE_NOT_FOUND));
     }
 
-    public List<TemplateWish> getTemplateWishById(Template template) {
+    private List<TemplateWish> getTemplateWishById(Template template) {
         return templateWishRepository.findAllByTemplateId(template.getId());
     }
 
-    public void validateTemplateState(Template template) {
+    private void validateTemplateActive(Template template) {
         if (!template.getIsActive()) {
-            throw new ClientException(ErrorCode.TEMPLATE_NOT_FOUND);
+            throw new ClientException(ClientErrorCode.TEMPLATE_NOT_FOUND);
         }
     }
 }

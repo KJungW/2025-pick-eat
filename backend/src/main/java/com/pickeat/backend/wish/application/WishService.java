@@ -37,7 +37,7 @@ public class WishService {
         Room room = getRoom(roomId);
         RestaurantInfo restaurantInfo = new RestaurantInfo(
                 request.name(),
-                FoodCategory.getCategoryNameBy(request.category()),
+                FoodCategory.parse(request.category()),
                 null,
                 request.roadAddressName(),
                 request.placeUrl(),
@@ -59,7 +59,7 @@ public class WishService {
         Wish wish = getWishWithAccessValidation(wishId, userId);
         RestaurantInfo restaurantInfo = new RestaurantInfo(
                 request.name(),
-                FoodCategory.getCategoryNameBy(request.category()),
+                FoodCategory.parse(request.category()),
                 null,
                 request.roadAddressName(),
                 request.placeUrl(),

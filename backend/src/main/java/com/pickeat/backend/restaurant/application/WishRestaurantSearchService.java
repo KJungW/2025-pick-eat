@@ -1,8 +1,8 @@
 package com.pickeat.backend.restaurant.application;
 
-import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.code.ClientErrorCode;
 import com.pickeat.backend.global.exception.type.ClientException;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
+import com.pickeat.backend.restaurant.application.dto.RestaurantInfoDto;
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
 import com.pickeat.backend.wish.domain.Wish;
 import com.pickeat.backend.wish.domain.repository.WishRepository;
@@ -18,18 +18,15 @@ public class WishRestaurantSearchService {
 
     private final WishRepository wishRepository;
 
-    public List<RestaurantRequest> searchByWish(WishRestaurantRequest request) {
+    public List<RestaurantInfoDto> searchByWish(WishRestaurantRequest request) {
         List<Wish> wishes = wishRepository.findAllByRoomId(request.roomId());
-        validateWishExists(wishes);
-
-        return wishes.stream()
-                .map(RestaurantRequest::fromWish)
-                .toList();
+        validateWishesNotEmpty(wishes);
+        return RestaurantInfoDto.fromWishes(wishes);
     }
 
-    private void validateWishExists(List<Wish> wishes) {
+    private void validateWishesNotEmpty(List<Wish> wishes) {
         if (wishes.isEmpty()) {
-            throw new ClientException(ErrorCode.ROOM_HAS_NO_WISHES);
+            throw new ClientException(ClientErrorCode.ROOM_HAS_NO_WISHES);
         }
     }
 }

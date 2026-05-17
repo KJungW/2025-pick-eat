@@ -8,7 +8,7 @@ import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.RestaurantService;
 import com.pickeat.backend.restaurant.application.dto.event.RestaurantUpdateEventRequest;
 import com.pickeat.backend.restaurant.domain.Restaurants;
-import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
+import com.pickeat.backend.restaurant.domain.storage.RestaurantsCommandStorage;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.RestaurantFixture;
 import java.util.List;
@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-@Import({RestaurantEventHandler.class, RestaurantService.class, RestaurantsStorage.class, PickeatStorage.class})
+@Import({RestaurantEventHandler.class, RestaurantService.class, RestaurantsCommandStorage.class, PickeatStorage.class})
 class RestaurantEventHandlerTest extends DatabaseSliceTest {
 
     @Autowired
@@ -31,7 +31,7 @@ class RestaurantEventHandlerTest extends DatabaseSliceTest {
     private RestaurantService restaurantService;
 
     @Autowired
-    private RestaurantsStorage restaurantsStorage;
+    private RestaurantsCommandStorage restaurantsCommandStorage;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -76,6 +76,6 @@ class RestaurantEventHandlerTest extends DatabaseSliceTest {
                 RestaurantFixture.create("마라탕"),
                 RestaurantFixture.create("김치찌개")
         ));
-        restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+        restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
     }
 }

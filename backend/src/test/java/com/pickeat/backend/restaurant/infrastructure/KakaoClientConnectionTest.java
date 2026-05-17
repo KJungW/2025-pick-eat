@@ -3,7 +3,8 @@ package com.pickeat.backend.restaurant.infrastructure;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantSearchRequest;
+import com.pickeat.backend.restaurant.application.dto.external.RestaurantSearchClientRequest;
+import com.pickeat.backend.restaurant.infrastructure.search.kakao.KakaoRestaurantSearchClient;
 import com.pickeat.backend.support.AcceptanceTest;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -50,7 +51,7 @@ class KakaoClientConnectionTest extends AcceptanceTest {
     void 실제_카카오_API_연동_테스트() {
         // when & then
         assertThatCode(() -> client.getRestaurants(
-                new RestaurantSearchRequest("패스트푸드", 127.103068896795, 37.5152535228382, 200, 10)))
+                new RestaurantSearchClientRequest("패스트푸드", 127.103068896795, 37.5152535228382, 200, 10)))
                 .doesNotThrowAnyException();
     }
 }

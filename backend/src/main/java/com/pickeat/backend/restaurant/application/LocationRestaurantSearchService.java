@@ -1,8 +1,12 @@
 package com.pickeat.backend.restaurant.application;
 
+import com.pickeat.backend.global.exception.code.ServerErrorCode;
+import com.pickeat.backend.global.exception.type.BaseException;
+import com.pickeat.backend.global.exception.type.ServerException;
+import com.pickeat.backend.restaurant.application.client.RestaurantSearchClient;
+import com.pickeat.backend.restaurant.application.dto.RestaurantInfoDto;
+import com.pickeat.backend.restaurant.application.dto.external.RestaurantSearchClientRequest;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantSearchRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -20,44 +24,50 @@ import org.springframework.transaction.annotation.Transactional;
 public class LocationRestaurantSearchService {
 
     private static final int RESTAURANT_SEARCH_SIZE = 10;
+    private static final int THREAD_TIMEOUT = 5;
     private static final List<String> CATEGORIES = List.of("한식", "양식", "중식", "일식", "아시안음식");
 
     private final RestaurantSearchClient restaurantSearchClient;
     private final TaskExecutor virtualThreadExecutor;
 
-    public List<RestaurantRequest> searchByLocation(LocationRestaurantRequest request) {
-        List<CompletableFuture<List<RestaurantRequest>>> futures = makeGetRestaurantFuture(request);
-        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-
-        try {
-            allFutures.join();
-            return futures.stream()
-                    .map(CompletableFuture::join)
-                    .flatMap(List::stream)
-                    .distinct()
-                    .toList();
-        } catch (CompletionException e) {
-            if (e.getCause() instanceof RuntimeException re) {
-                throw re;
-            }
-            throw e;
-        }
+    public List<RestaurantInfoDto> searchByLocation(LocationRestaurantRequest request) {
+        List<RestaurantSearchClientRequest> clientRequests = createClientRequest(request);
+        List<CompletableFuture<List<RestaurantInfoDto>>> futures = createClientRequestFutures(clientRequests);
+        return executeAllFuture(futures);
     }
 
-    private List<CompletableFuture<List<RestaurantRequest>>> makeGetRestaurantFuture(
-            LocationRestaurantRequest request
-    ) {
+    private List<RestaurantSearchClientRequest> createClientRequest(LocationRestaurantRequest request) {
         return CATEGORIES.stream()
-                .map(category -> CompletableFuture
-                        .supplyAsync(() -> getRestaurants(category, request), virtualThreadExecutor)
-                        .orTimeout(5, TimeUnit.SECONDS)
-                )
+                .map(category -> RestaurantSearchClientRequest.of(request, category, RESTAURANT_SEARCH_SIZE))
                 .toList();
     }
 
-    private List<RestaurantRequest> getRestaurants(String category, LocationRestaurantRequest request) {
-        return restaurantSearchClient.getRestaurants(
-                new RestaurantSearchRequest(category, request.x(), request.y(), request.radius(),
-                        RESTAURANT_SEARCH_SIZE));
+    private List<CompletableFuture<List<RestaurantInfoDto>>> createClientRequestFutures(
+            List<RestaurantSearchClientRequest> clientRequests
+    ) {
+        return clientRequests.stream()
+                .map(request -> CompletableFuture
+                        .supplyAsync(() -> restaurantSearchClient.getRestaurants(request), virtualThreadExecutor)
+                        .orTimeout(THREAD_TIMEOUT, TimeUnit.SECONDS))
+                .toList();
+    }
+
+    private List<RestaurantInfoDto> executeAllFuture(
+            List<CompletableFuture<List<RestaurantInfoDto>>> futures
+    ) {
+        try {
+            CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+
+            return futures.stream()
+                    .map(CompletableFuture::join)
+                    .flatMap(List::stream)
+                    .toList();
+
+        } catch (CompletionException e) {
+            if (e.getCause() instanceof BaseException exception) {
+                throw exception;
+            }
+            throw new ServerException(ServerErrorCode.INTERNAL_SERVER_ERROR, e.getCause());
+        }
     }
 }

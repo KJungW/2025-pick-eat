@@ -15,7 +15,11 @@ public record RestaurantStateResponse(
         Map<String, Integer> likeCountByRestaurant
 ) {
 
-    public static RestaurantStateResponse of(RestaurantStateDto dto) {
-        return new RestaurantStateResponse(dto.sequence(), dto.aliveRestaurantCode(), dto.likeCountByRestaurant());
+    public static RestaurantStateResponse of(RestaurantStateDto state) {
+        return new RestaurantStateResponse(
+                state.sequence(),
+                state.aliveRestaurantCode(),
+                state.likeCountByRestaurant()
+        );
     }
 }

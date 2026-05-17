@@ -1,6 +1,7 @@
 package com.pickeat.backend.restaurant.domain;
 
 import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -15,10 +16,16 @@ public enum FoodCategory {
 
     private final String name;
 
-    public static FoodCategory getCategoryNameBy(String category) {
+    public static FoodCategory parse(String category) {
         return Arrays.stream(values())
                 .filter(foodCategory -> category.contains(foodCategory.name))
                 .findAny()
                 .orElse(OTHERS);
+    }
+
+    public static List<String> getNames() {
+        return Arrays.stream(FoodCategory.values())
+                .map(FoodCategory::getName)
+                .toList();
     }
 }

@@ -4,8 +4,10 @@ import org.springframework.http.HttpStatus;
 
 public enum ExternalErrorCode implements ErrorCode {
 
-    EXTERNAL_API_FAIL_5XX(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 연동에 실패했습니다.(5XX 응답 발생)"),
-    EXTERNAL_API_FAIL_4XX(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 연결에 실패했습니다.(4XX 응답 발생)");
+    EXTERNAL_API_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 호출에서 예외 응답 발생"),
+    EXTERNAL_API_TIMEOUT(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 호출에서 타임아웃 발생"),
+    RATE_LIMIT_WAIT_TIMEOUT(HttpStatus.INTERNAL_SERVER_ERROR, "요청 제한을 위한 토큰 대기에서 타임아웃 발생"),
+    THREAD_TIMEOUT(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API를 호출하는 스레드에서 타임아웃 발생");
 
     private final HttpStatus status;
     private final String message;

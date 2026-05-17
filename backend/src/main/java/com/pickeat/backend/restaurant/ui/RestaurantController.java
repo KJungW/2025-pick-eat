@@ -2,14 +2,15 @@ package com.pickeat.backend.restaurant.ui;
 
 import com.pickeat.backend.global.argument.annotation.Participant;
 import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
-import com.pickeat.backend.restaurant.application.RestaurantSearchFacade;
-import com.pickeat.backend.restaurant.application.RestaurantService;
+import com.pickeat.backend.restaurant.application.RestaurantCommandService;
+import com.pickeat.backend.restaurant.application.RestaurantQueryService;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.RestaurantExcludeRequest;
 import com.pickeat.backend.restaurant.application.dto.request.TemplateRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.request.WishRestaurantRequest;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantResponse;
 import com.pickeat.backend.restaurant.application.dto.response.RestaurantStateResponse;
+import com.pickeat.backend.restaurant.application.facade.RestaurantSearchFacade;
 import com.pickeat.backend.restaurant.ui.api.RestaurantApiSpec;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -29,7 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RestaurantController implements RestaurantApiSpec {
 
-    private final RestaurantService restaurantService;
+    private final RestaurantQueryService restaurantQueryService;
+    private final RestaurantCommandService restaurantCommandService;
     private final RestaurantSearchFacade restaurantSearchFacade;
 
     @Override
@@ -70,7 +72,7 @@ public class RestaurantController implements RestaurantApiSpec {
     public ResponseEntity<List<RestaurantResponse>> getRestaurantMetaInPickeat(
             @Participant ParticipantPrincipal principal
     ) {
-        List<RestaurantResponse> response = restaurantService.getMetaInPickeat(principal.pickeatCode());
+        List<RestaurantResponse> response = restaurantQueryService.getMetaInPickeat(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
     }
 
@@ -79,7 +81,7 @@ public class RestaurantController implements RestaurantApiSpec {
     public ResponseEntity<RestaurantStateResponse> getRestaurantStateInPickeat(
             @Participant ParticipantPrincipal principal
     ) {
-        RestaurantStateResponse response = restaurantService.getStateInPickeat(principal.pickeatCode());
+        RestaurantStateResponse response = restaurantQueryService.getStateInPickeat(principal.pickeatCode());
         return ResponseEntity.ok().body(response);
     }
 
@@ -89,7 +91,7 @@ public class RestaurantController implements RestaurantApiSpec {
             @RequestBody RestaurantExcludeRequest request,
             @Participant ParticipantPrincipal principal
     ) {
-        restaurantService.exclude(principal.pickeatCode(), request.restaurantCodes());
+        restaurantCommandService.exclude(principal.pickeatCode(), request.restaurantCodes());
         return ResponseEntity.noContent().build();
     }
 
@@ -99,7 +101,7 @@ public class RestaurantController implements RestaurantApiSpec {
             @PathVariable("restaurantCode") String restaurantCode,
             @Participant ParticipantPrincipal principal
     ) {
-        restaurantService.like(principal.pickeatCode(), principal.participantCode(), restaurantCode);
+        restaurantCommandService.like(principal.pickeatCode(), principal.participantCode(), restaurantCode);
         return ResponseEntity.noContent().build();
     }
 
@@ -109,7 +111,7 @@ public class RestaurantController implements RestaurantApiSpec {
             @PathVariable("restaurantCode") String restaurantCode,
             @Participant ParticipantPrincipal principal
     ) {
-        restaurantService.cancelLike(principal.pickeatCode(), principal.participantCode(), restaurantCode);
+        restaurantCommandService.cancelLike(principal.pickeatCode(), principal.participantCode(), restaurantCode);
         return ResponseEntity.noContent().build();
     }
 }

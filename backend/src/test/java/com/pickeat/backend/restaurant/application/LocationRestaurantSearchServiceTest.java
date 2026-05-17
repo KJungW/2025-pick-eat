@@ -10,8 +10,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.pickeat.backend.global.exception.type.ExternalException;
+import com.pickeat.backend.restaurant.application.client.RestaurantSearchClient;
+import com.pickeat.backend.restaurant.application.dto.RestaurantInfoDto;
 import com.pickeat.backend.restaurant.application.dto.request.LocationRestaurantRequest;
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fake.restaurant.TestKakaoMapClientConfig;
 import com.pickeat.backend.support.fixture.RestaurantRequestFixture;
@@ -53,7 +54,7 @@ class LocationRestaurantSearchServiceTest extends DatabaseSliceTest {
             LocationRestaurantRequest request = new LocationRestaurantRequest(127.0, 37.0, 1000);
 
             // when
-            List<RestaurantRequest> result = locationRestaurantSearchService.searchByLocation(request);
+            List<RestaurantInfoDto> result = locationRestaurantSearchService.searchByLocation(request);
 
             // then
             assertAll(
@@ -78,7 +79,7 @@ class LocationRestaurantSearchServiceTest extends DatabaseSliceTest {
             LocationRestaurantRequest request = new LocationRestaurantRequest(127.0, 37.0, 1000);
 
             // when
-            List<RestaurantRequest> result = locationRestaurantSearchService.searchByLocation(request);
+            List<RestaurantInfoDto> result = locationRestaurantSearchService.searchByLocation(request);
 
             // then
             assertAll(

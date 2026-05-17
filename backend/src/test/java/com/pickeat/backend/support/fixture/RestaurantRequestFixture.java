@@ -1,12 +1,12 @@
 package com.pickeat.backend.support.fixture;
 
-import com.pickeat.backend.restaurant.application.dto.request.RestaurantRequest;
+import com.pickeat.backend.restaurant.application.dto.RestaurantInfoDto;
 import com.pickeat.backend.restaurant.domain.FoodCategory;
 
 public class RestaurantRequestFixture {
 
-    public static RestaurantRequest create(String name) {
-        return new RestaurantRequest(
+    public static RestaurantInfoDto create(String name) {
+        return new RestaurantInfoDto(
                 name,
                 FoodCategory.KOREAN,
                 10,

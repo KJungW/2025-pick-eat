@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 public class ParticipantStorageScript {
 
+    //TODO: 시퀀스 생성은 세팅 스크립트에서 하도록 변경 (2026-05-17, 일, 20:5)
     public static final DefaultRedisScript<Boolean> ADD_PARTICIPANT_SCRIPT = new DefaultRedisScript<>(
             """
                     -- [Script Overview]
@@ -35,17 +36,17 @@ public class ParticipantStorageScript {
     public static final DefaultRedisScript<List> GET_ALL_STATE_SCRIPT = new DefaultRedisScript<>(
             """
                     -- [Script Overview]
-                    -- 목적: 현재 투표의 모든 참가자 상태를 조회한다. ("참가자 완료 여부 Hash"와 "참가자 상태 시퀀스" 조회)
-                    -- KEYS: [1] "참가자 완료 여부 Hash" 키, [2] "참가자 상태 시퀀스" 키
-                    -- 응답: { 참가자 상태 시퀀스 값 (String), 모든 참가자의 투표 완료 여부 (Hash:참가자코드-완료여부) }
+                    -- 목적: 현재 투표의 모든 참가자 상태를 조회한다. ("참가자 완료 여부 Hash"와 "참가자 상태 조회 시퀀스" 조회)
+                    -- KEYS: [1] "참가자 완료 여부 Hash" 키, [2] "참가자 상태 조회 시퀀스" 키
+                    -- 응답: { 참가자 상태 조회 시퀀스 값 (String), 모든 참가자의 투표 완료 여부 (Hash:참가자코드-완료여부) }
                     
                     -- "참가자 완료 여부 Hash" : 투표에 해당하는 모든 참가자 완료 여부 조회
                     local data = redis.call('HGETALL', KEYS[1])
                     
-                    -- "참가자 상태 시퀀스" : 참가자 상태 시퀀스 조회
+                    -- "참가자 상태 조회 시퀀스" : 참가자 상태 조회 시퀀스 조회
                     local seq = redis.call('GET', KEYS[2])
                     
-                    -- "참가자 상태 시퀀스" : 참가자 상태 시퀀스 값이 없을 경우 0으로 세팅
+                    -- "참가자 상태 조회 시퀀스" : 참가자 상태 조회 시퀀스 값이 없을 경우 0으로 세팅
                     if not seq then
                         seq = "0"
                     end
@@ -56,16 +57,16 @@ public class ParticipantStorageScript {
     public static final DefaultRedisScript<List> GET_ALL_STATE_AND_INCR_SEQUENCE_SCRIPT = new DefaultRedisScript<>(
             """
                     -- [Script Overview]
-                    -- 목적: 시퀀스 번호를 1증가 시키고, 현재 투표의 모든 참가자 상태를 조회한다.
-                            ("참가자 상태 시퀀스" 증가 후에 "참가자 완료 여부 Hash"와 "참가자 상태 시퀀스" 조회)
-                    -- KEYS: [1] "참가자 완료 여부 Hash" 키, [2] "참가자 상태 시퀀스" 키
+                    -- 목적: 참가자 상태 조회 시퀀스 번호를 1증가 시키고, 현재 투표의 모든 참가자 상태를 조회한다.
+                            ("참가자 완료 여부 Hash"와 "참가자 상태 조회 시퀀스" 조회)
+                    -- KEYS: [1] "참가자 완료 여부 Hash" 키, [2] "참가자 상태 조회 시퀀스" 키
                     -- ARGS: [1] TTL (초 단위)
-                    -- 응답: { 참가자 상태 시퀀스 값 (String), 모든 참가자의 투표 완료 여부 (Hash:참가자코드-완료여부) }
+                    -- 응답: { 참가자 상태 조회 시퀀스 값 (String), 모든 참가자의 투표 완료 여부 (Hash:참가자코드-완료여부) }
                     
-                    -- "참가자 상태 시퀀스" : 1 증가시킨 후에 조회
+                    -- "참가자 상태 조회 시퀀스" : 1 증가시킨 후에 조회
                     local seq = redis.call('INCR', KEYS[2])
                     
-                    -- "참가자 상태 시퀀스" : 처음 시퀀스 생성 시 TTL 설정
+                    -- "참가자 상태 조회 시퀀스" : 처음 시퀀스 생성 시 TTL 설정
                     if tonumber(seq) == 1 then
                         redis.call('EXPIRE', KEYS[2], ARGV[1])
                     end

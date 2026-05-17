@@ -21,11 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-@Import(RestaurantsStorage.class)
-class RestaurantsStorageTest extends DatabaseSliceTest {
+@Import(RestaurantsCommandStorage.class)
+class RestaurantsCommandStorageTest extends DatabaseSliceTest {
 
     @Autowired
-    private RestaurantsStorage restaurantsStorage;
+    private RestaurantsCommandStorage restaurantsCommandStorage;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -45,10 +45,10 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String pickeatCode = "pickeat-code";
 
             // when
-            Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            Boolean isSuccess = restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
             // then
-            Restaurants savedMeta = restaurantsStorage.getRestaurantMeta(pickeatCode).get();
+            Restaurants savedMeta = restaurantsCommandStorage.getRestaurantMeta(pickeatCode).get();
             assertAll(
                     () -> assertThat(isSuccess).isTrue(),
                     () -> assertThat(savedMeta.getRestaurants()).hasSize(2),
@@ -67,11 +67,11 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String pickeatCode = "pickeat-code";
 
             // when
-            Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            Boolean isSuccess = restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
             // then
             List<String> restaurantCodes = restaurants.extrudeRestaurantCodes();
-            Set<String> aliveCodes = restaurantsStorage.getRestaurantState(pickeatCode).get()
+            Set<String> aliveCodes = restaurantsCommandStorage.getRestaurantState(pickeatCode).get()
                     .aliveRestaurantCode();
             assertAll(
                     () -> assertThat(isSuccess).isTrue(),
@@ -89,11 +89,11 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String pickeatCode = "pickeat-code";
 
             // when
-            Boolean isSuccess = restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            Boolean isSuccess = restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
             // then
             List<String> restaurantCodes = restaurants.extrudeRestaurantCodes();
-            Map<String, Integer> savedLikeCount = restaurantsStorage.getRestaurantState(pickeatCode).get()
+            Map<String, Integer> savedLikeCount = restaurantsCommandStorage.getRestaurantState(pickeatCode).get()
                     .likeCountByRestaurant();
             assertAll(
                     () -> assertThat(isSuccess).isTrue(),
@@ -108,12 +108,12 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             // given
             Restaurants existing = new Restaurants(List.of(RestaurantFixture.create("기존 데이터")));
             String pickeatCode = "pickeat-code";
-            restaurantsStorage.setupRestaurants(pickeatCode, existing);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, existing);
 
             Restaurants newData = new Restaurants(List.of(RestaurantFixture.create("새 데이터")));
 
             // when
-            Boolean result = restaurantsStorage.setupRestaurants(pickeatCode, newData);
+            Boolean result = restaurantsCommandStorage.setupRestaurants(pickeatCode, newData);
 
             // then
             assertThat(result).isFalse();
@@ -128,10 +128,10 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             // given
             Restaurants restaurants = new Restaurants(List.of(RestaurantFixture.create("삼겹살")));
             String pickeatCode = "pickeat-code";
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
             // when
-            Optional<Restaurants> result = restaurantsStorage.getRestaurantMeta(pickeatCode);
+            Optional<Restaurants> result = restaurantsCommandStorage.getRestaurantMeta(pickeatCode);
 
             // then
             assertAll(
@@ -146,7 +146,7 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String nonExistentCode = "EMPTY_CODE";
 
             // when
-            Optional<Restaurants> result = restaurantsStorage.getRestaurantMeta(nonExistentCode);
+            Optional<Restaurants> result = restaurantsCommandStorage.getRestaurantMeta(nonExistentCode);
 
             // then
             assertThat(result).isEmpty();
@@ -164,14 +164,14 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             Restaurant restaurant2 = RestaurantFixture.create("돈가스");
             Restaurants restaurants = new Restaurants(List.of(restaurant1, restaurant2));
 
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
-            restaurantsStorage.like(pickeatCode, "user-1", restaurant1.getCode());
-            restaurantsStorage.like(pickeatCode, "user-2", restaurant1.getCode());
-            restaurantsStorage.excludeRestaurants(pickeatCode, List.of(restaurant2.getCode()));
+            restaurantsCommandStorage.like(pickeatCode, "user-1", restaurant1.getCode());
+            restaurantsCommandStorage.like(pickeatCode, "user-2", restaurant1.getCode());
+            restaurantsCommandStorage.excludeRestaurants(pickeatCode, List.of(restaurant2.getCode()));
 
             // when
-            Optional<RestaurantStateDto> result = restaurantsStorage.getRestaurantState(pickeatCode);
+            Optional<RestaurantStateDto> result = restaurantsCommandStorage.getRestaurantState(pickeatCode);
 
             // then
             assertAll(
@@ -191,7 +191,7 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String nonExistentCode = "EMPTY_CODE";
 
             // when
-            Optional<RestaurantStateDto> result = restaurantsStorage.getRestaurantState(nonExistentCode);
+            Optional<RestaurantStateDto> result = restaurantsCommandStorage.getRestaurantState(nonExistentCode);
 
             // then
             assertThat(result).isEmpty();
@@ -207,10 +207,10 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String pickeatCode = "seq-test-code";
             Restaurant restaurant = RestaurantFixture.create("마라탕");
             Restaurants restaurants = new Restaurants(List.of(restaurant));
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
             // when
-            Optional<RestaurantStateDto> result = restaurantsStorage.getRestaurantStateWithSequence(pickeatCode);
+            Optional<RestaurantStateDto> result = restaurantsCommandStorage.getRestaurantStateWithSequence(pickeatCode);
 
             // then
             assertAll(
@@ -225,12 +225,15 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "seq-incr-code";
             Restaurants restaurants = new Restaurants(List.of(RestaurantFixture.create("마라탕")));
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
             // when
-            Optional<RestaurantStateDto> firstCall = restaurantsStorage.getRestaurantStateWithSequence(pickeatCode);
-            Optional<RestaurantStateDto> secondCall = restaurantsStorage.getRestaurantStateWithSequence(pickeatCode);
-            Optional<RestaurantStateDto> thirdCall = restaurantsStorage.getRestaurantStateWithSequence(pickeatCode);
+            Optional<RestaurantStateDto> firstCall = restaurantsCommandStorage.getRestaurantStateWithSequence(
+                    pickeatCode);
+            Optional<RestaurantStateDto> secondCall = restaurantsCommandStorage.getRestaurantStateWithSequence(
+                    pickeatCode);
+            Optional<RestaurantStateDto> thirdCall = restaurantsCommandStorage.getRestaurantStateWithSequence(
+                    pickeatCode);
 
             // then
             assertAll(
@@ -247,11 +250,11 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String sequenceKey = StorageKey.RESTAURANT_SEQUENCE.generateKey(pickeatCode);
             Restaurants restaurants = new Restaurants(List.of(RestaurantFixture.create("마라탕")));
 
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
             Duration expectedTtl = StorageKey.PICKEAT_TTL;
 
             // when
-            restaurantsStorage.getRestaurantStateWithSequence(pickeatCode);
+            restaurantsCommandStorage.getRestaurantStateWithSequence(pickeatCode);
 
             // then
             Long actualTtl = redisTemplate.getExpire(sequenceKey);
@@ -268,7 +271,8 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String nonExistentCode = "EMPTY_CODE";
 
             // when
-            Optional<RestaurantStateDto> result = restaurantsStorage.getRestaurantStateWithSequence(nonExistentCode);
+            Optional<RestaurantStateDto> result = restaurantsCommandStorage.getRestaurantStateWithSequence(
+                    nonExistentCode);
 
             // then
             assertThat(result).isEmpty();
@@ -286,16 +290,16 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
                     RestaurantFixture.create("마라탕"),
                     RestaurantFixture.create("돈가스"),
                     RestaurantFixture.create("쌀국수")));
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
             List<String> restaurantsCodes = restaurants.extrudeRestaurantCodes();
 
             // when
-            restaurantsStorage.excludeRestaurants(pickeatCode,
+            restaurantsCommandStorage.excludeRestaurants(pickeatCode,
                     List.of(restaurantsCodes.get(0), restaurantsCodes.get(1)));
 
             // then
-            Set<String> remainCodes = restaurantsStorage.getRestaurantState(pickeatCode).get()
+            Set<String> remainCodes = restaurantsCommandStorage.getRestaurantState(pickeatCode).get()
                     .aliveRestaurantCode();
             assertAll(
                     () -> assertThat(remainCodes).hasSize(1),
@@ -314,13 +318,13 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String participantCode = "user-1";
             Restaurant restaurant = RestaurantFixture.create("마라탕");
             Restaurants restaurants = new Restaurants(List.of(restaurant));
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
             // when
-            Boolean isSuccess = restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+            Boolean isSuccess = restaurantsCommandStorage.like(pickeatCode, participantCode, restaurant.getCode());
 
             // then
-            Map<String, Integer> likeCounts = restaurantsStorage.getRestaurantState(pickeatCode).get()
+            Map<String, Integer> likeCounts = restaurantsCommandStorage.getRestaurantState(pickeatCode).get()
                     .likeCountByRestaurant();
             assertAll(
                     () -> assertThat(isSuccess).isTrue(),
@@ -335,14 +339,14 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String participantCode = "user-1";
             Restaurant restaurant = RestaurantFixture.create("마라탕");
             Restaurants restaurants = new Restaurants(List.of(restaurant));
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
-            restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.like(pickeatCode, participantCode, restaurant.getCode());
 
             // when
-            Boolean isSuccess = restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+            Boolean isSuccess = restaurantsCommandStorage.like(pickeatCode, participantCode, restaurant.getCode());
 
             // then
-            Map<String, Integer> likeCounts = restaurantsStorage.getRestaurantState(pickeatCode).get()
+            Map<String, Integer> likeCounts = restaurantsCommandStorage.getRestaurantState(pickeatCode).get()
                     .likeCountByRestaurant();
             assertAll(
                     () -> assertThat(isSuccess).isFalse(),
@@ -361,14 +365,15 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String participantCode = "user-1";
             Restaurant restaurant = RestaurantFixture.create("마라탕");
             Restaurants restaurants = new Restaurants(List.of(restaurant));
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
-            restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.like(pickeatCode, participantCode, restaurant.getCode());
 
             // when
-            Boolean isSuccess = restaurantsStorage.cancelLike(pickeatCode, participantCode, restaurant.getCode());
+            Boolean isSuccess = restaurantsCommandStorage.cancelLike(pickeatCode, participantCode,
+                    restaurant.getCode());
 
             // then
-            Map<String, Integer> likeCounts = restaurantsStorage.getRestaurantState(pickeatCode).get()
+            Map<String, Integer> likeCounts = restaurantsCommandStorage.getRestaurantState(pickeatCode).get()
                     .likeCountByRestaurant();
             assertAll(
                     () -> assertThat(isSuccess).isTrue(),
@@ -383,13 +388,14 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             String participantCode = "user-1";
             Restaurant restaurant = RestaurantFixture.create("마라탕");
             Restaurants restaurants = new Restaurants(List.of(restaurant));
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
 
             // when
-            Boolean isSuccess = restaurantsStorage.cancelLike(pickeatCode, participantCode, restaurant.getCode());
+            Boolean isSuccess = restaurantsCommandStorage.cancelLike(pickeatCode, participantCode,
+                    restaurant.getCode());
 
             // then
-            Map<String, Integer> likeCounts = restaurantsStorage.getRestaurantState(pickeatCode).get()
+            Map<String, Integer> likeCounts = restaurantsCommandStorage.getRestaurantState(pickeatCode).get()
                     .likeCountByRestaurant();
             assertAll(
                     () -> assertThat(isSuccess).isFalse(),
@@ -409,9 +415,9 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             Restaurant restaurant = RestaurantFixture.create("삭제될 식당");
             Restaurants restaurants = new Restaurants(List.of(restaurant));
 
-            restaurantsStorage.setupRestaurants(pickeatCode, restaurants);
-            restaurantsStorage.like(pickeatCode, participantCode, restaurant.getCode());
-            restaurantsStorage.getRestaurantStateWithSequence(pickeatCode);
+            restaurantsCommandStorage.setupRestaurants(pickeatCode, restaurants);
+            restaurantsCommandStorage.like(pickeatCode, participantCode, restaurant.getCode());
+            restaurantsCommandStorage.getRestaurantStateWithSequence(pickeatCode);
 
             String metaKey = StorageKey.RESTAURANT_META.generateKey(pickeatCode);
             String aliveKey = StorageKey.RESTAURANT_ALIVE.generateKey(pickeatCode);
@@ -429,7 +435,7 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
             );
 
             // when
-            restaurantsStorage.remove(pickeatCode);
+            restaurantsCommandStorage.remove(pickeatCode);
 
             // then
             assertAll(
@@ -438,8 +444,8 @@ class RestaurantsStorageTest extends DatabaseSliceTest {
                     () -> assertThat(redisTemplate.hasKey(likeCountKey)).isFalse(),
                     () -> assertThat(redisTemplate.hasKey(likeRecordKey)).isFalse(),
                     () -> assertThat(redisTemplate.hasKey(sequenceKey)).isFalse(),
-                    () -> assertThat(restaurantsStorage.getRestaurantMeta(pickeatCode)).isEmpty(),
-                    () -> assertThat(restaurantsStorage.getRestaurantState(pickeatCode)).isEmpty()
+                    () -> assertThat(restaurantsCommandStorage.getRestaurantMeta(pickeatCode)).isEmpty(),
+                    () -> assertThat(restaurantsCommandStorage.getRestaurantState(pickeatCode)).isEmpty()
             );
         }
     }

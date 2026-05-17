@@ -14,7 +14,7 @@ import com.pickeat.backend.pickeat.domain.store.PickeatStorage;
 import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.domain.Restaurant;
 import com.pickeat.backend.restaurant.domain.Restaurants;
-import com.pickeat.backend.restaurant.domain.storage.RestaurantsStorage;
+import com.pickeat.backend.restaurant.domain.storage.RestaurantsCommandStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PickeatCompletionService {
 
     private final PickeatStorage pickeatStorage;
-    private final RestaurantsStorage restaurantsStorage;
+    private final RestaurantsCommandStorage restaurantsCommandStorage;
     private final ParticipantStorage participantStorage;
     private final PickeatRecordRepository pickeatRecordRepository;
     private final PickeatResultRepository pickeatResultRepository;
@@ -50,12 +50,12 @@ public class PickeatCompletionService {
     }
 
     private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
-        return restaurantsStorage.getRestaurantMeta(pickeatCode)
+        return restaurantsCommandStorage.getRestaurantMeta(pickeatCode)
                 .orElseThrow(() -> new ClientException(ClientErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
-        return restaurantsStorage.getRestaurantState(pickeatCode)
+        return restaurantsCommandStorage.getRestaurantState(pickeatCode)
                 .orElseThrow(() -> new ClientException(ClientErrorCode.RESTAURANT_NOT_FOUND));
     }
 
@@ -77,7 +77,7 @@ public class PickeatCompletionService {
 
     private void removeAllAboutPickeatAtStorage(String pickeatCode) {
         pickeatStorage.remove(pickeatCode);
-        restaurantsStorage.remove(pickeatCode);
+        restaurantsCommandStorage.remove(pickeatCode);
         participantStorage.remove(pickeatCode);
     }
 

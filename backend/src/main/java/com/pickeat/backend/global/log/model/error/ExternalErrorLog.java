@@ -10,15 +10,26 @@ import java.util.Map;
 public record ExternalErrorLog(
         LogType logType,
         ExternalErrorCode errorCode,
-        Throwable exception
+        Throwable exception,
+        String platformName
 ) implements Log {
 
     public static ExternalErrorLog of(ExternalException exception) {
         ExternalErrorCode errorCode = (ExternalErrorCode) exception.getErrorCode();
         if (exception.getCause() == null) {
-            return new ExternalErrorLog(LogType.EXTERNAL_ERROR, errorCode, exception);
+            return new ExternalErrorLog(
+                    LogType.EXTERNAL_ERROR,
+                    errorCode,
+                    exception,
+                    exception.getPlatformName()
+            );
         }
-        return new ExternalErrorLog(LogType.EXTERNAL_ERROR, errorCode, exception.getCause());
+        return new ExternalErrorLog(
+                LogType.EXTERNAL_ERROR,
+                errorCode,
+                exception.getCause(),
+                exception.getPlatformName()
+        );
     }
 
     @Override
@@ -30,6 +41,7 @@ public record ExternalErrorLog(
         map.put("errorType", exception.getClass().getName());
         map.put("errorMessage", exception.getMessage());
         map.put("stackTrace", getStackTraceAsString(exception));
+        map.put("platformName", platformName);
         return map;
     }
 

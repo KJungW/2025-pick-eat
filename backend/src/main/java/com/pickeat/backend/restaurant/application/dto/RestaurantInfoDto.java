@@ -1,4 +1,4 @@
-package com.pickeat.backend.restaurant.application.dto.request;
+package com.pickeat.backend.restaurant.application.dto;
 
 import com.pickeat.backend.restaurant.domain.FoodCategory;
 import com.pickeat.backend.restaurant.domain.Picture;
@@ -6,8 +6,9 @@ import com.pickeat.backend.restaurant.domain.Restaurant;
 import com.pickeat.backend.restaurant.domain.RestaurantInfo;
 import com.pickeat.backend.template.domain.TemplateWish;
 import com.pickeat.backend.wish.domain.Wish;
+import java.util.List;
 
-public record RestaurantRequest(
+public record RestaurantInfoDto(
         String name,
         FoodCategory category,
         Integer distance,
@@ -18,17 +19,7 @@ public record RestaurantRequest(
         String pictureUrl
 ) {
 
-    public static RestaurantRequest fromWish(Wish wish) {
-        RestaurantInfo restaurantInfo = wish.getRestaurantInfo();
-        return createRestaurantRequest(restaurantInfo);
-    }
-
-    public static RestaurantRequest fromTemplateWish(TemplateWish templateWish) {
-        RestaurantInfo restaurantInfo = templateWish.getRestaurantInfo();
-        return createRestaurantRequest(restaurantInfo);
-    }
-
-    public static RestaurantRequest fromLocation(
+    public static RestaurantInfoDto fromLocation(
             String name,
             FoodCategory category,
             Integer distance,
@@ -36,7 +27,7 @@ public record RestaurantRequest(
             String placeUrl,
             String tags
     ) {
-        return new RestaurantRequest(
+        return new RestaurantInfoDto(
                 name,
                 category,
                 distance,
@@ -48,9 +39,23 @@ public record RestaurantRequest(
         );
     }
 
-    private static RestaurantRequest createRestaurantRequest(RestaurantInfo restaurantInfo) {
+    public static List<RestaurantInfoDto> fromWishes(List<Wish> wishes) {
+        return wishes.stream()
+                .map(Wish::getRestaurantInfo)
+                .map(RestaurantInfoDto::createRestaurantInfoDto)
+                .toList();
+    }
+
+    public static List<RestaurantInfoDto> fromTemplateWish(List<TemplateWish> templateWishes) {
+        return templateWishes.stream()
+                .map(TemplateWish::getRestaurantInfo)
+                .map(RestaurantInfoDto::createRestaurantInfoDto)
+                .toList();
+    }
+
+    private static RestaurantInfoDto createRestaurantInfoDto(RestaurantInfo restaurantInfo) {
         Picture picture = restaurantInfo.getPicture();
-        return new RestaurantRequest(
+        return new RestaurantInfoDto(
                 restaurantInfo.getName(),
                 restaurantInfo.getFoodCategory(),
                 restaurantInfo.getDistance(),
