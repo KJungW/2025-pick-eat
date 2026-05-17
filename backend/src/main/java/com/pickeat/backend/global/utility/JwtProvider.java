@@ -19,68 +19,77 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-
 public class JwtProvider {
 
     private final SecretKey secretKey;
 
-    public JwtProvider(@Value("${jwt.secretKey}") String secret) {
+    public JwtProvider(
+            @Value("${jwt.secretKey}") String secret
+    ) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public TokenResponse createToken(Object id, long expirationMillis) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationMillis);
-
-        return TokenResponse.from(
-                Jwts.builder()
-                        .subject(String.valueOf(id))
-                        .issuedAt(now)
-                        .expiration(expiryDate)
-                        .signWith(secretKey)
-                        .compact()
-        );
+    public TokenResponse createToken(Object id, Long expirationMillis) {
+        String rawToken = createRawToken(Jwts.builder(), id, expirationMillis);
+        return TokenResponse.from(rawToken);
     }
 
-    public TokenResponse createTokenWithClaims(Object id, long expirationMillis, Map<String, Object> extraClaims) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationMillis);
-
-        JwtBuilder builder = Jwts.builder();
-
-        // (1) 먼저 사용자 정의 claims 추가
-        if (extraClaims != null && !extraClaims.isEmpty()) {
-            // 예약 클레임(sub, iat, exp) 덮어쓰기 방지
-            Map<String, Object> safeClaims = new HashMap<>(extraClaims);
-            safeClaims.keySet().removeAll(Set.of("sub", "iat", "exp"));
-            builder.claims(safeClaims);
-        }
-
-        // (2) 그 다음 JWT의 예약 클레임 설정
-        builder.subject(String.valueOf(id))
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(secretKey);
-
-        // (3) 최종 토큰 생성
-        return TokenResponse.from(builder.compact());
+    public TokenResponse createTokenWithClaims(
+            Object id,
+            Long expirationMillis,
+            Map<String, Object> extraClaims
+    ) {
+        JwtBuilder builder = registerClaims(Jwts.builder(), extraClaims);
+        String rawToken = createRawToken(builder, id, expirationMillis);
+        return TokenResponse.from(rawToken);
     }
 
     public Claims getClaims(String token) {
-        if (token == null || token.isEmpty()) {
+        if (token == null || token.isBlank()) {
             throw new ClientException(ClientErrorCode.TOKEN_IS_EMPTY);
         }
+        return extrudeClaimsInToken(token);
+    }
 
+    private JwtBuilder registerClaims(
+            JwtBuilder builder,
+            Map<String, Object> rawClaims
+    ) {
+        if (rawClaims == null || rawClaims.isEmpty()) {
+            return builder;
+        }
+        Map<String, Object> safeClaims = new HashMap<>(rawClaims);
+        safeClaims.keySet().removeAll(Set.of("sub", "iat", "exp"));
+        safeClaims.forEach(builder::claim);
+        return builder;
+    }
+
+    private String createRawToken(
+            JwtBuilder builder,
+            Object id,
+            Long expirationMillis
+    ) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationMillis);
+        return builder
+                .subject(String.valueOf(id))
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    private Claims extrudeClaimsInToken(String token) {
         try {
             return Jwts.parser()
-                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getEncoded()))
+                    .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (ExpiredJwtException e) {
-            throw new ClientException(ClientErrorCode.EXPIRED_TOKEN);
-        } catch (JwtException e) {
-            throw new ClientException(ClientErrorCode.INVALID_TOKEN);
+            throw new ClientException(ClientErrorCode.EXPIRED_TOKEN, e);
+        } catch (SecurityException | JwtException e) {
+            throw new ClientException(ClientErrorCode.INVALID_TOKEN, e);
         }
     }
 }
