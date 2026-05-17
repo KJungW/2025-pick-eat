@@ -5,6 +5,7 @@ import com.pickeat.backend.global.argument.annotation.User;
 import com.pickeat.backend.global.argument.principal.ParticipantPrincipal;
 import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.global.log.aspect.UserTracingLogging;
+import com.pickeat.backend.pickeat.application.PickeatCompletionService;
 import com.pickeat.backend.pickeat.application.PickeatResultService;
 import com.pickeat.backend.pickeat.application.PickeatService;
 import com.pickeat.backend.pickeat.application.dto.request.PickeatRequest;
@@ -30,10 +31,13 @@ public class PickeatController implements PickeatApiSpec {
 
     private final PickeatService pickeatService;
     private final PickeatResultService pickeatResultService;
+    private final PickeatCompletionService pickeatCompletionService;
 
     @Override
     @PostMapping("/pickeats")
-    public ResponseEntity<PickeatResponse> createPickeatWithoutRoom(@Valid @RequestBody PickeatRequest request) {
+    public ResponseEntity<PickeatResponse> createPickeatWithoutRoom(
+            @Valid @RequestBody PickeatRequest request
+    ) {
         PickeatResponse response = pickeatService.createPickeatWithoutRoom(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -55,7 +59,7 @@ public class PickeatController implements PickeatApiSpec {
     public ResponseEntity<Void> completePickeat(
             @Participant ParticipantPrincipal principal
     ) {
-        pickeatService.completePickeat(principal.pickeatCode());
+        pickeatCompletionService.completePickeat(principal.pickeatCode());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

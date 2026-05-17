@@ -37,7 +37,7 @@ class ParticipantEventHandlerTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "event-content-test";
             Participant participant = new Participant("테스터");
-            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.saveAboutParticipant(pickeatCode, participant);
 
             BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
             String topicName = SseChannelTopic.PARTICIPANT_EVENT_TOPIC.getValue();

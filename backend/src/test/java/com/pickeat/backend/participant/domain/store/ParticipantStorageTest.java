@@ -35,7 +35,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             Participant participant = new Participant("닉네임");
 
             // when
-            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.saveAboutParticipant(pickeatCode, participant);
 
             // then
             List<Participant> allParticipants = participantStorage.getParticipantsMeta(pickeatCode);
@@ -61,7 +61,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             Participant secondParticipant = new Participant("두번째");
 
             // when: 첫 번째 참가자 저장 (이때 TTL이 설정됨)
-            participantStorage.setupAboutParticipant(pickeatCode, firstParticipant);
+            participantStorage.saveAboutParticipant(pickeatCode, firstParticipant);
             long firstTtl = redisTemplate.getExpire(key);
 
             // then: 설정된 TTL이 예상 범위 내에 있는지 확인
@@ -70,7 +70,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             Thread.sleep(1100);
 
             // when: 두 번째 참가자 저장 (이미 TTL이 존재하므로 Lua 스크립트에 의해 EXPIRE가 실행되지 않아야 함)
-            participantStorage.setupAboutParticipant(pickeatCode, secondParticipant);
+            participantStorage.saveAboutParticipant(pickeatCode, secondParticipant);
             long secondTtl = redisTemplate.getExpire(key);
 
             // then: 두 번째 저장 후에도 TTL이 재설정(Reset)되지 않고 첫 번째 확인 시점보다 작거나 같아야 함
@@ -86,9 +86,9 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "pickeat-code";
             Participant participant1 = new Participant("참가자1");
-            participantStorage.setupAboutParticipant(pickeatCode, participant1);
+            participantStorage.saveAboutParticipant(pickeatCode, participant1);
             Participant participant2 = new Participant("참가자2");
-            participantStorage.setupAboutParticipant(pickeatCode, participant2);
+            participantStorage.saveAboutParticipant(pickeatCode, participant2);
 
             // when
             List<Participant> result = participantStorage.getParticipantsMeta(pickeatCode);
@@ -124,7 +124,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             String pickeatCode = "pickeat-code";
 
             Participant participant = new Participant("참가자");
-            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.saveAboutParticipant(pickeatCode, participant);
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // when
@@ -160,7 +160,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "pickeat-code";
             Participant participant = new Participant("참가자");
-            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.saveAboutParticipant(pickeatCode, participant);
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // when
@@ -179,7 +179,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
         void 참가자_상태_시퀀스_번호를_성공적으로_증가시킨다() {
             // given
             String pickeatCode = "pickeat-code";
-            participantStorage.setupAboutParticipant(pickeatCode, new Participant("참가자"));
+            participantStorage.saveAboutParticipant(pickeatCode, new Participant("참가자"));
 
             // when
             participantStorage.getParticipantsStateWithSequence(pickeatCode); // seq: 1
@@ -231,7 +231,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "pickeat-code";
             Participant participant = new Participant("참가자");
-            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.saveAboutParticipant(pickeatCode, participant);
 
             // when
             participantStorage.markCompletion(pickeatCode, participant.getCode());
@@ -250,7 +250,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             // given
             String pickeatCode = "pickeat-code";
             Participant participant = new Participant("참가자");
-            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.saveAboutParticipant(pickeatCode, participant);
             participantStorage.markCompletion(pickeatCode, participant.getCode());
 
             // when
@@ -271,7 +271,7 @@ class ParticipantStorageTest extends DatabaseSliceTest {
             String pickeatCode = "remove-participant-code";
             Participant participant = new Participant("참가자");
 
-            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.saveAboutParticipant(pickeatCode, participant);
             participantStorage.markCompletion(pickeatCode, participant.getCode());
             participantStorage.getParticipantsStateWithSequence(pickeatCode);
 

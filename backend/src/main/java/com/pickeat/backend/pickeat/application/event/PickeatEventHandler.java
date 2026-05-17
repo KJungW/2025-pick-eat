@@ -1,4 +1,4 @@
-package com.pickeat.backend.pickeat.application.publisher;
+package com.pickeat.backend.pickeat.application.event;
 
 import com.pickeat.backend.global.configuration.sse.SseChannelTopic;
 import com.pickeat.backend.global.configuration.sse.event.EventAction;
@@ -18,22 +18,26 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class PickeatEventHandler {
 
-    private static final Long INVALID_SEQUENCE = 0L;
+    private static final Long INVALID_SEQUENCE = -1L;
 
-    private final StringRedisTemplate stringRedisTemplate;
+    private final StringRedisTemplate redisTemplate;
     private final JsonParser jsonParser;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePickeatCompletionEvent(PickeatCompletionEventRequest request) {
-        EventMeta eventMeta = new EventMeta(
+        PickeatEvent<PickeatCompletionEventContent> event = createEvent(request);
+        String topicName = SseChannelTopic.PICKEAT_EVENT_TOPIC.getValue();
+        redisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
+    }
+
+    private PickeatEvent<PickeatCompletionEventContent> createEvent(PickeatCompletionEventRequest request) {
+        EventMeta meta = new EventMeta(
                 EventGroup.PICKEAT,
                 INVALID_SEQUENCE,
                 EventAction.PICKEAT_COMPLETION_EVENT,
-                request.pickeatCode());
+                request.pickeatCode()
+        );
         PickeatCompletionEventContent content = new PickeatCompletionEventContent(request.pickeatResult());
-        PickeatEvent<PickeatCompletionEventContent> event = PickeatEvent.of(eventMeta, content);
-
-        String topicName = SseChannelTopic.PICKEAT_EVENT_TOPIC.getValue();
-        stringRedisTemplate.convertAndSend(topicName, jsonParser.toJson(event));
+        return PickeatEvent.of(meta, content);
     }
 }

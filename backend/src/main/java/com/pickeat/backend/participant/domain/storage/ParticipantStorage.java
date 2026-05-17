@@ -23,7 +23,7 @@ public class ParticipantStorage {
     private final StringRedisTemplate redisTemplate;
     private final JsonParser jsonParser;
 
-    public Boolean setupAboutParticipant(String pickeatCode, Participant participant) {
+    public Boolean saveAboutParticipant(String pickeatCode, Participant participant) {
         List<String> keys = List.of(
                 StorageKey.PARTICIPANT.generateKey(pickeatCode),
                 StorageKey.PARTICIPANT_COMPLETION.generateKey(pickeatCode)

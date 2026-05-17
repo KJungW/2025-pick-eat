@@ -76,7 +76,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
             PickeatResponse response = pickeatService.createPickeatWithoutRoom(pickeatRequest);
 
             // then
-            Optional<Pickeat> pickeat = pickeatStorage.get(response.code());
+            Optional<Pickeat> pickeat = pickeatStorage.getMeta(response.code());
             assertAll(
                     () -> assertThat(pickeat.isPresent()).isTrue(),
                     () -> assertThat(pickeat.get().getCode()).isEqualTo(response.code())
@@ -97,7 +97,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
                     room.getId(), user.getId(), pickeatRequest);
 
             // then
-            Optional<Pickeat> pickeat = pickeatStorage.get(response.code());
+            Optional<Pickeat> pickeat = pickeatStorage.getMeta(response.code());
             assertAll(
                     () -> assertThat(pickeat.isPresent()).isTrue(),
                     () -> assertThat(pickeat.get().getCode()).isEqualTo(response.code())
@@ -120,7 +120,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
             restaurantsStorage.setupRestaurants(pickeat.getCode(), restaurants);
 
             Participant participant = new Participant("참가자");
-            participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
+            participantStorage.saveAboutParticipant(pickeat.getCode(), participant);
 
             restaurantsStorage.like(pickeat.getCode(), participant.getCode(), restaurantA.getCode());
 
@@ -147,7 +147,7 @@ class PickeatServiceTest extends DatabaseSliceTest {
 
             Restaurant selectedRestaurant = RestaurantFixture.create("선택될 식당");
             restaurantsStorage.setupRestaurants(code, new Restaurants(List.of(selectedRestaurant)));
-            participantStorage.setupAboutParticipant(code, new Participant("참가자"));
+            participantStorage.saveAboutParticipant(code, new Participant("참가자"));
 
             // when
             pickeatService.completePickeat(code);
@@ -180,14 +180,14 @@ class PickeatServiceTest extends DatabaseSliceTest {
             restaurantsStorage.setupRestaurants(code, new Restaurants(List.of(restaurant)));
 
             Participant participant = new Participant("참가자");
-            participantStorage.setupAboutParticipant(code, participant);
+            participantStorage.saveAboutParticipant(code, participant);
 
             // when
             pickeatService.completePickeat(code);
 
             // then
             assertAll(
-                    () -> assertThat(pickeatStorage.get(code).isEmpty()).isTrue(),
+                    () -> assertThat(pickeatStorage.getMeta(code).isEmpty()).isTrue(),
                     () -> assertThat(restaurantsStorage.getRestaurantMeta(code).isEmpty()).isTrue(),
                     () -> assertThat(restaurantsStorage.getRestaurantState(code).isEmpty()).isTrue(),
                     () -> assertThat(participantStorage.getParticipantsMeta(code).isEmpty()).isTrue(),

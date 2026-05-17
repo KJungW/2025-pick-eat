@@ -35,7 +35,7 @@ class PickeatStorageTest extends DatabaseSliceTest {
             pickeatStorage.save(pickeat);
 
             // then
-            Optional<Pickeat> saved = pickeatStorage.get(pickeat.getCode());
+            Optional<Pickeat> saved = pickeatStorage.getMeta(pickeat.getCode());
             assertAll(
                     () -> assertThat(saved).isPresent(),
                     () -> assertThat(saved.get().getCode()).isEqualTo(pickeat.getCode())
@@ -53,7 +53,7 @@ class PickeatStorageTest extends DatabaseSliceTest {
             pickeatStorage.save(pickeat);
 
             // when
-            Optional<Pickeat> result = pickeatStorage.get(pickeat.getCode());
+            Optional<Pickeat> result = pickeatStorage.getMeta(pickeat.getCode());
 
             // then
             assertAll(
@@ -68,7 +68,7 @@ class PickeatStorageTest extends DatabaseSliceTest {
             String nonExistentCode = "NOT_FOUND";
 
             // when
-            Optional<Pickeat> result = pickeatStorage.get(nonExistentCode);
+            Optional<Pickeat> result = pickeatStorage.getMeta(nonExistentCode);
 
             // then
             assertThat(result).isEmpty();
@@ -89,7 +89,7 @@ class PickeatStorageTest extends DatabaseSliceTest {
             pickeatStorage.remove(code);
 
             // then
-            Optional<Pickeat> result = pickeatStorage.get(code);
+            Optional<Pickeat> result = pickeatStorage.getMeta(code);
             assertThat(result).isEmpty();
         }
     }

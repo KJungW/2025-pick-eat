@@ -61,14 +61,14 @@ public class ParticipantService {
     }
 
     private void setupAboutParticipant(Pickeat pickeat, Participant participant) {
-        boolean isSuccess = participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
+        boolean isSuccess = participantStorage.saveAboutParticipant(pickeat.getCode(), participant);
         if (!isSuccess) {
             throw new ClientException(ClientErrorCode.PARTICIPANT_ALREADY_EXISTS);
         }
     }
 
     private Pickeat getPickeatByCode(String pickeatCode) {
-        return pickeatStorage.get(pickeatCode)
+        return pickeatStorage.getMeta(pickeatCode)
                 .orElseThrow(() -> new ClientException(ClientErrorCode.PICKEAT_NOT_FOUND));
     }
 

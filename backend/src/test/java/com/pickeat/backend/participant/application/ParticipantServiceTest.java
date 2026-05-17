@@ -148,11 +148,11 @@ class ParticipantServiceTest extends DatabaseSliceTest {
             String pickeatCode = pickeat.getCode();
 
             Participant participantA = new Participant("참가자A");
-            participantStorage.setupAboutParticipant(pickeatCode, participantA);
+            participantStorage.saveAboutParticipant(pickeatCode, participantA);
             String participantACode = participantA.getCode();
 
             Participant participantB = new Participant("참가자B");
-            participantStorage.setupAboutParticipant(pickeatCode, participantB);
+            participantStorage.saveAboutParticipant(pickeatCode, participantB);
             String participantBCode = participantB.getCode();
 
             participantService.markCompletion(pickeatCode, participantACode);
@@ -192,7 +192,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
             String pickeatCode = pickeat.getCode();
 
             Participant participant = new Participant("참가자");
-            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.saveAboutParticipant(pickeatCode, participant);
             String participantCode = participant.getCode();
 
             // when
@@ -246,7 +246,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
             String pickeatCode = pickeat.getCode();
 
             Participant participant = new Participant("참가자");
-            participantStorage.setupAboutParticipant(pickeatCode, participant);
+            participantStorage.saveAboutParticipant(pickeatCode, participant);
             String participantCode = participant.getCode();
 
             participantService.markCompletion(pickeatCode, participantCode);
@@ -267,7 +267,7 @@ class ParticipantServiceTest extends DatabaseSliceTest {
             Pickeat pickeat = Pickeat.createWithoutRoom("취소 테스트");
             pickeatStorage.save(pickeat);
             Participant participant = new Participant("참가자");
-            participantStorage.setupAboutParticipant(pickeat.getCode(), participant);
+            participantStorage.saveAboutParticipant(pickeat.getCode(), participant);
             participantService.markCompletion(pickeat.getCode(), participant.getCode());
 
             // when

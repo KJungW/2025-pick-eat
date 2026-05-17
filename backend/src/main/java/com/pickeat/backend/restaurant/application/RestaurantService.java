@@ -64,7 +64,7 @@ public class RestaurantService {
     }
 
     private Pickeat getPickeatByCode(String pickeatCode) {
-        return pickeatStorage.get(pickeatCode)
+        return pickeatStorage.getMeta(pickeatCode)
                 .orElseThrow(() -> new ClientException(ErrorCode.PROCESSING_PICKEAT_NOT_FOUND));
     }
 
