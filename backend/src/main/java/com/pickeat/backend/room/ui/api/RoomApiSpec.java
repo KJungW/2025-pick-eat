@@ -88,7 +88,7 @@ public interface RoomApiSpec {
                     )
             )
     })
-    ResponseEntity<RoomResponse> create(
+    ResponseEntity<RoomResponse> createRoom(
             @Valid @org.springframework.web.bind.annotation.RequestBody RoomRequest request,
             @Parameter(hidden = true) UserPrincipal userPrincipal);
 
@@ -147,7 +147,7 @@ public interface RoomApiSpec {
                     )
             )
     })
-    ResponseEntity<RoomResponse> get(
+    ResponseEntity<RoomResponse> getRoom(
             @Parameter(description = "방 ID")
             @PathVariable("roomId") Long roomId,
             @Parameter(hidden = true) UserPrincipal userPrincipal
@@ -188,7 +188,7 @@ public interface RoomApiSpec {
                     )
             )
     })
-    ResponseEntity<List<RoomResponse>> getAll(@Parameter(hidden = true) UserPrincipal userPrincipal);
+    ResponseEntity<List<RoomResponse>> getAllMyRoom(@Parameter(hidden = true) UserPrincipal userPrincipal);
 
     @Operation(
             summary = "방에 사용자 초대",
@@ -282,7 +282,7 @@ public interface RoomApiSpec {
                     )
             )
     })
-    ResponseEntity<Void> invite(
+    ResponseEntity<Void> inviteAll(
             @Parameter(description = "방 ID")
             @PathVariable("roomId") Long roomId,
             @Parameter(hidden = true) UserPrincipal userPrincipal,
@@ -360,7 +360,7 @@ public interface RoomApiSpec {
                     )
             )
     })
-    ResponseEntity<Void> exit(
+    ResponseEntity<Void> exitRoom(
             @Parameter(description = "방 ID")
             @PathVariable("roomId") Long roomId,
             @Parameter(hidden = true) UserPrincipal userPrincipal

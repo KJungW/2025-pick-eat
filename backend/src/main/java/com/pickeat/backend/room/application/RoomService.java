@@ -1,19 +1,19 @@
 package com.pickeat.backend.room.application;
 
-import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.code.ClientErrorCode;
 import com.pickeat.backend.global.exception.type.ClientException;
+import com.pickeat.backend.room.application.dto.repository.RoomWithUserCountDto;
 import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
 import com.pickeat.backend.room.application.dto.request.RoomRequest;
 import com.pickeat.backend.room.application.dto.response.RoomResponse;
 import com.pickeat.backend.room.domain.Room;
 import com.pickeat.backend.room.domain.RoomUser;
 import com.pickeat.backend.room.domain.repository.RoomRepository;
+import com.pickeat.backend.room.domain.repository.RoomUserBulkRepository;
 import com.pickeat.backend.room.domain.repository.RoomUserRepository;
-import com.pickeat.backend.room.domain.repository.RoomUserRepository.RoomUserCount;
-import java.util.HashSet;
+import com.pickeat.backend.user.domain.User;
+import com.pickeat.backend.user.domain.repository.UserRepository;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +25,9 @@ public class RoomService {
 
     private static final int INITIAL_ROOM_COUNT = 1;
     private final RoomRepository roomRepository;
+    private final UserRepository userRepository;
     private final RoomUserRepository roomUserRepository;
+    private final RoomUserBulkRepository roomUserBulkRepository;
 
     @Transactional
     public RoomResponse createRoom(RoomRequest request, Long userId) {
@@ -36,47 +38,22 @@ public class RoomService {
     }
 
     public RoomResponse getRoom(Long roomId, Long userId) {
-        validateUserAccessToRoom(roomId, userId);
-
-        Room room = getRoomById(roomId);
-        return RoomResponse.of(room, getRoomUserCount(room));
+        canAccessRoom(roomId, userId);
+        RoomWithUserCountDto room = roomRepository.findWithUserCount(roomId);
+        return RoomResponse.from(room);
     }
 
     public List<RoomResponse> getAllRoom(Long userId) {
-        List<Long> roomIds = roomUserRepository.getAllRoomIdsByUserId(userId);
-        List<Room> rooms = roomRepository.getAllByIdIn(roomIds);
-
-        if (rooms.isEmpty()) {
-            return List.of();
-        }
-
-        List<RoomUserCount> roomUserCounts = roomUserRepository.countByRoomIdIn(roomIds);
-        Map<Long, Integer> roomUser = RoomUserCount.toMap(roomUserCounts);
-
-        return rooms.stream()
-                .map(room -> RoomResponse.of(
-                        room,
-                        roomUser.getOrDefault(room.getId(), 0)
-                ))
-                .toList();
+        List<RoomWithUserCountDto> rooms = roomRepository.findWithUserCountByUser(userId);
+        return RoomResponse.from(rooms);
     }
 
     @Transactional
     public void inviteUsers(Long roomId, Long userId, RoomInvitationRequest request) {
-        validateUserAccessToRoom(roomId, userId);
-
-        Set<Long> invitedUserIds = new HashSet<>(request.userIds());
-
-        Set<Long> existingIds = new HashSet<>(
-                roomUserRepository.findExistingUserIdsInRoom(roomId, invitedUserIds)
-        );
-
-        List<RoomUser> roomUsers = invitedUserIds.stream()
-                .filter(invitedUserId -> !existingIds.contains(invitedUserId))
-                .map(checkedUserId -> new RoomUser(roomId, checkedUserId))
-                .toList();
-
-        roomUserRepository.saveAll(roomUsers);
+        canAccessRoom(roomId, userId);
+        List<User> inviteTargets = findUserById(request.userIds());
+        List<RoomUser> roomUsers = RoomUser.of(roomId, inviteTargets);
+        roomUserBulkRepository.insertAll(roomUsers);
     }
 
     @Transactional
@@ -84,17 +61,13 @@ public class RoomService {
         roomUserRepository.deleteByRoomIdAndUserId(roomId, userId);
     }
 
-    private int getRoomUserCount(Room room) {
-        return roomUserRepository.countByRoomId(room.getId());
-    }
-
-    private Room getRoomById(Long roomId) {
-        return roomRepository.findById(roomId).orElseThrow(() -> new ClientException(ErrorCode.ROOM_NOT_FOUND));
-    }
-
-    private void validateUserAccessToRoom(Long roomId, Long userId) {
+    private void canAccessRoom(Long roomId, Long userId) {
         if (!roomUserRepository.existsByRoomIdAndUserId(roomId, userId)) {
-            throw new ClientException(ErrorCode.ROOM_ACCESS_DENIED);
+            throw new ClientException(ClientErrorCode.ROOM_ACCESS_DENIED);
         }
+    }
+
+    private List<User> findUserById(List<Long> userIds) {
+        return userRepository.findAllByIdIn(userIds);
     }
 }

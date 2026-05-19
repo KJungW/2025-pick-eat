@@ -15,6 +15,7 @@ import com.pickeat.backend.restaurant.application.dto.RestaurantStateDto;
 import com.pickeat.backend.restaurant.domain.Restaurant;
 import com.pickeat.backend.restaurant.domain.Restaurants;
 import com.pickeat.backend.restaurant.domain.storage.RestaurantsCommandStorage;
+import com.pickeat.backend.restaurant.domain.storage.RestaurantsQueryStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PickeatCompletionService {
 
     private final PickeatStorage pickeatStorage;
+    private final RestaurantsQueryStorage restaurantsQueryStorage;
     private final RestaurantsCommandStorage restaurantsCommandStorage;
     private final ParticipantStorage participantStorage;
     private final PickeatRecordRepository pickeatRecordRepository;
@@ -50,12 +52,12 @@ public class PickeatCompletionService {
     }
 
     private Restaurants getRestaurantMetaInPickeat(String pickeatCode) {
-        return restaurantsCommandStorage.getRestaurantMeta(pickeatCode)
+        return restaurantsQueryStorage.getRestaurantMeta(pickeatCode)
                 .orElseThrow(() -> new ClientException(ClientErrorCode.RESTAURANT_NOT_FOUND));
     }
 
     private RestaurantStateDto getRestaurantStateInPickeat(String pickeatCode) {
-        return restaurantsCommandStorage.getRestaurantState(pickeatCode)
+        return restaurantsQueryStorage.getRestaurantState(pickeatCode)
                 .orElseThrow(() -> new ClientException(ClientErrorCode.RESTAURANT_NOT_FOUND));
     }
 

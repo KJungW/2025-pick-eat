@@ -31,7 +31,7 @@ public class RoomController implements RoomApiSpec {
     @Override
     @PostMapping
     @UserTracingLogging(action = "방 생성")
-    public ResponseEntity<RoomResponse> create(
+    public ResponseEntity<RoomResponse> createRoom(
             @Valid @RequestBody RoomRequest request,
             @User UserPrincipal userPrincipal
     ) {
@@ -41,7 +41,7 @@ public class RoomController implements RoomApiSpec {
 
     @Override
     @GetMapping("/{roomId}")
-    public ResponseEntity<RoomResponse> get(
+    public ResponseEntity<RoomResponse> getRoom(
             @PathVariable("roomId") Long roomId,
             @User UserPrincipal userPrincipal
     ) {
@@ -51,7 +51,7 @@ public class RoomController implements RoomApiSpec {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<RoomResponse>> getAll(
+    public ResponseEntity<List<RoomResponse>> getAllMyRoom(
             @User UserPrincipal userPrincipal
     ) {
         List<RoomResponse> response = roomService.getAllRoom(userPrincipal.userId());
@@ -61,24 +61,22 @@ public class RoomController implements RoomApiSpec {
     @Override
     @UserTracingLogging(action = "방 초대")
     @PostMapping("/{roomId}/invite")
-    public ResponseEntity<Void> invite(
+    public ResponseEntity<Void> inviteAll(
             @PathVariable("roomId") Long roomId,
             @User UserPrincipal userPrincipal,
             @Valid @RequestBody RoomInvitationRequest request
     ) {
         roomService.inviteUsers(roomId, userPrincipal.userId(), request);
-
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
     @DeleteMapping("/{roomId}/exit")
-    public ResponseEntity<Void> exit(
+    public ResponseEntity<Void> exitRoom(
             @PathVariable("roomId") Long roomId,
             @User UserPrincipal userPrincipal
     ) {
         roomService.exitRoom(roomId, userPrincipal.userId());
-
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
