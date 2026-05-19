@@ -48,7 +48,7 @@ import com.pickeat.backend.room.application.dto.request.RoomInvitationRequest;
 import com.pickeat.backend.room.application.dto.request.RoomRequest;
 import com.pickeat.backend.room.application.dto.response.RoomResponse;
 import com.pickeat.backend.support.AcceptanceTest;
-import com.pickeat.backend.user.application.dto.UserResponse;
+import com.pickeat.backend.user.application.dto.response.UserResponse;
 import com.pickeat.backend.wish.application.dto.request.WishRequest;
 import com.pickeat.backend.wish.application.dto.response.WishResponse;
 import java.util.List;

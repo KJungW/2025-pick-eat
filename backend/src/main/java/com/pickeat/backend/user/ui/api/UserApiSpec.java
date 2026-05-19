@@ -1,7 +1,7 @@
 package com.pickeat.backend.user.ui.api;
 
 import com.pickeat.backend.global.argument.principal.UserPrincipal;
-import com.pickeat.backend.user.application.dto.UserResponse;
+import com.pickeat.backend.user.application.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

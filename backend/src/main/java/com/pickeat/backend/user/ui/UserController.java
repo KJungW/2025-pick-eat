@@ -3,7 +3,7 @@ package com.pickeat.backend.user.ui;
 import com.pickeat.backend.global.argument.annotation.User;
 import com.pickeat.backend.global.argument.principal.UserPrincipal;
 import com.pickeat.backend.user.application.UserService;
-import com.pickeat.backend.user.application.dto.UserResponse;
+import com.pickeat.backend.user.application.dto.response.UserResponse;
 import com.pickeat.backend.user.ui.api.UserApiSpec;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class UserController implements UserApiSpec {
     public ResponseEntity<UserResponse> getUser(
             @User UserPrincipal userPrincipal
     ) {
-        UserResponse response = userService.getById(userPrincipal.userId());
+        UserResponse response = userService.findById(userPrincipal.userId());
         return ResponseEntity.ok(response);
     }
 

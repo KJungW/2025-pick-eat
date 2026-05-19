@@ -1,11 +1,10 @@
 package com.pickeat.backend.user.application;
 
 import com.pickeat.backend.global.argument.principal.OAuthProviderPrincipal;
-import com.pickeat.backend.global.exception.ErrorCode;
+import com.pickeat.backend.global.exception.code.ClientErrorCode;
 import com.pickeat.backend.global.exception.type.ClientException;
 import com.pickeat.backend.login.application.dto.request.SignupRequest;
-import com.pickeat.backend.room.domain.repository.RoomUserRepository;
-import com.pickeat.backend.user.application.dto.UserResponse;
+import com.pickeat.backend.user.application.dto.response.UserResponse;
 import com.pickeat.backend.user.domain.User;
 import com.pickeat.backend.user.domain.repository.UserRepository;
 import java.util.Comparator;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final RoomUserRepository roomUserRepository;
 
     public boolean isUserExist(Long providerId, String provider) {
         return userRepository.existsByProviderIdAndProvider(providerId, provider);
@@ -30,49 +28,59 @@ public class UserService {
     @Transactional
     public UserResponse createUser(SignupRequest request, OAuthProviderPrincipal OAuthProviderPrincipal) {
         validateDuplicateNickname(request.nickname());
-        User user = new User(request.nickname(), OAuthProviderPrincipal.providerId(),
-                OAuthProviderPrincipal.provider());
+
+        User user = new User(
+                request.nickname(),
+                OAuthProviderPrincipal.providerId(),
+                OAuthProviderPrincipal.provider()
+        );
         saveUser(user);
+
         return UserResponse.from(user);
     }
 
     @Transactional
     public void deleteUser(Long userId) {
-        User user = getUser(userId);
+        User user = getById(userId);
         userRepository.delete(user);
     }
 
+    public UserResponse findById(Long userId) {
+        User user = getById(userId);
+        return UserResponse.from(user);
+    }
+
     public UserResponse findByNickName(String nickname) {
-        User user = userRepository.findByNickname(nickname)
-                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
-
+        User user = getByNickname(nickname);
         return UserResponse.from(user);
     }
 
-    public UserResponse getById(Long userId) {
-        User user = getUser(userId);
-        return UserResponse.from(user);
-    }
-
-    public List<UserResponse> searchByNickname(String nickname) {
-        List<User> users = userRepository.findByNicknameStartsWith(nickname);
+    public List<UserResponse> searchByNickname(String startWith) {
+        List<User> users = userRepository.findByNicknameStartsWith(startWith);
 
         // 정확히 일치하는 닉네임을 맨 앞에 정렬
-        users.sort(Comparator.comparing(user -> !user.getNickname().equals(nickname)));
-
+        users.sort(Comparator.comparing(user -> !user.getNickname().equals(startWith)));
         return UserResponse.from(users);
     }
 
     public List<UserResponse> getByRoomId(Long roomId) {
-        List<Long> userIds = roomUserRepository.getAllUserIdsByRoomId(roomId);
-        List<User> users = userRepository.findAllByIdIn(userIds);
-
+        List<User> users = userRepository.findAllByRoomId(roomId);
         return UserResponse.from(users);
+    }
+
+    private User getById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ClientException(ClientErrorCode.USER_NOT_FOUND));
+    }
+
+    private User getByNickname(String nickname) {
+        return userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new ClientException(ClientErrorCode.USER_NOT_FOUND));
     }
 
     private void validateDuplicateNickname(String nickname) {
         if (userRepository.existsByNickname(nickname)) {
-            throw new ClientException(ErrorCode.ALREADY_NICKNAME_EXISTS);
+            throw new ClientException(ClientErrorCode.ALREADY_NICKNAME_EXISTS);
         }
     }
 
@@ -80,12 +88,7 @@ public class UserService {
         try {
             userRepository.save(user);
         } catch (DataIntegrityViolationException exception) {
-            throw new ClientException(ErrorCode.ALREADY_NICKNAME_EXISTS);
+            throw new ClientException(ClientErrorCode.ALREADY_NICKNAME_EXISTS);
         }
-    }
-
-    private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
     }
 }

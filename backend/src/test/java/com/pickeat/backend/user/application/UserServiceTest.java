@@ -14,7 +14,7 @@ import com.pickeat.backend.room.domain.RoomUser;
 import com.pickeat.backend.support.DatabaseSliceTest;
 import com.pickeat.backend.support.fixture.RoomFixture;
 import com.pickeat.backend.support.fixture.UserFixture;
-import com.pickeat.backend.user.application.dto.UserResponse;
+import com.pickeat.backend.user.application.dto.response.UserResponse;
 import com.pickeat.backend.user.domain.User;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
