@@ -22,7 +22,7 @@ public class TemplateService {
     private final TemplateRepository templateRepository;
 
     @Cacheable(value = Holder.TEMPLATE_LIST_CACHE_KEY, key = "#startId + '_' + #size")
-    public List<TemplateResponse> getTemplates(Long startId, Integer size) {
+    public List<TemplateResponse> getTemplates(Long startId, Integer size) { // ID 기준의 커서 페이징
         Pageable pageable = PageRequest.of(0, size, Sort.by("id").ascending());
         Slice<Template> templates = templateRepository.findByIdGreaterThanAndIsActiveTrue(startId, pageable);
         return TemplateResponse.from(templates.toList());

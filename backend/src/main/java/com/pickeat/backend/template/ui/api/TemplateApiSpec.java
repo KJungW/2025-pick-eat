@@ -1,23 +1,25 @@
 package com.pickeat.backend.template.ui.api;
 
+import com.pickeat.backend.template.application.dto.request.TemplatePageRequest;
 import com.pickeat.backend.template.application.dto.response.TemplateResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "템플릿", description = "템플릿 관련 API")
 public interface TemplateApiSpec {
 
     @Operation(
             summary = "템플릿 목록 조회",
+            description = "커서 기반 페이징(Slice)을 활용하여 템플릿 목록을 조회합니다.",
             operationId = "getTemplates"
     )
     @ApiResponses(value = {
@@ -30,10 +32,6 @@ public interface TemplateApiSpec {
             )
     })
     ResponseEntity<List<TemplateResponse>> getTemplates(
-            @Parameter(description = "시작 ID (시작 ID 다음 것부터 조회됨)", example = "0")
-            @PathVariable("startId") Long startId,
-            @Parameter(description = "조회 개수", example = "30")
-            @PathVariable("size") Integer size
-
+            @ParameterObject @Valid TemplatePageRequest pageRequest
     );
 }

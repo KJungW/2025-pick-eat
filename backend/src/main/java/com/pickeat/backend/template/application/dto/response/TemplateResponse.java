@@ -13,10 +13,7 @@ public record TemplateResponse(
 ) {
 
     public static TemplateResponse from(Template template) {
-        return new TemplateResponse(
-                template.getId(),
-                template.getName()
-        );
+        return new TemplateResponse(template.getId(), template.getName());
     }
 
     public static List<TemplateResponse> from(List<Template> wishLists) {

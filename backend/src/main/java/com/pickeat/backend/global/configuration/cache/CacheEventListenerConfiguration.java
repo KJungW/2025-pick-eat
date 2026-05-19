@@ -1,6 +1,6 @@
 package com.pickeat.backend.global.configuration.cache;
 
-import com.pickeat.backend.template.application.listener.TemplateCacheEventListener;
+import com.pickeat.backend.template.application.listener.TemplateCacheInvalidationEventListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -13,12 +13,12 @@ public class CacheEventListenerConfiguration {
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
-            TemplateCacheEventListener templateCacheEventListener
+            TemplateCacheInvalidationEventListener templateCacheInvalidationEventListener
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(
-                templateCacheEventListener,
+                templateCacheInvalidationEventListener,
                 new ChannelTopic(CacheChannelTopic.TEMPLATE_TOPIC.getValue())
         );
         return container;

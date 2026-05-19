@@ -13,11 +13,11 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.DefaultMessage;
 
-@Import(value = {TemplateCacheEventListener.class})
-class TemplateCacheEventListenerTest extends DatabaseSliceTest {
+@Import(value = {TemplateCacheInvalidationEventListener.class})
+class TemplateCacheInvalidationEventListenerTest extends DatabaseSliceTest {
 
     @Autowired
-    private TemplateCacheEventListener eventListener;
+    private TemplateCacheInvalidationEventListener eventListener;
 
     @Autowired
     private CacheManager cacheManager;
